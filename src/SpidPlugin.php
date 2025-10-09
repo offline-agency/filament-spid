@@ -68,6 +68,7 @@ class SpidPlugin implements Plugin
     {
         /** @var static $plugin */
         $plugin = filament(app(static::class)->getId());
+
         return $plugin;
     }
 
