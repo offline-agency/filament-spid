@@ -85,17 +85,17 @@ it('registers routes with panel path prefix', function () {
 it('can get plugin instance using get method', function () {
     // Set up a fake Filament panel with the SPID plugin
     $panel = $this->setupFakeFilamentPanelWithPlugin();
-    
+
     // The get() method should exist and be callable
     expect(method_exists(SpidPlugin::class, 'get'))->toBeTrue();
-    
+
     // Set the current panel context for the filament() helper
     \Filament\Facades\Filament::setCurrentPanel($panel);
-    
+
     // Now we can test the get() method properly with a panel set up
     $retrievedPlugin = SpidPlugin::get();
     expect($retrievedPlugin)->toBeInstanceOf(SpidPlugin::class);
-    
+
     // Verify it's the same plugin instance
     $originalPlugin = SpidPlugin::make();
     expect($retrievedPlugin->getId())->toBe($originalPlugin->getId());

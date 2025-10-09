@@ -88,7 +88,7 @@ it('can be used as a Filament page', function () {
 
     // Test that it has the required methods for Filament
     expect(method_exists($page, 'getView'))->toBeTrue();
-    
+
     $view = $page->getView();
 
     expect($view)->toBeString()

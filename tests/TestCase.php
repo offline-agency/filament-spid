@@ -101,7 +101,7 @@ class TestCase extends Orchestra
     protected function setupFakeFilamentPanelWithPlugin(): Panel
     {
         $panel = $this->setupFakeFilamentPanel();
-        
+
         // Register the SPID plugin with the panel
         $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::make();
         $panel->plugin($plugin);
