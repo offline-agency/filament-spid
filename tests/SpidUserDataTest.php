@@ -54,7 +54,7 @@ it('creates instance from SPID auth data with all fields', function () {
         'placeOfBirth' => 'Rome',
         'dateOfBirth' => '1980-01-01',
         'gender' => 'M',
-        'extra' => 'data'
+        'extra' => 'data',
     ];
 
     $spidData = SpidUserData::fromSpidAuth($spidUser);
@@ -74,7 +74,7 @@ it('creates instance from SPID auth data with missing optional fields', function
     $spidUser = [
         'fiscalNumber' => 'RSSMRA80A01H501U',
         'name' => 'Mario',
-        'familyName' => 'Rossi'
+        'familyName' => 'Rossi',
     ];
 
     $spidData = SpidUserData::fromSpidAuth($spidUser);
@@ -99,7 +99,7 @@ it('creates instance from SPID auth data with empty optional fields', function (
         'spidCode' => '',
         'placeOfBirth' => '',
         'dateOfBirth' => '',
-        'gender' => ''
+        'gender' => '',
     ];
 
     $spidData = SpidUserData::fromSpidAuth($spidUser);
@@ -117,10 +117,10 @@ it('creates instance from SPID auth data with empty optional fields', function (
 it('throws exception when fiscalNumber is missing', function () {
     $spidUser = [
         'name' => 'Mario',
-        'familyName' => 'Rossi'
+        'familyName' => 'Rossi',
     ];
 
-    expect(fn() => SpidUserData::fromSpidAuth($spidUser))
+    expect(fn () => SpidUserData::fromSpidAuth($spidUser))
         ->toThrow(InvalidArgumentException::class, 'fiscalNumber is required');
 });
 
@@ -146,7 +146,7 @@ it('converts to array correctly', function () {
         'spidCode' => 'SPID123',
         'placeOfBirth' => 'Rome',
         'dateOfBirth' => '1980-01-01',
-        'gender' => 'M'
+        'gender' => 'M',
     ]);
 });
 
@@ -167,7 +167,7 @@ it('converts to array with null values', function () {
         'spidCode' => null,
         'placeOfBirth' => null,
         'dateOfBirth' => null,
-        'gender' => null
+        'gender' => null,
     ]);
 });
 
@@ -190,7 +190,7 @@ it('converts to JSON correctly', function () {
             'spidCode' => null,
             'placeOfBirth' => null,
             'dateOfBirth' => null,
-            'gender' => null
+            'gender' => null,
         ]);
 });
 
