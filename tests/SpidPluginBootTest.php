@@ -88,7 +88,7 @@ it('can get plugin instance using get method', function () {
 
     // The get() method should exist and be callable
     expect(method_exists(SpidPlugin::class, 'get'))->toBeTrue();
-    
+
     // In test environment, this may fail due to missing Filament panel setup
     // We'll test that the method exists and can be called, but expect it to fail
     // in the test environment since there's no current panel
