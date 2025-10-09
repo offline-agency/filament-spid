@@ -9,6 +9,8 @@ SPID (Sistema Pubblico di Identità Digitale) authentication plugin for Filament
 
 This package allows you to integrate SPID authentication into your Filament admin panels, enabling Italian public administration identity management.
 
+![Filament SPID Banner](https://banners.beyondco.de/Filament%20Spid.png?theme=dark&packageManager=composer+require&packageName=offline-agency%2Ffilament-spid&pattern=eyes&style=style_1&description=Filament+plugin+for+SPID+authentication+in+Laravel.&md=1&showWatermark=0&fontSize=100px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
+
 ## Features
 
 - 🇮🇹 Full SPID integration for Filament
