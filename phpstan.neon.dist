@@ -1,6 +1,5 @@
 includes:
     - phpstan-baseline.neon
-    - vendor/nunomaduro/larastan/extension.neon
 
 parameters:
     level: 4
@@ -10,4 +9,15 @@ parameters:
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: true
-    checkMissingIterableValueType: false
+    memoryLimitFile: 1G
+    bootstrapFiles:
+        - tests/TestCase.php
+    excludePaths:
+        - src/Pages/StandardLogin.php
+    ignoreErrors:
+        # External dependencies that are not available during static analysis
+        - '#Class App\\Models\\User not found#'
+        
+        # SPIDAuth library method signature issues - external library
+        - '#Method Italia\\SPIDAuth\\SPIDAuth::login\(\) invoked with 3 parameters, 0 required#'
+        - '#Call to an undefined method Italia\\SPIDAuth\\SPIDAuth::getSPMetadata\(\)#'

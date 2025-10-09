@@ -59,7 +59,7 @@ class SpidController extends Controller
     /**
      * Initiate SPID login
      */
-    public function login(SpidLoginRequest $request): RedirectResponse
+    public function login(SpidLoginRequest $request): Response|RedirectResponse
     {
         $provider = $request->validated('provider');
         $level = $request->input('level', config('filament-spid.spid_level', 'https://www.spid.gov.it/SpidL2'));
