@@ -5,7 +5,7 @@ use OfflineAgency\FilamentSpid\SpidPlugin;
 
 it('registers routes when registerRoutes is true', function () {
     $plugin = SpidPlugin::make()->registerRoutes(true);
-    $panel = Panel::make()->id('admin');
+    $panel = $this->setupFakeFilamentPanel();
 
     $plugin->boot($panel);
 
@@ -22,7 +22,7 @@ it('registers routes when registerRoutes is true', function () {
 
 it('does not register routes when registerRoutes is false', function () {
     $plugin = SpidPlugin::make()->registerRoutes(false);
-    $panel = Panel::make()->id('admin');
+    $panel = $this->setupFakeFilamentPanel();
 
     $plugin->boot($panel);
 
@@ -46,7 +46,7 @@ it('uses custom route names when configured', function () {
         ->providersRoute('custom.providers')
         ->registerRoutes(true);
 
-    $panel = Panel::make()->id('admin');
+    $panel = $this->setupFakeFilamentPanel();
     $plugin->boot($panel);
 
     // Check that custom route names are used
@@ -62,7 +62,7 @@ it('uses custom route names when configured', function () {
 
 it('registers routes with panel path prefix', function () {
     $plugin = SpidPlugin::make()->registerRoutes(true);
-    $panel = Panel::make()->id('admin')->path('admin');
+    $panel = $this->setupFakeFilamentPanel();
 
     $plugin->boot($panel);
 
@@ -83,27 +83,27 @@ it('registers routes with panel path prefix', function () {
 });
 
 it('can get plugin instance using get method', function () {
-    // This tests the static get() method
-    $plugin = SpidPlugin::make();
-
+    // Set up a fake Filament panel with the SPID plugin
+    $panel = $this->setupFakeFilamentPanelWithPlugin();
+    
     // The get() method should exist and be callable
     expect(method_exists(SpidPlugin::class, 'get'))->toBeTrue();
     
-    // In test environment, this may fail due to missing Filament panel setup
-    // We'll test that the method exists and can be called, but expect it to fail
-    // in the test environment since there's no current panel
-    try {
-        $retrievedPlugin = SpidPlugin::get();
-        expect($retrievedPlugin)->toBeInstanceOf(SpidPlugin::class);
-    } catch (\Exception $e) {
-        // This is expected in test environment due to missing Filament panel
-        expect($e->getMessage())->toContain('No default Filament panel is set');
-    }
+    // Set the current panel context for the filament() helper
+    \Filament\Facades\Filament::setCurrentPanel($panel);
+    
+    // Now we can test the get() method properly with a panel set up
+    $retrievedPlugin = SpidPlugin::get();
+    expect($retrievedPlugin)->toBeInstanceOf(SpidPlugin::class);
+    
+    // Verify it's the same plugin instance
+    $originalPlugin = SpidPlugin::make();
+    expect($retrievedPlugin->getId())->toBe($originalPlugin->getId());
 });
 
 it('registers login page with panel', function () {
     $plugin = SpidPlugin::make();
-    $panel = Panel::make()->id('admin');
+    $panel = $this->setupFakeFilamentPanel();
 
     $plugin->register($panel);
 
@@ -117,7 +117,7 @@ it('can chain configuration and boot', function () {
         ->logoutRoute('custom.logout')
         ->registerRoutes(true);
 
-    $panel = Panel::make()->id('admin');
+    $panel = $this->setupFakeFilamentPanel();
     $plugin->register($panel);
     $plugin->boot($panel);
 
