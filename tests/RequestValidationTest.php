@@ -138,5 +138,3 @@ it('validates provider against active providers only', function () {
     $response->assertRedirect();
     $response->assertSessionHasErrors(['provider']);
 });
-
-

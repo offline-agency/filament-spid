@@ -8,4 +8,3 @@ class StandardLogin extends BaseLogin
 {
     protected static string $view = 'filament-panels::pages.auth.login';
 }
-

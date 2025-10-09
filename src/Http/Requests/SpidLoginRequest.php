@@ -49,5 +49,3 @@ class SpidLoginRequest extends FormRequest
         ];
     }
 }
-
-

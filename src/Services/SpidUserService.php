@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Services;
@@ -54,6 +55,7 @@ class SpidUserService
     {
         if ($callback = config('filament-spid.update_user_callback')) {
             $callback($user, $spidData);
+
             return;
         }
 
@@ -71,5 +73,3 @@ class SpidUserService
         $user->update($data);
     }
 }
-
-

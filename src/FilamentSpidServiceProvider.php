@@ -28,7 +28,7 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
     public function packageRegistered(): void
     {
         $this->app->bind(\Italia\SPIDAuth\SPIDAuth::class, function () {
-            return new \Italia\SPIDAuth\SPIDAuth();
+            return new \Italia\SPIDAuth\SPIDAuth;
         });
     }
 

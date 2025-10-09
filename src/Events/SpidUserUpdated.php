@@ -13,8 +13,5 @@ class SpidUserUpdated
     public function __construct(
         public readonly Authenticatable $user,
         public readonly SpidUserData $spidData,
-    ) {
-    }
+    ) {}
 }
-
-

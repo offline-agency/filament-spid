@@ -10,8 +10,5 @@ class SpidAuthenticationFailed
 
     public function __construct(
         public readonly string $reason,
-    ) {
-    }
+    ) {}
 }
-
-
