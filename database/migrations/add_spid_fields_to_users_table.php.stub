@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            if (!Schema::hasColumn('users', 'fiscal_code')) {
+                $table->string('fiscal_code')->unique()->nullable()->after('email');
+            }
+            
+            if (!Schema::hasColumn('users', 'spid_data')) {
+                $table->json('spid_data')->nullable()->after('fiscal_code');
+            }
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['fiscal_code', 'spid_data']);
+        });
+    }
+};
