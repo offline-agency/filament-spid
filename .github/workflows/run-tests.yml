@@ -64,9 +64,18 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: |
+          echo "=== PHP Version ==="
           php --version
+          echo "=== Checking Sodium ==="
           php -m | grep -i sodium || echo "Sodium not available"
-          composer test
+          echo "=== Test Directory ==="
+          ls -la tests/ || echo "No tests directory"
+          echo "=== Pest Configuration ==="
+          cat tests/Pest.php || echo "No Pest.php found"
+          echo "=== PHPUnit Configuration ==="
+          cat phpunit.xml || cat phpunit.xml.dist || echo "No PHPUnit configuration found"
+          echo "=== Running Tests ==="
+          vendor/bin/pest
 
   coverage:
     runs-on: ubuntu-latest
