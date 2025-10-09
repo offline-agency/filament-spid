@@ -9,12 +9,12 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        php: [8.3, 8.2]
+        php: [8.4,8.3, 8.2]
         laravel: [11.*, 10.*]
         stability: [prefer-stable]
         include:
@@ -51,13 +51,20 @@ jobs:
       - name: List Installed Dependencies
         run: composer show -D
 
+      - name: Prepare Laravel Application
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
       - name: Execute tests
-        run: vendor/bin/pest --ci
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: vendor/bin/pest --ci --parallel --processes=2
 
   coverage:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
+    timeout-minutes: 10
     name: Coverage
 
     steps:
@@ -74,7 +81,15 @@ jobs:
       - name: Install dependencies
         run: composer update --prefer-stable --prefer-dist --no-interaction
 
+      - name: Prepare Laravel Application
+        run: |
+          mkdir -p database build/logs
+          touch database/database.sqlite
+
       - name: Execute tests with coverage
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
         run: vendor/bin/pest --coverage --min=80
 
       - name: Upload coverage to Codecov
