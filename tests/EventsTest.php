@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Event;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
-use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
 
 it('dispatches SpidAuthenticationFailed when not authenticated after ACS', function () {
@@ -29,7 +28,7 @@ it('SpidAuthenticationFailed event has reason property', function () {
 });
 
 it('SpidUserCreated event can be instantiated', function () {
-    $user = new \Illuminate\Foundation\Auth\User();
+    $user = new \Illuminate\Foundation\Auth\User;
     $spidData = new \OfflineAgency\FilamentSpid\DTOs\SpidUserData(
         fiscalNumber: 'RSSMRA80A01H501U',
         name: 'Mario',
@@ -43,7 +42,7 @@ it('SpidUserCreated event can be instantiated', function () {
 });
 
 it('SpidUserUpdated event can be instantiated', function () {
-    $user = new \Illuminate\Foundation\Auth\User();
+    $user = new \Illuminate\Foundation\Auth\User;
     $spidData = new \OfflineAgency\FilamentSpid\DTOs\SpidUserData(
         fiscalNumber: 'RSSMRA80A01H501U',
         name: 'Mario',
@@ -57,7 +56,7 @@ it('SpidUserUpdated event can be instantiated', function () {
 });
 
 it('SpidAuthenticationSucceeded event can be instantiated', function () {
-    $user = new \Illuminate\Foundation\Auth\User();
+    $user = new \Illuminate\Foundation\Auth\User;
     $spidData = new \OfflineAgency\FilamentSpid\DTOs\SpidUserData(
         fiscalNumber: 'RSSMRA80A01H501U',
         name: 'Mario',
@@ -75,5 +74,3 @@ it('SpidAuthenticationFailed event can be instantiated', function () {
 
     expect($event->reason)->toBe('Test error message');
 });
-
-

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\DTOs;
@@ -18,8 +19,7 @@ class SpidUserData implements Arrayable, Jsonable
         public readonly ?string $dateOfBirth = null,
         public readonly ?string $gender = null,
         public readonly ?array $rawData = null,
-    ) {
-    }
+    ) {}
 
     public static function fromSpidAuth(array $spidUser): self
     {
@@ -55,5 +55,3 @@ class SpidUserData implements Arrayable, Jsonable
         return json_encode($this->toArray(), $options);
     }
 }
-
-

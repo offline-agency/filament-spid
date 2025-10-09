@@ -1,25 +1,27 @@
 <?php
+
 declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
-use OfflineAgency\FilamentSpid\Services\SpidUserService;
 use OfflineAgency\FilamentSpid\Http\Requests\SpidLoginRequest;
-use Italia\SPIDAuth\SPIDAuth;
-use Illuminate\Support\Facades\Cache;
+use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
 class SpidController extends Controller
 {
     protected SPIDAuth $spid;
+
     protected SpidUserService $userService;
 
     public function __construct(SPIDAuth $spid, SpidUserService $userService)
@@ -47,6 +49,7 @@ class SpidController extends Controller
                     ];
                 }
             }
+
             return $list;
         });
 
@@ -88,6 +91,7 @@ class SpidController extends Controller
 
             if (! $this->spid->isAuthenticated()) {
                 event(new SpidAuthenticationFailed('Not authenticated after ACS'));
+
                 return redirect()
                     ->route('filament.admin.auth.login')
                     ->with('error', __('filament-spid::spid.authentication_failed'));

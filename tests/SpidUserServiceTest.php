@@ -252,5 +252,3 @@ it('dispatches SpidUserUpdated event when updating user', function () {
 
     Event::assertDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserUpdated::class);
 });
-
-

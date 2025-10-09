@@ -13,4 +13,3 @@ class SpidLogin extends SimplePage
         return __('filament-spid::spid.login_with_spid');
     }
 }
-

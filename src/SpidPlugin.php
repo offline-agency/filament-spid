@@ -49,7 +49,7 @@ class SpidPlugin implements Plugin
         if ($this->registerRoutes) {
             \Route::middleware(['web'])
                 ->prefix($panel->getPath())
-                ->group(function () use ($panel) {
+                ->group(function () {
                     \Route::get('/spid/login', [SpidController::class, 'login'])->name($this->loginRoute);
                     \Route::get('/spid/providers', [SpidController::class, 'providers'])->name($this->providersRoute);
                     \Route::post('/spid/logout', [SpidController::class, 'logout'])->name($this->logoutRoute);
