@@ -6,7 +6,10 @@ use Filament\Pages\SimplePage;
 
 class SpidLogin extends SimplePage
 {
-    protected string $view = 'filament-spid::login';
+    public function getView(): string
+    {
+        return 'filament-spid::login';
+    }
 
     public function getHeading(): string
     {

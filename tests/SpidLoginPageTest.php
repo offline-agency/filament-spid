@@ -17,11 +17,7 @@ it('extends SimplePage', function () {
 it('has correct view property', function () {
     $page = new SpidLogin;
 
-    // Use reflection to access protected property
-    $reflection = new ReflectionClass($page);
-    $viewProperty = $reflection->getProperty('view');
-    $viewProperty->setAccessible(true);
-    $view = $viewProperty->getValue($page);
+    $view = $page->getView();
 
     expect($view)->toBe('filament-spid::login');
 });
@@ -141,10 +137,7 @@ it('maintains Filament page contract', function () {
     expect($page->getTitle())->toBeString();
 
     // Test that the view is properly set
-    $reflection = new ReflectionClass($page);
-    $viewProperty = $reflection->getProperty('view');
-    $viewProperty->setAccessible(true);
-    $view = $viewProperty->getValue($page);
+    $view = $page->getView();
 
     expect($view)->toBeString()
         ->and($view)->toContain('filament-spid');
