@@ -63,7 +63,7 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: vendor/bin/pest --ci --parallel --processes=2
+        run: composer test
 
   coverage:
     runs-on: ubuntu-latest
@@ -96,7 +96,7 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: vendor/bin/pest --coverage --min=80 --coverage-clover=build/logs/coverage.xml
+        run: composer test-coverage -- --min=80 --coverage-clover=build/logs/coverage.xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
