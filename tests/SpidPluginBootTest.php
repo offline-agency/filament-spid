@@ -86,14 +86,18 @@ it('can get plugin instance using get method', function () {
     // This tests the static get() method
     $plugin = SpidPlugin::make();
 
-    // The get() method should return an instance (may fail in test environment)
+    // The get() method should exist and be callable
+    expect(method_exists(SpidPlugin::class, 'get'))->toBeTrue();
+    
+    // In test environment, this may fail due to missing Filament panel setup
+    // We'll test that the method exists and can be called, but expect it to fail
+    // in the test environment since there's no current panel
     try {
         $retrievedPlugin = SpidPlugin::get();
         expect($retrievedPlugin)->toBeInstanceOf(SpidPlugin::class);
     } catch (\Exception $e) {
-        // In test environment, this may fail due to missing Filament setup
-        // Just verify the method exists and can be called
-        expect(method_exists(SpidPlugin::class, 'get'))->toBeTrue();
+        // This is expected in test environment due to missing Filament panel
+        expect($e->getMessage())->toContain('No default Filament panel is set');
     }
 });
 
