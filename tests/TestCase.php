@@ -9,6 +9,7 @@ use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
 use Filament\Infolists\InfolistsServiceProvider;
 use Filament\Notifications\NotificationsServiceProvider;
+use Filament\Panel;
 use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
@@ -75,5 +76,36 @@ class TestCase extends Orchestra
         // Run SPID migration
         $migration = include __DIR__.'/../database/migrations/add_spid_fields_to_users_table.php.stub';
         $migration->up();
+    }
+
+    /**
+     * Set up a fake Filament panel for testing
+     */
+    protected function setupFakeFilamentPanel(): Panel
+    {
+        $panel = Panel::make()
+            ->id('admin')
+            ->path('admin')
+            ->login(\OfflineAgency\FilamentSpid\Pages\SpidLogin::class)
+            ->default();
+
+        // Register the panel with Filament
+        \Filament\Facades\Filament::registerPanel($panel);
+
+        return $panel;
+    }
+
+    /**
+     * Set up a fake Filament panel with SPID plugin for testing
+     */
+    protected function setupFakeFilamentPanelWithPlugin(): Panel
+    {
+        $panel = $this->setupFakeFilamentPanel();
+
+        // Register the SPID plugin with the panel
+        $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::make();
+        $panel->plugin($plugin);
+
+        return $panel;
     }
 }

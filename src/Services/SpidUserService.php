@@ -17,7 +17,6 @@ class SpidUserService
         $userModel = config('spid-auth.user_model', \App\Models\User::class);
 
         return DB::transaction(function () use ($userModel, $spidData) {
-            /** @var \Illuminate\Database\Eloquent\Model&Authenticatable|null $user */
             $user = $userModel::where('fiscal_code', $spidData->fiscalNumber)->first();
 
             if (! $user && config('filament-spid.auto_create_users', true)) {

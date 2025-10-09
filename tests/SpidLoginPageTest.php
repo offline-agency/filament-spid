@@ -17,11 +17,7 @@ it('extends SimplePage', function () {
 it('has correct view property', function () {
     $page = new SpidLogin;
 
-    // Use reflection to access protected property
-    $reflection = new ReflectionClass($page);
-    $viewProperty = $reflection->getProperty('view');
-    $viewProperty->setAccessible(true);
-    $view = $viewProperty->getValue($page);
+    $view = $page->getView();
 
     expect($view)->toBe('filament-spid::login');
 });
@@ -90,11 +86,10 @@ it('can be used as a Filament page', function () {
     // Test that it can be used in a Filament context
     expect($page)->toBeInstanceOf(\Filament\Pages\SimplePage::class);
 
-    // Test that it has the required properties for Filament
-    $reflection = new ReflectionClass($page);
-    $viewProperty = $reflection->getProperty('view');
-    $viewProperty->setAccessible(true);
-    $view = $viewProperty->getValue($page);
+    // Test that it has the required methods for Filament
+    expect(method_exists($page, 'getView'))->toBeTrue();
+
+    $view = $page->getView();
 
     expect($view)->toBeString()
         ->and($view)->not->toBeEmpty();
@@ -141,10 +136,7 @@ it('maintains Filament page contract', function () {
     expect($page->getTitle())->toBeString();
 
     // Test that the view is properly set
-    $reflection = new ReflectionClass($page);
-    $viewProperty = $reflection->getProperty('view');
-    $viewProperty->setAccessible(true);
-    $view = $viewProperty->getValue($page);
+    $view = $page->getView();
 
     expect($view)->toBeString()
         ->and($view)->toContain('filament-spid');
@@ -161,10 +153,7 @@ it('can be used in panel configuration', function () {
     expect(method_exists($page, 'getView'))->toBeTrue();
 
     // Test that the view is a valid Blade view path
-    $reflection = new ReflectionClass($page);
-    $viewProperty = $reflection->getProperty('view');
-    $viewProperty->setAccessible(true);
-    $view = $viewProperty->getValue($page);
+    $view = $page->getView();
 
     expect($view)->toContain('::');
 });
