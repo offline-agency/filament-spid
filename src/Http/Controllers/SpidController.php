@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Http\Controllers;
 
+use Filament\Facades\Filament;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -102,7 +103,9 @@ class SpidController extends Controller
 
             $user = $this->userService->findOrCreateUser($spidData);
 
-            Auth::login($user);
+            $guard = optional(Filament::getCurrentPanel())->getAuthGuard() ?? config('auth.defaults.guard');
+            Auth::guard($guard)->login($user);
+            $request->session()->regenerate();
 
             event(new SpidAuthenticationSucceeded($user, $spidData));
 
