@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Http\Controllers;
 
+use Filament\Facades\Filament;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,7 +12,6 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Filament\Facades\Filament;
 use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;

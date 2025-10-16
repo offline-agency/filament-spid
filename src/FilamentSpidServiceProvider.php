@@ -30,7 +30,7 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
         $this->app->bind(\Italia\SPIDAuth\SPIDAuth::class, function () {
             return new \Italia\SPIDAuth\SPIDAuth;
         });
-        
+
         // Register custom CSRF middleware
         $this->app->singleton(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class, function () {
             return new \OfflineAgency\FilamentSpid\Http\Middleware\VerifyCsrfToken;
