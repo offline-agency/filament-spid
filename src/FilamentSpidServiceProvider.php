@@ -31,9 +31,11 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
             return new \Italia\SPIDAuth\SPIDAuth;
         });
 
-        // Register custom CSRF middleware
-        $this->app->singleton(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class, function () {
-            return new \OfflineAgency\FilamentSpid\Http\Middleware\VerifyCsrfToken;
+        // Register custom CSRF middleware with proper dependencies (avoid singleton for Octane compatibility)
+        $this->app->bind(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class, function ($app) {
+            return new \OfflineAgency\FilamentSpid\Http\Middleware\VerifyCsrfToken(
+                $app, $app->make(\Illuminate\Contracts\Encryption\Encrypter::class)
+            );
         });
     }
 
