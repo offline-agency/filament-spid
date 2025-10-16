@@ -9,6 +9,18 @@
         {{ __('filament-spid::spid.select_provider') }}
     </x-slot>
 
+    @if (session('error'))
+        <div class="rounded-md bg-red-50 p-4 mb-6">
+            <div class="flex">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800">
+                        {{ session('error') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="space-y-8">
         <!-- Filament-compatible SPID Button -->
         <div class="flex justify-center items-center w-full">

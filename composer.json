@@ -24,7 +24,7 @@
         "php": "^8.2",
         "filament/filament": "^3.0|^4.0",
         "illuminate/contracts": "^10.0|^11.0|^12.0",
-        "italia/spid-laravel": "^2.0",
+        "italia/spid-laravel": "dev-fix/optimize-error",
         "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {

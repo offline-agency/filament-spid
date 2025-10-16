@@ -11,6 +11,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Filament\Facades\Filament;
 use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
@@ -102,7 +103,9 @@ class SpidController extends Controller
 
             $user = $this->userService->findOrCreateUser($spidData);
 
-            Auth::login($user);
+            $guard = optional(Filament::getCurrentPanel())->getAuthGuard() ?? config('auth.defaults.guard');
+            Auth::guard($guard)->login($user);
+            $request->session()->regenerate();
 
             event(new SpidAuthenticationSucceeded($user, $spidData));
 
