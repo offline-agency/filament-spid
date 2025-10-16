@@ -80,7 +80,7 @@ it('acs logs in user and redirects when authenticated', function () {
     $this->app->instance(SPIDAuth::class, $spidMock);
 
     $userServiceMock = m::mock(SpidUserService::class);
-    $user = new FoundationUser();
+    $user = new FoundationUser;
     $user->id = 1;
     $userServiceMock->shouldReceive('findOrCreateUser')->once()->andReturn($user);
     $this->app->instance(SpidUserService::class, $userServiceMock);
@@ -148,5 +148,3 @@ it('metadata returns xml on success', function () {
     $response->assertStatus(200);
     expect($response->headers->get('Content-Type'))->toContain('xml');
 });
-
-
