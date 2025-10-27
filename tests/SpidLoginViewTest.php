@@ -36,18 +36,19 @@ it('has AGID logo with correct styling and centering', function () {
     $viewPath = __DIR__.'/../resources/views/login.blade.php';
     $content = File::get($viewPath);
 
-    // Check for the AGID logo SVG
-    expect($content)->toContain('AGID');
-    expect($content)->toContain('Agenzia per l\'Italia Digitale');
+    // Check for the AGID logo image
+    expect($content)->toContain('AGID Logo');
+    expect($content)->toContain('alt="AGID Logo"');
     expect($content)->toContain('class="h-16 w-auto opacity-70 mx-auto flex items-center justify-center"');
     
     // Check for proper centering classes
     expect($content)->toContain('flex justify-center items-center');
     
-    // Check for SVG styling
+    // Check for image styling
     expect($content)->toContain('style="max-width: 200px; height: 64px;"');
-    expect($content)->toContain('<svg');
-    expect($content)->toContain('viewBox="0 0 160 64"');
+    expect($content)->toContain('<img');
+    expect($content)->toContain('src="{{ asset(\'vendor/filament-spid/images/spid-agid-logo.png\') }}"');
+    expect($content)->toContain('class="h-full w-auto object-contain"');
 });
 
 it('AGID logo image URL returns 200 status code', function () {
@@ -55,7 +56,7 @@ it('AGID logo image URL returns 200 status code', function () {
     $app = $this->createApplication();
     
     // Get the asset URL for the AGID logo
-    $imageUrl = asset('images/spid-agid-logo.png');
+    $imageUrl = asset('vendor/filament-spid/images/spid-agid-logo.png');
     
     // Make a request to the image URL
     $response = $this->get($imageUrl);
