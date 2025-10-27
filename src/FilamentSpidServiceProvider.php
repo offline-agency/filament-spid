@@ -61,6 +61,12 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
             $spidVendorConfigPath.'/spid-idps.php' => $appConfigPath.'/spid-idps.php',
         ], 'filament-spid-config');
 
+        // Publish images
+        $this->publishes([
+            __DIR__.'/../resources/images' => public_path('vendor/filament-spid/images'),
+            __DIR__.'/../resources/images' => public_path('images'),
+        ], 'filament-spid-images');
+
         // Auto-copy on first boot if missing (idempotent)
         try {
             /** @var Filesystem $files */

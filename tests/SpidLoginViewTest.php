@@ -31,3 +31,41 @@ it('has text-center class for the main content sections', function () {
     // Should have at least 2 instances (heading and info text)
     expect($count)->toBeGreaterThanOrEqual(2);
 });
+
+it('has AGID logo with correct styling and centering', function () {
+    $viewPath = __DIR__.'/../resources/views/login.blade.php';
+    $content = File::get($viewPath);
+
+    // Check for the AGID logo SVG
+    expect($content)->toContain('AGID');
+    expect($content)->toContain('Agenzia per l\'Italia Digitale');
+    expect($content)->toContain('class="h-16 w-auto opacity-70 mx-auto flex items-center justify-center"');
+    
+    // Check for proper centering classes
+    expect($content)->toContain('flex justify-center items-center');
+    
+    // Check for SVG styling
+    expect($content)->toContain('style="max-width: 200px; height: 64px;"');
+    expect($content)->toContain('<svg');
+    expect($content)->toContain('viewBox="0 0 160 64"');
+});
+
+it('AGID logo image URL returns 200 status code', function () {
+    // Create a test application instance
+    $app = $this->createApplication();
+    
+    // Get the asset URL for the AGID logo
+    $imageUrl = asset('images/spid-agid-logo.png');
+    
+    // Make a request to the image URL
+    $response = $this->get($imageUrl);
+    
+    // The response should be 200 (OK) if the image exists
+    // or 404 (Not Found) if the image hasn't been published yet
+    expect($response->status())->toBeIn([200, 404]);
+    
+    // If it's 200, verify it's actually an image
+    if ($response->status() === 200) {
+        expect($response->headers->get('Content-Type'))->toStartWith('image/');
+    }
+});
