@@ -9,7 +9,6 @@ parameters:
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: true
-    memoryLimitFile: 1G
     bootstrapFiles:
         - tests/TestCase.php
     excludePaths:
@@ -21,3 +20,6 @@ parameters:
         # SPIDAuth library method signature issues - external library
         - '#Method Italia\\SPIDAuth\\SPIDAuth::login\(\) invoked with 3 parameters, 0 required#'
         - '#Call to an undefined method Italia\\SPIDAuth\\SPIDAuth::getSPMetadata\(\)#'
+        
+        # Config files are allowed to use env() calls
+        - '#Called .*env.*outside of the config directory#'

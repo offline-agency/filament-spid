@@ -62,4 +62,16 @@
             </p>
         </div>
     </div>
+
+    <!-- Footer with AGID logo -->
+    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex justify-center items-center">
+            <!-- AGID Logo as image -->
+            <div class="h-16 w-auto opacity-70 mx-auto flex items-center justify-center" style="max-width: 200px; height: 64px;">
+                <img src="{{ asset('vendor/filament-spid/images/spid-agid-logo.png') }}" 
+                     alt="AGID Logo" 
+                     class="h-full w-auto object-contain">
+            </div>
+        </div>
+    </div>
 </x-filament-panels::page.simple>

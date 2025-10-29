@@ -55,6 +55,28 @@ Optionally, you can publish the views:
 php artisan vendor:publish --tag="filament-spid-views"
 ```
 
+### Publishing Images
+
+To publish the SPID AGID logo images to your public directory:
+
+```bash
+php artisan vendor:publish --tag="filament-spid-images"
+```
+
+This will copy the SPID AGID logo images (both PNG and SVG formats) to:
+- `public/vendor/filament-spid/images/`
+- `public/images/`
+
+The images will be accessible at:
+- `/vendor/filament-spid/images/spid-agid-logo.png`
+- `/vendor/filament-spid/images/spid-agid-logo.svg`
+
+Alternatively, you can use the provided script in the package root:
+
+```bash
+./publish-images.sh
+```
+
 ## SPID Configuration
 
 First, configure the base SPID Laravel package. Follow the [italia/spid-laravel documentation](https://github.com/italia/spid-laravel) to:
