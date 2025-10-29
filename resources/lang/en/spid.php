@@ -9,5 +9,8 @@ return [
     'acs_error' => 'Error handling SPID response',
     'standard_login' => 'Login with credentials',
     'info_text' => 'Login with your SPID digital identity',
+    'more_info' => 'More information about SPID',
+    'no_spid' => 'Don\'t have SPID?',
+    'need_help' => 'Need help?',
     'logout' => 'Logout from SPID',
 ];
