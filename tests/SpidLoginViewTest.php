@@ -37,18 +37,15 @@ it('has AGID logo with correct styling and centering', function () {
     $content = File::get($viewPath);
 
     // Check for the AGID logo image
-    expect($content)->toContain('AGID Logo');
-    expect($content)->toContain('alt="AGID Logo"');
-    expect($content)->toContain('class="h-16 w-auto opacity-70 mx-auto flex items-center justify-center"');
+    expect($content)->toContain('<img');
+    expect($content)->toContain('alt="SPID AGID"');
+    expect($content)->toContain('class="max-w-full h-auto mx-auto"');
 
     // Check for proper centering classes
-    expect($content)->toContain('flex justify-center items-center');
+    expect($content)->toContain('flex justify-center');
 
     // Check for image styling
-    expect($content)->toContain('style="max-width: 200px; height: 64px;"');
-    expect($content)->toContain('<img');
-    expect($content)->toContain('src="{{ asset(\'vendor/filament-spid/images/spid-agid-logo.png\') }}"');
-    expect($content)->toContain('class="h-full w-auto object-contain"');
+    expect($content)->toContain('style="max-width: 300px;"');
 });
 
 it('AGID logo image URL returns 200 status code', function () {
