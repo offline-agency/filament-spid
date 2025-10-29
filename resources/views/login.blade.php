@@ -43,12 +43,12 @@
                 {{ __('filament-spid::spid.need_help') }}
             </a>
             <br>
-            
+
             <!-- SPID-AGID Logo -->
             <div class="flex justify-center" style="margin-top: 5px;">
-                <img 
-                    alt="SPID AGID" 
-                    class="max-w-full h-auto mx-auto" 
+                <img
+                    alt="SPID AGID"
+                    class="max-w-full h-auto mx-auto"
                     src="https://cdn.inpa.gov.it/concorsismart/9.11.1-GA/assets/img/authentication/spid-agid.png"
                     style="max-width: 300px;"
                 >
@@ -60,18 +60,6 @@
             <p class="text-sm text-gray-600 dark:text-gray-400">
                 {{ __('filament-spid::spid.info_text') }}
             </p>
-        </div>
-    </div>
-
-    <!-- Footer with AGID logo -->
-    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex justify-center items-center">
-            <!-- AGID Logo as image -->
-            <div class="h-16 w-auto opacity-70 mx-auto flex items-center justify-center" style="max-width: 200px; height: 64px;">
-                <img src="{{ asset('vendor/filament-spid/images/spid-agid-logo.png') }}" 
-                     alt="AGID Logo" 
-                     class="h-full w-auto object-contain">
-            </div>
         </div>
     </div>
 </x-filament-panels::page.simple>
