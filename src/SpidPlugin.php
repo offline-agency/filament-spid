@@ -41,12 +41,23 @@ class SpidPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->login(SpidLogin::class);
+        if (config('filament-spid.enabled', true)) {
+            $panel->login(SpidLogin::class);
+        }
     }
 
     public function boot(Panel $panel): void
     {
-        if ($this->registerRoutes) {
+        if ($this->registerRoutes && config('filament-spid.enabled', true)) {
+            // Override the library's after_login_url so it redirects to our post-login handler
+            // after it has finished SAML validation and stored the SPID user in session.
+            // Also store the panel guard so afterLogin() can authenticate against the right guard.
+            config([
+                'spid-auth.after_login_url' => url($panel->getPath().'/spid/after-login'),
+                'filament-spid.auth_guard'  => $panel->getAuthGuard(),
+                'filament-spid.panel_id'    => $panel->getId(),
+            ]);
+
             \Route::middleware(['web'])
                 ->prefix($panel->getPath())
                 ->group(function () {
@@ -55,6 +66,7 @@ class SpidPlugin implements Plugin
                     \Route::post('/spid/logout', [SpidController::class, 'logout'])->name($this->logoutRoute);
                     \Route::post('/spid/acs', [SpidController::class, 'acs'])->name($this->acsRoute);
                     \Route::get('/spid/metadata', [SpidController::class, 'metadata'])->name($this->metadataRoute);
+                    \Route::get('/spid/after-login', [SpidController::class, 'afterLogin'])->name('spid.after-login');
                 });
         }
     }

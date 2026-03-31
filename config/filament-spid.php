@@ -3,6 +3,17 @@
 return [
     /*
     |--------------------------------------------------------------------------
+    | Enable SPID Login
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable SPID authentication. When disabled, the standard
+    | Filament login page will be used instead of the SPID login page.
+    |
+    */
+    'enabled' => env('FILAMENT_SPID_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | User Model
     |--------------------------------------------------------------------------
     |

@@ -16,7 +16,6 @@ use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
-use OfflineAgency\FilamentSpid\Http\Requests\SpidLoginRequest;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
 class SpidController extends Controller
@@ -59,27 +58,14 @@ class SpidController extends Controller
 
     /**
      * Initiate SPID login
+     *
+     * Redirects to the Filament login page where the user can select a SPID provider.
+     * The actual SAML handshake is triggered by the provider button form posting to
+     * the `spid-auth_do-login` route provided by italia/spid-laravel.
      */
-    public function login(SpidLoginRequest $request): Response|RedirectResponse
+    public function login(): RedirectResponse
     {
-        $provider = $request->validated('provider');
-        $level = $request->input('level', config('filament-spid.spid_level', 'https://www.spid.gov.it/SpidL2'));
-
-        if (! $provider) {
-            return redirect()->back()->with('error', __('filament-spid::spid.provider_required'));
-        }
-
-        try {
-            return $this->spid->login(
-                $provider,
-                $level,
-                route('spid.acs')
-            );
-        } catch (\Exception $e) {
-            \Log::error('SPID Login Error: '.$e->getMessage());
-
-            return redirect()->back()->with('error', __('filament-spid::spid.login_error'));
-        }
+        return redirect()->route($this->loginRoute());
     }
 
     /**
@@ -94,8 +80,8 @@ class SpidController extends Controller
                 event(new SpidAuthenticationFailed('Not authenticated after ACS'));
 
                 return redirect()
-                    ->route('filament.admin.auth.login')
-                    ->with('error', __('filament-spid::spid.authentication_failed'));
+                    ->route($this->loginRoute())
+                    ->with('spid_error', __('filament-spid::spid.authentication_failed'));
             }
 
             $spidUser = $this->spid->getSPIDUser();
@@ -110,13 +96,27 @@ class SpidController extends Controller
             event(new SpidAuthenticationSucceeded($user, $spidData));
 
             return redirect()->intended(config('filament-spid.redirect_after_login', '/admin'));
+        } catch (\Italia\SPIDAuth\Exceptions\SPIDLoginAnomalyException $e) {
+            \Log::warning('SPID anomaly code '.$e->getErrorCode().': '.$e->getMessage());
+            event(new SpidAuthenticationFailed($e->getMessage()));
+
+            return redirect()
+                ->route($this->loginRoute())
+                ->with('spid_error', $this->resolveAnomalyMessage($e));
+        } catch (\Italia\SPIDAuth\Exceptions\SPIDLoginException $e) {
+            \Log::error('SPID login exception code '.$e->getCode().': '.$e->getMessage());
+            event(new SpidAuthenticationFailed($e->getMessage()));
+
+            return redirect()
+                ->route($this->loginRoute())
+                ->with('spid_error', $this->resolveSamlMessage($e));
         } catch (\Exception $e) {
             \Log::error('SPID ACS Error: '.$e->getMessage());
             event(new SpidAuthenticationFailed($e->getMessage()));
 
             return redirect()
-                ->route('filament.admin.auth.login')
-                ->with('error', __('filament-spid::spid.acs_error'));
+                ->route($this->loginRoute())
+                ->with('spid_error', __('filament-spid::spid.acs_error'));
         }
     }
 
@@ -131,12 +131,97 @@ class SpidController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('filament.admin.auth.login');
+            return redirect()->route($this->loginRoute());
         } catch (\Exception $e) {
             \Log::error('SPID Logout Error: '.$e->getMessage());
 
-            return redirect()->route('filament.admin.auth.login');
+            return redirect()->route($this->loginRoute());
         }
+    }
+
+    private function loginRoute(): string
+    {
+        $panelId = optional(Filament::getCurrentPanel())->getId() ?? 'admin';
+
+        return "filament.{$panelId}.auth.login";
+    }
+
+    /**
+     * Post-SAML login handler.
+     *
+     * Called after italia/spid-laravel finishes ACS processing and redirects here
+     * via spid-auth.after_login_url. The SPID user is already in session — no need
+     * to call $this->spid->acs() again.
+     */
+    public function afterLogin(Request $request): RedirectResponse
+    {
+        try {
+            if (! $this->spid->isAuthenticated()) {
+                event(new SpidAuthenticationFailed('Not authenticated after ACS'));
+
+                return redirect()
+                    ->route($this->loginRoute())
+                    ->with('spid_error', __('filament-spid::spid.authentication_failed'));
+            }
+
+            $spidUser = $this->spid->getSPIDUser();
+            $spidData = SpidUserData::fromSpidAuth($spidUser);
+
+            $user = $this->userService->findOrCreateUser($spidData);
+
+            $guard = config('filament-spid.auth_guard', config('auth.defaults.guard'));
+            Auth::guard($guard)->login($user);
+            $request->session()->regenerate();
+
+            event(new SpidAuthenticationSucceeded($user, $spidData));
+
+            return redirect()->intended(config('filament-spid.redirect_after_login', '/admin'));
+        } catch (\Italia\SPIDAuth\Exceptions\SPIDLoginAnomalyException $e) {
+            \Log::warning('SPID anomaly code '.$e->getErrorCode().': '.$e->getMessage());
+            event(new SpidAuthenticationFailed($e->getMessage()));
+
+            return redirect()
+                ->route($this->loginRoute())
+                ->with('spid_error', $this->resolveAnomalyMessage($e));
+        } catch (\Italia\SPIDAuth\Exceptions\SPIDLoginException $e) {
+            \Log::error('SPID login exception code '.$e->getCode().': '.$e->getMessage());
+            event(new SpidAuthenticationFailed($e->getMessage()));
+
+            return redirect()
+                ->route($this->loginRoute())
+                ->with('spid_error', $this->resolveSamlMessage($e));
+        } catch (\Exception $e) {
+            \Log::error('SPID After-Login Error: '.$e->getMessage());
+            event(new SpidAuthenticationFailed($e->getMessage()));
+
+            return redirect()
+                ->route($this->loginRoute())
+                ->with('spid_error', __('filament-spid::spid.acs_error'));
+        }
+    }
+
+    private function resolveAnomalyMessage(\Italia\SPIDAuth\Exceptions\SPIDLoginAnomalyException $e): string
+    {
+        $key = 'filament-spid::spid.error_'.$e->getErrorCode();
+        $translated = __($key);
+
+        // Fall back to the library's own user message when no translation exists
+        return $translated !== $key ? $translated : $e->getUserMessage();
+    }
+
+    private function resolveSamlMessage(\Italia\SPIDAuth\Exceptions\SPIDLoginException $e): string
+    {
+        $keyMap = [
+            0 => 'saml_validation_error',
+            1 => 'saml_response_already_processed',
+            2 => 'saml_authentication_error',
+            3 => 'saml_request_id_missing',
+            4 => 'saml_malformed_idp',
+            5 => 'saml_nonexistent_idp',
+        ];
+        $key = $keyMap[$e->getCode()] ?? 'acs_error';
+
+        return __("filament-spid::spid.{$key}");
     }
 
     /**

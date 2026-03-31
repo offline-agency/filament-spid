@@ -14,7 +14,7 @@
                      onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.png') }}'; this.onerror=null;" 
                      alt="" />
             </span>
-            <span class="italia-it-button-text">Entra con SPID</span>
+            <span class="italia-it-button-text">{{ __('filament-spid::spid.login_with_spid') }}</span>
         </a>
         
         <div id="spid-idp-button-{{ $size }}-post" class="spid-idp-button spid-idp-button-tip spid-idp-button-relative">
@@ -59,13 +59,13 @@
                 @endif
                 
                 <li class="spid-idp-support-link" data-spidlink="info">
-                    <a href="https://www.spid.gov.it">Maggiori informazioni</a>
+                    <a href="https://www.spid.gov.it">{{ __('filament-spid::spid.more_info') }}</a>
                 </li>
                 <li class="spid-idp-support-link" data-spidlink="rich">
-                    <a href="https://www.spid.gov.it/richiedi-spid">Non hai SPID?</a>
+                    <a href="https://www.spid.gov.it/richiedi-spid">{{ __('filament-spid::spid.no_spid') }}</a>
                 </li>
                 <li class="spid-idp-support-link" data-spidlink="help">
-                    <a href="https://www.spid.gov.it/serve-aiuto">Serve aiuto?</a>
+                    <a href="https://www.spid.gov.it/serve-aiuto">{{ __('filament-spid::spid.need_help') }}</a>
                 </li>
             </ul>
         </div>

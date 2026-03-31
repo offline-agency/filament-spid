@@ -14,7 +14,7 @@ class SpidUserService
 {
     public function findOrCreateUser(SpidUserData $spidData): ?Authenticatable
     {
-        $userModel = config('spid-auth.user_model', \App\Models\User::class);
+        $userModel = config('filament-spid.user_model', \App\Models\User::class);
 
         return DB::transaction(function () use ($userModel, $spidData) {
             $user = $userModel::where('fiscal_code', $spidData->fiscalNumber)->first();
@@ -37,7 +37,7 @@ class SpidUserService
             return $callback($spidData);
         }
 
-        $userModel = config('spid-auth.user_model');
+        $userModel = config('filament-spid.user_model', \App\Models\User::class);
         $mapping = config('filament-spid.field_mapping', []);
 
         $data = [];

@@ -8,7 +8,7 @@ class SpidLogin extends SimplePage
 {
     public function getView(): string
     {
-        return 'filament-spid::login';
+        return \OfflineAgency\FilamentSpid\SpidPlugin::get()->getLoginView();
     }
 
     public function getHeading(): string
