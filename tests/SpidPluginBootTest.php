@@ -111,6 +111,37 @@ it('registers login page with panel', function () {
     expect($plugin)->toBeInstanceOf(SpidPlugin::class);
 });
 
+it('does not register routes when filament-spid.enabled is false', function () {
+    \Illuminate\Support\Facades\Config::set('filament-spid.enabled', false);
+
+    $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::make()->registerRoutes(true);
+    $panel = $this->setupFakeFilamentPanel();
+
+    $plugin->boot($panel);
+
+    $routes = \Route::getRoutes();
+    $routeNames = collect($routes)->map(fn ($route) => $route->getName())->filter()->values()->toArray();
+
+    expect($routeNames)->not->toContain('spid.login')
+        ->and($routeNames)->not->toContain('spid.logout')
+        ->and($routeNames)->not->toContain('spid.acs')
+        ->and($routeNames)->not->toContain('spid.metadata')
+        ->and($routeNames)->not->toContain('spid.providers');
+});
+
+it('does not override panel login when filament-spid.enabled is false', function () {
+    \Illuminate\Support\Facades\Config::set('filament-spid.enabled', false);
+
+    $panel = $this->setupFakeFilamentPanel();
+    $originalLogin = $panel->getLoginRouteAction();
+
+    $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::make();
+    $plugin->register($panel);
+
+    // Login route action should remain unchanged
+    expect($panel->getLoginRouteAction())->toBe($originalLogin);
+});
+
 it('can chain configuration and boot', function () {
     $plugin = SpidPlugin::make()
         ->loginRoute('custom.login')

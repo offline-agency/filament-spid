@@ -231,6 +231,105 @@ it('dispatches SpidUserCreated event when creating user', function () {
     Event::assertDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserCreated::class);
 });
 
+it('does not dispatch any event when auto_create_users is false and user not found', function () {
+    Event::fake();
+    Config::set('filament-spid.auto_create_users', false);
+
+    $service = app(SpidUserService::class);
+
+    $spidData = new SpidUserData(
+        fiscalNumber: 'NOEVT123456789',
+        name: 'No',
+        familyName: 'Event',
+    );
+
+    $result = $service->findOrCreateUser($spidData);
+
+    expect($result)->toBeNull();
+    Event::assertNotDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserCreated::class);
+    Event::assertNotDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserUpdated::class);
+});
+
+it('does not dispatch SpidUserUpdated event when update_user_data is false', function () {
+    Event::fake();
+    Config::set('filament-spid.update_user_data', false);
+
+    $service = app(SpidUserService::class);
+
+    $spidData = new SpidUserData(
+        fiscalNumber: 'NOUPD123456789',
+        name: 'No',
+        familyName: 'Update',
+    );
+
+    // Create first (SpidUserCreated is dispatched here)
+    $service->findOrCreateUser($spidData);
+    Event::assertDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserCreated::class);
+
+    // Second call — update_user_data=false, so no SpidUserUpdated
+    $service->findOrCreateUser($spidData);
+    Event::assertNotDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserUpdated::class);
+});
+
+it('uses string property access when field mapper is not callable', function () {
+    Config::set('filament-spid.field_mapping', [
+        'fiscal_code' => 'fiscalNumber', // string, not callable
+        'name' => function ($spidUser) {
+            return ($spidUser['name'] ?? '').' '.($spidUser['familyName'] ?? '');
+        },
+        'email' => function ($spidUser) {
+            return $spidUser['email'] ?? ($spidUser['fiscalNumber'] ?? 'user').'@spid.local';
+        },
+        'password' => function () {
+            return bcrypt('secret');
+        },
+    ]);
+
+    $service = app(SpidUserService::class);
+
+    $spidData = new SpidUserData(
+        fiscalNumber: 'STRMPR80A01H501U',
+        name: 'String',
+        familyName: 'Mapper',
+        email: 'strmapper@example.com',
+    );
+
+    $user = $service->findOrCreateUser($spidData);
+
+    expect($user)->not->toBeNull()
+        ->and($user->fiscal_code)->toBe('STRMPR80A01H501U');
+});
+
+it('does not update fiscal_code when updating existing user', function () {
+    $service = app(SpidUserService::class);
+
+    $originalFiscalCode = 'ORGNL80A01H501U';
+
+    $spidData1 = new SpidUserData(
+        fiscalNumber: $originalFiscalCode,
+        name: 'Original',
+        familyName: 'User',
+        email: 'original@example.com',
+    );
+
+    $user = $service->findOrCreateUser($spidData1);
+    expect($user->fiscal_code)->toBe($originalFiscalCode);
+
+    // Attempt update with same fiscal code but different name
+    $spidData2 = new SpidUserData(
+        fiscalNumber: $originalFiscalCode,
+        name: 'Updated',
+        familyName: 'User',
+        email: 'updated@example.com',
+    );
+
+    $updatedUser = $service->findOrCreateUser($spidData2);
+    $updatedUser->refresh();
+
+    expect($updatedUser->fiscal_code)->toBe($originalFiscalCode)
+        ->and($updatedUser->name)->toContain('Updated');
+});
+
 it('dispatches SpidUserUpdated event when updating user', function () {
     Event::fake();
 
