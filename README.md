@@ -57,25 +57,15 @@ php artisan vendor:publish --tag="filament-spid-views"
 
 ### Publishing Images
 
-To publish the SPID AGID logo images to your public directory:
+The login page renders the SPID AGID logo from your own public directory, so
+publish it once:
 
 ```bash
 php artisan vendor:publish --tag="filament-spid-images"
 ```
 
-This will copy the SPID AGID logo images (both PNG and SVG formats) to:
-- `public/vendor/filament-spid/images/`
-- `public/images/`
-
-The images will be accessible at:
-- `/vendor/filament-spid/images/spid-agid-logo.png`
-- `/vendor/filament-spid/images/spid-agid-logo.svg`
-
-Alternatively, you can use the provided script in the package root:
-
-```bash
-./publish-images.sh
-```
+This copies the logo to `public/vendor/filament-spid/images/`, making it
+available at `/vendor/filament-spid/images/spid-agid-logo.png`.
 
 ## SPID Configuration
 
