@@ -22,7 +22,19 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['fiscal_code', 'spid_data']);
+            if (Schema::hasColumn('users', 'spid_data')) {
+                $table->dropColumn('spid_data');
+            }
+
+            if (Schema::hasColumn('users', 'fiscal_code')) {
+                // The unique index must go first: SQLite refuses to drop a column
+                // that an index still references.
+                if (Schema::hasIndex('users', 'users_fiscal_code_unique')) {
+                    $table->dropUnique('users_fiscal_code_unique');
+                }
+
+                $table->dropColumn('fiscal_code');
+            }
         });
     }
 };
