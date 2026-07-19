@@ -18,7 +18,10 @@
         <a href="#" class="italia-it-button italia-it-button-size-{{ $size }} button-spid" spid-idp-button="#spid-idp-button-{{ $size }}-post" aria-haspopup="true" aria-expanded="false">
             <span class="italia-it-button-icon">
                 @if ($buttonIcon)
-                    <x-filament::icon :icon="$buttonIcon" class="h-6 w-6" />
+                    {{-- @svg comes from blade-icons, which every supported
+                         Filament version depends on, unlike the x-filament::icon
+                         component whose props changed between majors. --}}
+                    @svg($buttonIcon, 'h-6 w-6')
                 @else
                     <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}"
                          onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.png') }}'; this.onerror=null;"
