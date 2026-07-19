@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 
 it('can be instantiated with all properties', function () {
@@ -214,7 +216,7 @@ it('implements Arrayable interface', function () {
         familyName: 'Rossi'
     );
 
-    expect($spidData)->toBeInstanceOf(\Illuminate\Contracts\Support\Arrayable::class);
+    expect($spidData)->toBeInstanceOf(Arrayable::class);
 });
 
 it('implements Jsonable interface', function () {
@@ -224,5 +226,5 @@ it('implements Jsonable interface', function () {
         familyName: 'Rossi'
     );
 
-    expect($spidData)->toBeInstanceOf(\Illuminate\Contracts\Support\Jsonable::class);
+    expect($spidData)->toBeInstanceOf(Jsonable::class);
 });

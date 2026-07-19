@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -21,7 +23,7 @@ return [
     | Make sure this model has 'fiscal_code' and 'spid_data' fields.
     |
     */
-    'user_model' => env('SPID_USER_MODEL', \App\Models\User::class),
+    'user_model' => env('SPID_USER_MODEL', User::class),
 
     /*
     |--------------------------------------------------------------------------

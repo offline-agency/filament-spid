@@ -1,6 +1,8 @@
 <?php
 
+use Filament\Facades\Filament;
 use Filament\Panel;
+use Illuminate\Support\Facades\Config;
 use OfflineAgency\FilamentSpid\SpidPlugin;
 
 it('registers routes when registerRoutes is true', function () {
@@ -10,7 +12,7 @@ it('registers routes when registerRoutes is true', function () {
     $plugin->boot($panel);
 
     // Check that routes are registered
-    $routes = \Route::getRoutes();
+    $routes = Route::getRoutes();
     $routeNames = collect($routes)->map(fn ($route) => $route->getName())->filter()->toArray();
 
     expect($routeNames)->toContain('spid.login')
@@ -27,7 +29,7 @@ it('does not register routes when registerRoutes is false', function () {
     $plugin->boot($panel);
 
     // Check that routes are not registered
-    $routes = \Route::getRoutes();
+    $routes = Route::getRoutes();
     $routeNames = collect($routes)->map(fn ($route) => $route->getName())->filter()->toArray();
 
     expect($routeNames)->not->toContain('spid.login')
@@ -50,7 +52,7 @@ it('uses custom route names when configured', function () {
     $plugin->boot($panel);
 
     // Check that custom route names are used
-    $routes = \Route::getRoutes();
+    $routes = Route::getRoutes();
     $routeNames = collect($routes)->map(fn ($route) => $route->getName())->filter()->toArray();
 
     expect($routeNames)->toContain('custom.login')
@@ -67,7 +69,7 @@ it('registers routes with panel path prefix', function () {
     $plugin->boot($panel);
 
     // Check that routes are registered
-    $routes = \Route::getRoutes();
+    $routes = Route::getRoutes();
     $spidRoutes = collect($routes)->filter(fn ($route) => str_contains($route->uri(), 'spid/')
     );
 
@@ -90,7 +92,7 @@ it('can get plugin instance using get method', function () {
     expect(method_exists(SpidPlugin::class, 'get'))->toBeTrue();
 
     // Set the current panel context for the filament() helper
-    \Filament\Facades\Filament::setCurrentPanel($panel);
+    Filament::setCurrentPanel($panel);
 
     // Now we can test the get() method properly with a panel set up
     $retrievedPlugin = SpidPlugin::get();
@@ -112,14 +114,14 @@ it('registers login page with panel', function () {
 });
 
 it('does not register routes when filament-spid.enabled is false', function () {
-    \Illuminate\Support\Facades\Config::set('filament-spid.enabled', false);
+    Config::set('filament-spid.enabled', false);
 
-    $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::make()->registerRoutes(true);
+    $plugin = SpidPlugin::make()->registerRoutes(true);
     $panel = $this->setupFakeFilamentPanel();
 
     $plugin->boot($panel);
 
-    $routes = \Route::getRoutes();
+    $routes = Route::getRoutes();
     $routeNames = collect($routes)->map(fn ($route) => $route->getName())->filter()->values()->toArray();
 
     expect($routeNames)->not->toContain('spid.login')
@@ -130,12 +132,12 @@ it('does not register routes when filament-spid.enabled is false', function () {
 });
 
 it('does not override panel login when filament-spid.enabled is false', function () {
-    \Illuminate\Support\Facades\Config::set('filament-spid.enabled', false);
+    Config::set('filament-spid.enabled', false);
 
     $panel = $this->setupFakeFilamentPanel();
     $originalLogin = $panel->getLoginRouteAction();
 
-    $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::make();
+    $plugin = SpidPlugin::make();
     $plugin->register($panel);
 
     // Login route action should remain unchanged
@@ -153,7 +155,7 @@ it('can chain configuration and boot', function () {
     $plugin->boot($panel);
 
     // Check that custom routes are registered
-    $routes = \Route::getRoutes();
+    $routes = Route::getRoutes();
     $routeNames = collect($routes)->map(fn ($route) => $route->getName())->filter()->toArray();
 
     expect($routeNames)->toContain('custom.login')

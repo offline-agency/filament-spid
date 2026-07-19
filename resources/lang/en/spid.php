@@ -23,10 +23,10 @@ return [
     'error_25' => 'This operation is not allowed.',
 
     // SAML-level errors
-    'saml_validation_error'           => 'The authentication response is invalid.',
+    'saml_validation_error' => 'The authentication response is invalid.',
     'saml_response_already_processed' => 'This authentication response has already been used.',
-    'saml_authentication_error'       => 'The identity provider rejected the authentication request.',
-    'saml_request_id_missing'         => 'Authentication session lost. Please try again.',
-    'saml_malformed_idp'              => 'Invalid identity provider selected.',
-    'saml_nonexistent_idp'            => 'The selected identity provider does not exist.',
+    'saml_authentication_error' => 'The identity provider rejected the authentication request.',
+    'saml_request_id_missing' => 'Authentication session lost. Please try again.',
+    'saml_malformed_idp' => 'Invalid identity provider selected.',
+    'saml_nonexistent_idp' => 'The selected identity provider does not exist.',
 ];

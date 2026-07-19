@@ -39,7 +39,7 @@ it('returns null for empty string via tryFrom', function () {
 });
 
 it('throws for invalid value via from', function () {
-    expect(fn () => SpidLevel::from('invalid'))->toThrow(\ValueError::class);
+    expect(fn () => SpidLevel::from('invalid'))->toThrow(ValueError::class);
 });
 
 it('is string backed', function () {

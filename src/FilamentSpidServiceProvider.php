@@ -6,7 +6,10 @@ use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Italia\SPIDAuth\SPIDAuth;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -27,14 +30,14 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->bind(\Italia\SPIDAuth\SPIDAuth::class, function () {
-            return new \Italia\SPIDAuth\SPIDAuth;
+        $this->app->bind(SPIDAuth::class, function () {
+            return new SPIDAuth;
         });
 
         // Register custom CSRF middleware with proper dependencies (avoid singleton for Octane compatibility)
-        $this->app->bind(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class, function ($app) {
-            return new \OfflineAgency\FilamentSpid\Http\Middleware\VerifyCsrfToken(
-                $app, $app->make(\Illuminate\Contracts\Encryption\Encrypter::class)
+        $this->app->bind(VerifyCsrfToken::class, function ($app) {
+            return new Http\Middleware\VerifyCsrfToken(
+                $app, $app->make(Encrypter::class)
             );
         });
     }

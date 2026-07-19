@@ -23,10 +23,10 @@ return [
     'error_25' => 'Dieser Vorgang ist nicht zulässig.',
 
     // SAML-Fehler
-    'saml_validation_error'           => 'Die Authentifizierungsantwort ist ungültig.',
+    'saml_validation_error' => 'Die Authentifizierungsantwort ist ungültig.',
     'saml_response_already_processed' => 'Diese Authentifizierungsantwort wurde bereits verwendet.',
-    'saml_authentication_error'       => 'Der Identitätsanbieter hat die Anfrage abgelehnt.',
-    'saml_request_id_missing'         => 'Authentifizierungssitzung verloren. Bitte versuchen Sie es erneut.',
-    'saml_malformed_idp'              => 'Ungültiger Identitätsanbieter ausgewählt.',
-    'saml_nonexistent_idp'            => 'Der ausgewählte Identitätsanbieter existiert nicht.',
+    'saml_authentication_error' => 'Der Identitätsanbieter hat die Anfrage abgelehnt.',
+    'saml_request_id_missing' => 'Authentifizierungssitzung verloren. Bitte versuchen Sie es erneut.',
+    'saml_malformed_idp' => 'Ungültiger Identitätsanbieter ausgewählt.',
+    'saml_nonexistent_idp' => 'Der ausgewählte Identitätsanbieter existiert nicht.',
 ];

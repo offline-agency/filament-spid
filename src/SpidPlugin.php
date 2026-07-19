@@ -54,8 +54,8 @@ class SpidPlugin implements Plugin
             // Also store the panel guard so afterLogin() can authenticate against the right guard.
             config([
                 'spid-auth.after_login_url' => url($panel->getPath().'/spid/after-login'),
-                'filament-spid.auth_guard'  => $panel->getAuthGuard(),
-                'filament-spid.panel_id'    => $panel->getId(),
+                'filament-spid.auth_guard' => $panel->getAuthGuard(),
+                'filament-spid.panel_id' => $panel->getId(),
             ]);
 
             \Route::middleware(['web'])

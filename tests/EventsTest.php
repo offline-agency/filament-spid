@@ -1,7 +1,12 @@
 <?php
 
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Event;
+use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
+use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
+use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
+use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
 
 it('dispatches SpidAuthenticationFailed when not authenticated after ACS', function () {
@@ -28,49 +33,49 @@ it('SpidAuthenticationFailed event has reason property', function () {
 });
 
 it('SpidUserCreated event can be instantiated', function () {
-    $user = new \Illuminate\Foundation\Auth\User;
-    $spidData = new \OfflineAgency\FilamentSpid\DTOs\SpidUserData(
+    $user = new User;
+    $spidData = new SpidUserData(
         fiscalNumber: 'RSSMRA80A01H501U',
         name: 'Mario',
         familyName: 'Rossi'
     );
 
-    $event = new \OfflineAgency\FilamentSpid\Events\SpidUserCreated($user, $spidData);
+    $event = new SpidUserCreated($user, $spidData);
 
     expect($event->user)->toBe($user)
         ->and($event->spidData)->toBe($spidData);
 });
 
 it('SpidUserUpdated event can be instantiated', function () {
-    $user = new \Illuminate\Foundation\Auth\User;
-    $spidData = new \OfflineAgency\FilamentSpid\DTOs\SpidUserData(
+    $user = new User;
+    $spidData = new SpidUserData(
         fiscalNumber: 'RSSMRA80A01H501U',
         name: 'Mario',
         familyName: 'Rossi'
     );
 
-    $event = new \OfflineAgency\FilamentSpid\Events\SpidUserUpdated($user, $spidData);
+    $event = new SpidUserUpdated($user, $spidData);
 
     expect($event->user)->toBe($user)
         ->and($event->spidData)->toBe($spidData);
 });
 
 it('SpidAuthenticationSucceeded event can be instantiated', function () {
-    $user = new \Illuminate\Foundation\Auth\User;
-    $spidData = new \OfflineAgency\FilamentSpid\DTOs\SpidUserData(
+    $user = new User;
+    $spidData = new SpidUserData(
         fiscalNumber: 'RSSMRA80A01H501U',
         name: 'Mario',
         familyName: 'Rossi'
     );
 
-    $event = new \OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded($user, $spidData);
+    $event = new SpidAuthenticationSucceeded($user, $spidData);
 
     expect($event->user)->toBe($user)
         ->and($event->spidData)->toBe($spidData);
 });
 
 it('SpidAuthenticationFailed event can be instantiated', function () {
-    $event = new \OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed('Test error message');
+    $event = new SpidAuthenticationFailed('Test error message');
 
     expect($event->reason)->toBe('Test error message');
 });

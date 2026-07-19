@@ -1,14 +1,17 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
+use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
+use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
 beforeEach(function () {
     Config::set('filament-spid.auto_create_users', true);
     Config::set('filament-spid.update_user_data', true);
-    \Illuminate\Database\Eloquent\Model::unguard();
+    Model::unguard();
     Config::set('filament-spid.field_mapping', [
         'name' => function ($spidUser) {
             return ($spidUser['name'] ?? '').' '.($spidUser['familyName'] ?? '');
@@ -228,7 +231,7 @@ it('dispatches SpidUserCreated event when creating user', function () {
 
     $service->findOrCreateUser($spidData);
 
-    Event::assertDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserCreated::class);
+    Event::assertDispatched(SpidUserCreated::class);
 });
 
 it('does not dispatch any event when auto_create_users is false and user not found', function () {
@@ -246,8 +249,8 @@ it('does not dispatch any event when auto_create_users is false and user not fou
     $result = $service->findOrCreateUser($spidData);
 
     expect($result)->toBeNull();
-    Event::assertNotDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserCreated::class);
-    Event::assertNotDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserUpdated::class);
+    Event::assertNotDispatched(SpidUserCreated::class);
+    Event::assertNotDispatched(SpidUserUpdated::class);
 });
 
 it('does not dispatch SpidUserUpdated event when update_user_data is false', function () {
@@ -264,11 +267,11 @@ it('does not dispatch SpidUserUpdated event when update_user_data is false', fun
 
     // Create first (SpidUserCreated is dispatched here)
     $service->findOrCreateUser($spidData);
-    Event::assertDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserCreated::class);
+    Event::assertDispatched(SpidUserCreated::class);
 
     // Second call — update_user_data=false, so no SpidUserUpdated
     $service->findOrCreateUser($spidData);
-    Event::assertNotDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserUpdated::class);
+    Event::assertNotDispatched(SpidUserUpdated::class);
 });
 
 it('uses string property access when field mapper is not callable', function () {
@@ -344,10 +347,10 @@ it('dispatches SpidUserUpdated event when updating user', function () {
 
     $service->findOrCreateUser($spidData);
 
-    Event::assertDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserCreated::class);
+    Event::assertDispatched(SpidUserCreated::class);
 
     // Find again (should trigger update)
     $service->findOrCreateUser($spidData);
 
-    Event::assertDispatched(\OfflineAgency\FilamentSpid\Events\SpidUserUpdated::class);
+    Event::assertDispatched(SpidUserUpdated::class);
 });
