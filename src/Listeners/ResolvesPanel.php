@@ -18,6 +18,13 @@ trait ResolvesPanel
     protected function panel(): ?Panel
     {
         try {
+            // The ACS request runs on a library route, outside any panel, so in a
+            // multi-panel application the panel to authenticate against has to be
+            // named explicitly.
+            if ($id = config('filament-spid.panel')) {
+                return Filament::getPanel($id);
+            }
+
             return Filament::getCurrentPanel() ?? Filament::getDefaultPanel();
         } catch (\Throwable) {
             return null;

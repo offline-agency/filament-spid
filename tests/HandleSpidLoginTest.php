@@ -5,6 +5,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Italia\SPIDAuth\Events\LoginEvent;
 use Italia\SPIDAuth\SPIDUser;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
@@ -123,4 +124,35 @@ it('logs in an existing user without creating a duplicate', function () {
 
     expect(User::count())->toBe(1)
         ->and(Auth::guard('web')->check())->toBeTrue();
+});
+
+it('keeps exception messages out of the log', function () {
+    Log::spy();
+    Config::set('filament-spid.user_model', 'A\Class\That\Does\Not\Exist');
+
+    try {
+        app(HandleSpidLogin::class)->handle(loginEvent());
+    } catch (HttpResponseException $e) {
+        // expected
+    }
+
+    Log::shouldHaveReceived('error')->withArgs(function (string $message) {
+        return ! str_contains($message, 'A\Class\That\Does\Not\Exist');
+    });
+});
+
+it('authenticates against the configured panel', function () {
+    Config::set('filament-spid.panel', 'admin');
+
+    app(HandleSpidLogin::class)->handle(loginEvent());
+
+    expect(Auth::guard('web')->check())->toBeTrue();
+});
+
+it('falls back to the default guard when the configured panel is unknown', function () {
+    Config::set('filament-spid.panel', 'does-not-exist');
+
+    app(HandleSpidLogin::class)->handle(loginEvent());
+
+    expect(Auth::guard(config('auth.defaults.guard'))->check())->toBeTrue();
 });

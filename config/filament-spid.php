@@ -29,6 +29,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | SPID Panel
+    |--------------------------------------------------------------------------
+    |
+    | Id of the panel SPID users are authenticated against. The SAML callback
+    | runs on a library route, outside any panel, so multi-panel applications
+    | should name the panel here. Null falls back to the default panel.
+    |
+    */
+    'panel' => env('FILAMENT_SPID_PANEL'),
+
+    /*
+    |--------------------------------------------------------------------------
     | User Model
     |--------------------------------------------------------------------------
     |

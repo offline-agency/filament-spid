@@ -45,7 +45,9 @@ class HandleSpidLogin
         } catch (HttpResponseException $e) {
             throw $e;
         } catch (\Throwable $e) {
-            $this->fail($e->getMessage(), $event, 'acs_error');
+            // Only the exception class reaches the log: messages routinely carry
+            // personal data (a failed insert quotes the values it tried to write).
+            $this->fail($e::class.' (code '.$e->getCode().')', $event, 'acs_error');
         }
     }
 
