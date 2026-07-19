@@ -43,7 +43,10 @@ class SpidPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        if (config('filament-spid.enabled', true)) {
+        // showSpidButton(false) opts the panel out of the SPID login page
+        // entirely: replacing it with a page whose only button is hidden would
+        // leave no way to sign in.
+        if (config('filament-spid.enabled', true) && $this->showSpidButton) {
             $panel->login(SpidLogin::class);
         }
     }
@@ -73,6 +76,23 @@ class SpidPlugin implements Plugin
         $plugin = filament(app(static::class)->getId());
 
         return $plugin;
+    }
+
+    /**
+     * The plugin registered on the current panel, or null.
+     *
+     * Unlike get(), this never throws: views and pages may be rendered on a
+     * panel the plugin is not registered on, or with no panel at all.
+     */
+    public static function resolve(): ?static
+    {
+        try {
+            $plugin = filament(app(static::class)->getId());
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $plugin instanceof static ? $plugin : null;
     }
 
     public function loginRoute(string $route): static

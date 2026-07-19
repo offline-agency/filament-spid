@@ -1,5 +1,8 @@
 <?php
 
+use Filament\Facades\Filament;
+use Filament\Panel;
+use OfflineAgency\FilamentSpid\Pages\SpidLogin;
 use OfflineAgency\FilamentSpid\SpidPlugin;
 
 it('can instantiate plugin', function () {
@@ -119,4 +122,32 @@ it('can chain multiple configuration methods', function () {
         ->and($plugin->getLogoutRoute())->toBe('custom.logout')
         ->and($plugin->getSpidButtonLabel())->toBe('Entra con SPID')
         ->and($plugin->getProviders())->toBe(['posteid', 'arubaid']);
+});
+
+it('replaces the panel login page by default', function () {
+    $panel = $this->setupFakeFilamentPanel();
+    SpidPlugin::make()->register($panel);
+
+    expect($panel->getLoginRouteAction())->toBe(SpidLogin::class);
+});
+
+it('leaves the panel login page alone when the SPID button is disabled', function () {
+    $panel = $this->setupFakeFilamentPanel();
+    $before = $panel->getLoginRouteAction();
+
+    SpidPlugin::make()->showSpidButton(false)->register($panel);
+
+    expect($panel->getLoginRouteAction())->toBe($before);
+});
+
+it('resolves the plugin registered on the current panel', function () {
+    expect(SpidPlugin::resolve())->toBeInstanceOf(SpidPlugin::class);
+});
+
+it('resolves to null on a panel the plugin is not registered on', function () {
+    $bare = Panel::make()->id('bare')->path('bare');
+    Filament::registerPanel($bare);
+    Filament::setCurrentPanel($bare);
+
+    expect(SpidPlugin::resolve())->toBeNull();
 });

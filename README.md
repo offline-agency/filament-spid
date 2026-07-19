@@ -181,12 +181,15 @@ SpidPlugin::make()
     ->metadataRoute('custom.spid.metadata')
 ```
 
-#### Hide SPID Button
+#### Opt Out of the SPID Login Page
 
 ```php
 SpidPlugin::make()
     ->showSpidButton(false)
 ```
+
+The panel keeps its own login page: a SPID page with the button hidden would
+leave no way to sign in.
 
 #### Custom Button Label and Icon
 
@@ -198,9 +201,13 @@ SpidPlugin::make()
 
 #### Select Specific Providers
 
+Acts as an allowlist over the keys of `config/spid-idps.php`; an empty array (the
+default) shows every active provider. Inactive providers are never shown, even
+when listed here.
+
 ```php
 SpidPlugin::make()
-    ->providers(['posteid', 'arubaid', 'infocertid'])
+    ->providers(['posteid', 'infocertid', 'timid'])
 ```
 
 ## Configuration

@@ -19,7 +19,7 @@
 
     <div class="space-y-8">
         <!-- Filament-compatible SPID Button -->
-        @if (\OfflineAgency\FilamentSpid\SpidPlugin::get()->getShowSpidButton())
+        @if (\OfflineAgency\FilamentSpid\SpidPlugin::resolve()?->getShowSpidButton() ?? true)
         <div class="flex justify-center items-center w-full">
             <div class="mx-auto">
                 @include('filament-spid::components.spid-button-filament', ['size' => 'l'])

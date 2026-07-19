@@ -9,7 +9,7 @@ class SpidLogin extends SimplePage
 {
     public function getView(): string
     {
-        return SpidPlugin::get()->getLoginView();
+        return SpidPlugin::resolve()?->getLoginView() ?? 'filament-spid::login';
     }
 
     public function getHeading(): string

@@ -1,5 +1,12 @@
 @props(['size' => 'l'])
 
+@php
+    $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::resolve();
+    $buttonLabel = $plugin?->getSpidButtonLabel() ?? __('filament-spid::spid.login_with_spid');
+    $buttonIcon = $plugin?->getSpidButtonIcon();
+    $allowedProviders = $plugin?->getProviders() ?? [];
+@endphp
+
 <div class="spid-button-wrapper">
     <!-- Official SPID Button Styles -->
     <link rel="stylesheet" href="{{ asset('/vendor/spid-auth/css/spid-sp-access-button.min.css') }}">
@@ -10,18 +17,22 @@
         
         <a href="#" class="italia-it-button italia-it-button-size-{{ $size }} button-spid" spid-idp-button="#spid-idp-button-{{ $size }}-post" aria-haspopup="true" aria-expanded="false">
             <span class="italia-it-button-icon">
-                <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}" 
-                     onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.png') }}'; this.onerror=null;" 
-                     alt="" />
+                @if ($buttonIcon)
+                    <x-filament::icon :icon="$buttonIcon" class="h-6 w-6" />
+                @else
+                    <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}"
+                         onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.png') }}'; this.onerror=null;"
+                         alt="" />
+                @endif
             </span>
-            <span class="italia-it-button-text">{{ __('filament-spid::spid.login_with_spid') }}</span>
+            <span class="italia-it-button-text">{{ $buttonLabel }}</span>
         </a>
         
         <div id="spid-idp-button-{{ $size }}-post" class="spid-idp-button spid-idp-button-tip spid-idp-button-relative">
             <ul id="spid-idp-list-{{ $size }}-root-post" class="spid-idp-button-menu">
                 @unless(config('spid-auth.hide_real_idps'))
                 @foreach (config('spid-idps') as $idp => $idpData)
-                @if ($idpData['real'] && $idpData['isActive'])
+                @if ($idpData['real'] && $idpData['isActive'] && (empty($allowedProviders) || in_array($idp, $allowedProviders, true)))
                 <li class="spid-idp-button-link" data-idp="{{ $idp }}">
                     <button class="idp-button-idp-logo" name="{{ $idpData['entityName'] }}" type="submit">
                         <span class="spid-sr-only">{{ $idpData['entityName'] }}</span>
