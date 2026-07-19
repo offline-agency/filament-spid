@@ -85,10 +85,16 @@
         </div>
     </form>
     
-    <!-- Load jQuery if not already loaded -->
+    {{-- Load jQuery if not already loaded. The tag is appended through the DOM:
+         the deprecated write() call it replaces is blocked under a strict CSP. --}}
     <script>
-        if (typeof jQuery === 'undefined') {
-            document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>');
+        if (typeof jQuery === 'undefined' && !document.getElementById('spid-jquery')) {
+            var spidJq = document.createElement('script');
+            spidJq.id = 'spid-jquery';
+            spidJq.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
+            spidJq.integrity = 'sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=';
+            spidJq.crossOrigin = 'anonymous';
+            document.head.appendChild(spidJq);
         }
     </script>
     

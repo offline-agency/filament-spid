@@ -83,3 +83,17 @@ it('never lists an inactive provider even when allowed', function () {
     expect($html)->toContain('Poste ID')
         ->and($html)->not->toContain('Tim ID');
 });
+
+it('loads jQuery without document.write', function () {
+    $html = renderSpidButton();
+
+    expect($html)->not->toContain('document.write')
+        ->and($html)->toContain('createElement(\'script\')');
+});
+
+it('renders the provider form posting to the library login route', function () {
+    $html = renderSpidButton();
+
+    expect($html)->toContain(route('spid-auth_do-login'))
+        ->and($html)->toContain('spid_idp_access_provider');
+});
