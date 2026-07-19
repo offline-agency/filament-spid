@@ -32,9 +32,10 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->bind(SPIDAuth::class, function () {
-            return new SPIDAuth;
-        });
+        // italia/spid-laravel only binds the 'SPIDAuth' alias, so resolving the
+        // class would build a second, unrelated instance. Point it at the
+        // library singleton instead of registering one of our own.
+        $this->app->bind(SPIDAuth::class, fn ($app) => $app->make('SPIDAuth'));
     }
 
     public function packageBooted(): void
@@ -74,7 +75,13 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
             __DIR__.'/../resources/images' => public_path('vendor/filament-spid/images'),
         ], 'filament-spid-images');
 
-        // Auto-copy on first boot if missing (idempotent)
+        // Convenience copy of the library config on first artisan run. Guarded to
+        // console: writing into config_path() while serving requests is a
+        // surprising side effect and fails outright on a read-only filesystem.
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+
         try {
             /** @var Filesystem $files */
             $files = $this->app->make(Filesystem::class);
