@@ -8,7 +8,12 @@ use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Support\Facades\Event;
+use Italia\SPIDAuth\Events\LoginEvent;
+use Italia\SPIDAuth\Events\LogoutEvent;
 use Italia\SPIDAuth\SPIDAuth;
+use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
+use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogout;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -43,6 +48,13 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        // Authentication core: italia/spid-laravel fires these once the SAML
+        // response is validated, so consumer apps need no listeners of their own.
+        if (config('filament-spid.register_listeners', true)) {
+            Event::listen(LoginEvent::class, HandleSpidLogin::class);
+            Event::listen(LogoutEvent::class, HandleSpidLogout::class);
+        }
+
         // Asset Registration
         FilamentAsset::register(
             $this->getAssets(),
