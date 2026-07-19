@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Italia\SPIDAuth\SPIDAuth;
 
 class SpidController extends Controller
@@ -28,23 +27,19 @@ class SpidController extends Controller
      */
     public function providers(): JsonResponse
     {
-        $ttl = (int) config('filament-spid.cache.providers_ttl', 3600);
-        $providers = Cache::remember('filament_spid_providers', $ttl, function () {
-            $idps = config('spid-idps', []);
-            $list = [];
-            foreach ($idps as $key => $idp) {
-                if ($key !== 'empty' && isset($idp['isActive']) && $idp['isActive']) {
-                    $list[] = [
-                        'provider' => $idp['provider'] ?? $key,
-                        'title' => $idp['title'] ?? $key,
-                        'entityName' => $idp['entityName'] ?? null,
-                        'logo' => $idp['logo'] ?? null,
-                    ];
-                }
-            }
+        // No cache: the list comes from config, which is already in memory.
+        $providers = [];
 
-            return $list;
-        });
+        foreach (config('spid-idps', []) as $key => $idp) {
+            if ($key !== 'empty' && ($idp['isActive'] ?? false)) {
+                $providers[] = [
+                    'provider' => $idp['provider'] ?? $key,
+                    'title' => $idp['title'] ?? $key,
+                    'entityName' => $idp['entityName'] ?? null,
+                    'logo' => $idp['logo'] ?? null,
+                ];
+            }
+        }
 
         return response()->json(['providers' => $providers]);
     }
