@@ -4,7 +4,6 @@ namespace OfflineAgency\FilamentSpid;
 
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Filesystem\Filesystem;
@@ -64,10 +63,12 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
             $spidVendorConfigPath.'/spid-idps.php' => $appConfigPath.'/spid-idps.php',
         ], 'filament-spid-config');
 
-        // Publish images
+        // Publish images. publishes() is keyed by source path, so a directory can
+        // only ever reach one target: previously public/images silently won and
+        // public/vendor/filament-spid/images — the path the views ask for — was
+        // never written.
         $this->publishes([
             __DIR__.'/../resources/images' => public_path('vendor/filament-spid/images'),
-            __DIR__.'/../resources/images' => public_path('images'),
         ], 'filament-spid-images');
 
         // Auto-copy on first boot if missing (idempotent)
@@ -97,7 +98,6 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
     {
         return [
             Css::make('filament-spid-styles', __DIR__.'/../resources/dist/filament-spid.css'),
-            Js::make('filament-spid-scripts', __DIR__.'/../resources/dist/filament-spid.js'),
         ];
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\ServiceProvider;
 use OfflineAgency\FilamentSpid\FilamentSpidServiceProvider;
 
 describe('FilamentSpidServiceProvider', function () {
@@ -46,9 +47,32 @@ describe('FilamentSpidServiceProvider - Assets', function () {
         expect(file_exists($cssPath))->toBeTrue();
     });
 
-    it('registers js asset', function () {
-        $jsPath = __DIR__.'/../resources/dist/filament-spid.js';
+    it('ships styles in the registered css asset', function () {
+        $css = file_get_contents(__DIR__.'/../resources/dist/filament-spid.css');
 
-        expect(file_exists($jsPath))->toBeTrue();
+        expect(trim($css))->not->toBe('')
+            ->and($css)->toContain('.spid-button-wrapper');
+    });
+
+    it('registers no js asset', function () {
+        // The bundle was empty and loaded on every Filament page; the button
+        // ships its own Blade-rendered script instead.
+        expect(file_exists(__DIR__.'/../resources/dist/filament-spid.js'))->toBeFalse();
+    });
+});
+
+describe('FilamentSpidServiceProvider - Publishing', function () {
+    it('publishes images to the path the views reference', function () {
+        $paths = ServiceProvider::pathsToPublish(FilamentSpidServiceProvider::class, 'filament-spid-images');
+
+        expect(array_values($paths))->toContain(public_path('vendor/filament-spid/images'))
+            ->and(array_values($paths))->not->toContain(public_path('images'));
+    });
+
+    it('publishes the spid-laravel config files', function () {
+        $paths = ServiceProvider::pathsToPublish(FilamentSpidServiceProvider::class, 'filament-spid-config');
+
+        expect(array_values($paths))->toContain(config_path().'/spid-auth.php')
+            ->and(array_values($paths))->toContain(config_path().'/spid-idps.php');
     });
 });
