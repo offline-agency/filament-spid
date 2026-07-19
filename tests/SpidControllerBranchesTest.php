@@ -1,49 +1,28 @@
 <?php
 
 use Illuminate\Foundation\Auth\User as FoundationUser;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Italia\SPIDAuth\SPIDAuth;
 use Mockery as m;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
-it('login returns redirect on success', function () {
-    $this->setupFakeFilamentPanel();
-
-    $spidMock = m::mock(SPIDAuth::class);
-    $spidMock->shouldReceive('login')
-        ->once()
-        ->with('poste', m::type('string'), m::type('string'))
-        ->andReturn(new RedirectResponse('/spid/redirected'));
-
-    $this->app->instance(SPIDAuth::class, $spidMock);
-
-    // Register named ACS route used by controller
-    $this->app['router']->get('/spid/acs', [SpidController::class, 'acs'])->name('spid.acs');
+it('login redirects to the panel login page', function () {
     $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
 
-    $response = $this->get('/spid/login?provider=poste');
+    $response = $this->get('/spid/login');
 
-    $response->assertRedirect('/spid/redirected');
+    $response->assertRedirect(route('filament.admin.auth.login'));
 });
 
-it('login catches exception and redirects back with error', function () {
-    $this->setupFakeFilamentPanel();
-
-    $spidMock = m::mock(SPIDAuth::class);
-    $spidMock->shouldReceive('login')
-        ->once()
-        ->andThrow(new Exception('login failed'));
-    $this->app->instance(SPIDAuth::class, $spidMock);
-
-    $this->app['router']->get('/spid/acs', [SpidController::class, 'acs'])->name('spid.acs');
+it('login redirects to the panel login page even when a provider is supplied', function () {
+    // The SAML handshake is triggered by the button posting to spid-auth_do-login,
+    // so the provider query string is irrelevant here.
     $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
 
     $response = $this->get('/spid/login?provider=poste');
 
-    $response->assertRedirect();
+    $response->assertRedirect(route('filament.admin.auth.login'));
 });
 
 it('acs redirects to login when not authenticated', function () {

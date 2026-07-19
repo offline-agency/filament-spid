@@ -123,21 +123,20 @@ describe('SpidController - Providers Endpoint', function () {
 });
 
 describe('SpidController - Login Endpoint', function () {
-    it('redirects back when provider is missing', function () {
+    it('redirects to the panel login page', function () {
         $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
 
         $response = $this->get('/spid/login');
 
-        $response->assertRedirect();
-        $response->assertSessionHasErrors(['provider']);
+        $response->assertRedirect(route('filament.admin.auth.login'));
     });
 
-    it('redirects back with error message when provider is missing', function () {
+    it('does not report validation errors', function () {
         $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
 
         $response = $this->get('/spid/login');
 
-        $response->assertSessionHasErrors(['provider']);
+        $response->assertSessionHasNoErrors();
     });
 });
 
