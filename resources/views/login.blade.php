@@ -34,6 +34,15 @@
             </p>
         </div>
 
+        <!-- SPID-AGID Logo, served from the published package assets -->
+        <div class="spid-agid-logo flex justify-center">
+            <img
+                alt="SPID AGID"
+                class="max-w-full h-auto mx-auto"
+                src="{{ asset('vendor/filament-spid/images/spid-agid-logo.png') }}"
+            >
+        </div>
+
         <!-- Standard login fallback -->
         @if (filament()->hasLogin())
             <div class="text-center">

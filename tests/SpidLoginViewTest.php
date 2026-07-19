@@ -41,6 +41,19 @@ it('centers the SPID button and shows the informational text', function () {
         ->and($content)->toContain("__('filament-spid::spid.info_text')");
 });
 
+it('serves the AGID logo from the package assets, not a third-party CDN', function () {
+    $viewPath = __DIR__.'/../resources/views/login.blade.php';
+    $content = File::get($viewPath);
+
+    expect($content)->toContain("asset('vendor/filament-spid/images/spid-agid-logo.png')")
+        ->and($content)->toContain('alt="SPID AGID"')
+        ->and($content)->not->toContain('cdn.inpa.gov.it');
+});
+
+it('ships the AGID logo it references', function () {
+    expect(file_exists(__DIR__.'/../resources/images/spid-agid-logo.png'))->toBeTrue();
+});
+
 it('renders the SPID error flash message when present', function () {
     $viewPath = __DIR__.'/../resources/views/login.blade.php';
     $content = File::get($viewPath);

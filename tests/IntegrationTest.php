@@ -94,21 +94,13 @@ describe('Asset Integration', function () {
         expect(file_exists($cssPath))->toBeTrue();
     });
 
-    it('js file exists', function () {
-        $jsPath = __DIR__.'/../resources/dist/filament-spid.js';
-
-        expect(file_exists($jsPath))->toBeTrue();
-    });
-
     it('css file is readable', function () {
         $cssPath = __DIR__.'/../resources/dist/filament-spid.css';
 
         expect(is_readable($cssPath))->toBeTrue();
     });
 
-    it('js file is readable', function () {
-        $jsPath = __DIR__.'/../resources/dist/filament-spid.js';
-
-        expect(is_readable($jsPath))->toBeTrue();
+    it('ships no empty js bundle', function () {
+        expect(file_exists(__DIR__.'/../resources/dist/filament-spid.js'))->toBeFalse();
     });
 });
