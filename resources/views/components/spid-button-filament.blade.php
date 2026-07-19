@@ -1,14 +1,14 @@
 @props(['size' => 'l'])
 
-<div class="spid-button-wrapper" style="display: flex; justify-content: center; align-items: center; width: 100%;">
+<div class="spid-button-wrapper">
     <!-- Official SPID Button Styles -->
     <link rel="stylesheet" href="{{ asset('/vendor/spid-auth/css/spid-sp-access-button.min.css') }}">
     
-    <form id="spid_idp_access" name="spid_idp_access" action="{{ route('spid-auth_do-login') }}" method="post" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <form id="spid_idp_access" name="spid_idp_access" action="{{ route('spid-auth_do-login') }}" method="post">
         @csrf
         <input id="spid_idp_access_provider" type="hidden" name="provider" value="" />
         
-        <a href="#" class="italia-it-button italia-it-button-size-{{ $size }} button-spid" spid-idp-button="#spid-idp-button-{{ $size }}-post" aria-haspopup="true" aria-expanded="false" style="margin: 0 auto; display: inline-block;">
+        <a href="#" class="italia-it-button italia-it-button-size-{{ $size }} button-spid" spid-idp-button="#spid-idp-button-{{ $size }}-post" aria-haspopup="true" aria-expanded="false">
             <span class="italia-it-button-icon">
                 <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}" 
                      onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.png') }}'; this.onerror=null;" 
