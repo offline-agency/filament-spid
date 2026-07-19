@@ -16,6 +16,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Register Authentication Listeners
+    |--------------------------------------------------------------------------
+    |
+    | The package listens to the LoginEvent and LogoutEvent fired by
+    | italia/spid-laravel to provision the user, authenticate them on the panel
+    | guard and tear the session down on logout. Disable this to take over the
+    | flow with your own listeners.
+    |
+    */
+    'register_listeners' => env('FILAMENT_SPID_REGISTER_LISTENERS', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | User Model
     |--------------------------------------------------------------------------
     |

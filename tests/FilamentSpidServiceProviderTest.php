@@ -1,6 +1,13 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Italia\SPIDAuth\Events\LoginEvent;
+use Italia\SPIDAuth\Events\LogoutEvent;
+use Italia\SPIDAuth\SPIDUser;
 use OfflineAgency\FilamentSpid\FilamentSpidServiceProvider;
 
 describe('FilamentSpidServiceProvider', function () {
@@ -74,5 +81,30 @@ describe('FilamentSpidServiceProvider - Publishing', function () {
 
         expect(array_values($paths))->toContain(config_path().'/spid-auth.php')
             ->and(array_values($paths))->toContain(config_path().'/spid-idps.php');
+    });
+});
+
+describe('FilamentSpidServiceProvider - Listeners', function () {
+    it('listens to the SPID login and logout events', function () {
+        expect(Event::hasListeners(LoginEvent::class))->toBeTrue()
+            ->and(Event::hasListeners(LogoutEvent::class))->toBeTrue();
+    });
+
+    it('provisions the user when the library fires its LoginEvent', function () {
+        Model::unguard();
+        Config::set('filament-spid.field_mapping', [
+            'name' => fn ($spidUser) => $spidUser['name'].' '.$spidUser['familyName'],
+            'email' => fn ($spidUser) => $spidUser['fiscalNumber'].'@spid.local',
+            'fiscal_code' => fn ($spidUser) => $spidUser['fiscalNumber'],
+            'password' => fn () => bcrypt('secret'),
+        ]);
+
+        event(new LoginEvent(new SPIDUser([
+            'fiscalNumber' => ['TINIT-RSSMRA80A01H501U'],
+            'name' => ['Mario'],
+            'familyName' => ['Rossi'],
+        ]), 'Poste ID'));
+
+        expect(Auth::guard('web')->check())->toBeTrue();
     });
 });
