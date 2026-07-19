@@ -113,6 +113,22 @@ public function panel(Panel $panel): Panel
 }
 ```
 
+### CSRF
+
+The Identity Provider posts the SAML assertion straight to the ACS endpoint and
+cannot carry a Laravel CSRF token, so that one route must be excluded. In
+`bootstrap/app.php`:
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->validateCsrfTokens(except: ['spid/acs']);
+})
+```
+
+Keep the exclusion minimal: only the ACS path (matching
+`spid-auth.routes_prefix`). Never exclude the logout route, which is posted by
+your own forms and does carry a token.
+
 ### Authenticating users
 
 Nothing else is required: the package listens to the `LoginEvent` and
