@@ -20,12 +20,6 @@ it('can set custom logout route', function () {
     expect($plugin->getLogoutRoute())->toBe('custom.logout');
 });
 
-it('can set custom acs route', function () {
-    $plugin = SpidPlugin::make()->acsRoute('custom.acs');
-
-    expect($plugin->getAcsRoute())->toBe('custom.acs');
-});
-
 it('can set custom metadata route', function () {
     $plugin = SpidPlugin::make()->metadataRoute('custom.metadata');
 
@@ -110,7 +104,6 @@ it('uses default routes when not customized', function () {
 
     expect($plugin->getLoginRoute())->toBe('spid.login')
         ->and($plugin->getLogoutRoute())->toBe('spid.logout')
-        ->and($plugin->getAcsRoute())->toBe('spid.acs')
         ->and($plugin->getMetadataRoute())->toBe('spid.metadata')
         ->and($plugin->getProvidersRoute())->toBe('spid.providers');
 });

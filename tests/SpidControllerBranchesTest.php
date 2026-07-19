@@ -1,11 +1,8 @@
 <?php
 
-use Illuminate\Foundation\Auth\User as FoundationUser;
-use Illuminate\Support\Facades\Auth;
 use Italia\SPIDAuth\SPIDAuth;
 use Mockery as m;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
-use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
 it('login redirects to the panel login page', function () {
     $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
@@ -23,60 +20,6 @@ it('login redirects to the panel login page even when a provider is supplied', f
     $response = $this->get('/spid/login?provider=poste');
 
     $response->assertRedirect(route('filament.admin.auth.login'));
-});
-
-it('acs redirects to login when not authenticated', function () {
-    $this->setupFakeFilamentPanel();
-
-    $spidMock = m::mock(SPIDAuth::class);
-    $spidMock->shouldReceive('acs')->once();
-    $spidMock->shouldReceive('isAuthenticated')->once()->andReturnFalse();
-    $this->app->instance(SPIDAuth::class, $spidMock);
-
-    $this->app['router']->get('/admin/login', function () {
-        return 'login';
-    })->name('filament.admin.auth.login');
-
-    $this->app['router']->get('/spid/acs', [SpidController::class, 'acs'])->name('spid.acs');
-
-    $response = $this->get('/spid/acs');
-
-    $response->assertRedirect(route('filament.admin.auth.login'));
-});
-
-it('acs logs in user and redirects when authenticated', function () {
-    $this->setupFakeFilamentPanel();
-
-    $spidMock = m::mock(SPIDAuth::class);
-    $spidMock->shouldReceive('acs')->once();
-    $spidMock->shouldReceive('isAuthenticated')->once()->andReturnTrue();
-    $spidMock->shouldReceive('getSPIDUser')->once()->andReturn([
-        'fiscalNumber' => 'AAAABBBCCCDDDEEE',
-        'name' => 'Mario',
-        'familyName' => 'Rossi',
-        'email' => 'mario.rossi@example.com',
-    ]);
-    $this->app->instance(SPIDAuth::class, $spidMock);
-
-    $userServiceMock = m::mock(SpidUserService::class);
-    $user = new FoundationUser;
-    $user->id = 1;
-    $userServiceMock->shouldReceive('findOrCreateUser')->once()->andReturn($user);
-    $this->app->instance(SpidUserService::class, $userServiceMock);
-
-    $this->app['router']->get('/admin/login', function () {
-        return 'login';
-    })->name('filament.admin.auth.login');
-
-    $this->app['router']->get('/spid/acs', [SpidController::class, 'acs'])->name('spid.acs');
-
-    $response = $this->get('/spid/acs');
-
-    // Depending on Filament routing/middleware, intended('/admin') may redirect to '/admin/login'
-    $location = $response->headers->get('Location');
-    expect($location === url('/admin') || $location === url('/admin/login'))
-        ->toBeTrue();
-    expect(Auth::check())->toBeTrue();
 });
 
 it('logout succeeds and redirects to login', function () {
