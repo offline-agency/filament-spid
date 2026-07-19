@@ -4,14 +4,11 @@ namespace OfflineAgency\FilamentSpid;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Filament\Support\Concerns\EvaluatesClosures;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
 use OfflineAgency\FilamentSpid\Pages\SpidLogin;
 
 class SpidPlugin implements Plugin
 {
-    use EvaluatesClosures;
-
     protected string $loginRoute = 'spid.login';
 
     protected string $logoutRoute = 'spid.logout';
