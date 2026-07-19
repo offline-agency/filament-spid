@@ -21,6 +21,8 @@ use Livewire\LivewireServiceProvider;
 use OfflineAgency\FilamentSpid\FilamentSpidServiceProvider;
 use OfflineAgency\FilamentSpid\Pages\SpidLogin;
 use OfflineAgency\FilamentSpid\SpidPlugin;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\TestPanelProvider;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 
@@ -52,6 +54,7 @@ class TestCase extends Orchestra
             WidgetsServiceProvider::class,
             SPIDAuthServiceProvider::class,
             FilamentSpidServiceProvider::class,
+            TestPanelProvider::class,
         ];
     }
 
@@ -65,6 +68,7 @@ class TestCase extends Orchestra
         config()->set('spid-auth.sp_service_name', 'Test Service');
         config()->set('spid-auth.sp_organization_name', 'Test Org');
         config()->set('spid-auth.user_model', User::class);
+        config()->set('filament-spid.user_model', User::class);
 
         // Create users table first
         $app['db']->connection()->getSchemaBuilder()->create('users', function ($table) {
