@@ -103,6 +103,6 @@ class SpidUserService
             return $payload;
         }
 
-        return json_encode($payload);
+        return json_encode($payload, JSON_THROW_ON_ERROR);
     }
 }
