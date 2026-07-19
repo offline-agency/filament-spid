@@ -16,8 +16,6 @@ class SpidPlugin implements Plugin
 
     protected string $logoutRoute = 'spid.logout';
 
-    protected string $acsRoute = 'spid.acs';
-
     protected string $metadataRoute = 'spid.metadata';
 
     protected string $providersRoute = 'spid.providers';
@@ -32,7 +30,11 @@ class SpidPlugin implements Plugin
 
     protected array $providers = [];
 
-    protected bool $registerRoutes = true;
+    /**
+     * The shipped login view posts straight to italia/spid-laravel and the
+     * package listens to its events, so these routes are opt-in extras.
+     */
+    protected bool $registerRoutes = false;
 
     public function getId(): string
     {
@@ -49,24 +51,13 @@ class SpidPlugin implements Plugin
     public function boot(Panel $panel): void
     {
         if ($this->registerRoutes && config('filament-spid.enabled', true)) {
-            // Override the library's after_login_url so it redirects to our post-login handler
-            // after it has finished SAML validation and stored the SPID user in session.
-            // Also store the panel guard so afterLogin() can authenticate against the right guard.
-            config([
-                'spid-auth.after_login_url' => url($panel->getPath().'/spid/after-login'),
-                'filament-spid.auth_guard' => $panel->getAuthGuard(),
-                'filament-spid.panel_id' => $panel->getId(),
-            ]);
-
             \Route::middleware(['web'])
                 ->prefix($panel->getPath())
                 ->group(function () {
                     \Route::get('/spid/login', [SpidController::class, 'login'])->name($this->loginRoute);
                     \Route::get('/spid/providers', [SpidController::class, 'providers'])->name($this->providersRoute);
                     \Route::post('/spid/logout', [SpidController::class, 'logout'])->name($this->logoutRoute);
-                    \Route::post('/spid/acs', [SpidController::class, 'acs'])->name($this->acsRoute);
                     \Route::get('/spid/metadata', [SpidController::class, 'metadata'])->name($this->metadataRoute);
-                    \Route::get('/spid/after-login', [SpidController::class, 'afterLogin'])->name('spid.after-login');
                 });
         }
     }
@@ -94,13 +85,6 @@ class SpidPlugin implements Plugin
     public function logoutRoute(string $route): static
     {
         $this->logoutRoute = $route;
-
-        return $this;
-    }
-
-    public function acsRoute(string $route): static
-    {
-        $this->acsRoute = $route;
 
         return $this;
     }
@@ -169,11 +153,6 @@ class SpidPlugin implements Plugin
     public function getLogoutRoute(): string
     {
         return $this->logoutRoute;
-    }
-
-    public function getAcsRoute(): string
-    {
-        return $this->acsRoute;
     }
 
     public function getMetadataRoute(): string

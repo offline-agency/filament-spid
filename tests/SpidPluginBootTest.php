@@ -17,7 +17,6 @@ it('registers routes when registerRoutes is true', function () {
 
     expect($routeNames)->toContain('spid.login')
         ->and($routeNames)->toContain('spid.logout')
-        ->and($routeNames)->toContain('spid.acs')
         ->and($routeNames)->toContain('spid.metadata')
         ->and($routeNames)->toContain('spid.providers');
 });
@@ -34,7 +33,6 @@ it('does not register routes when registerRoutes is false', function () {
 
     expect($routeNames)->not->toContain('spid.login')
         ->and($routeNames)->not->toContain('spid.logout')
-        ->and($routeNames)->not->toContain('spid.acs')
         ->and($routeNames)->not->toContain('spid.metadata')
         ->and($routeNames)->not->toContain('spid.providers');
 });
@@ -43,7 +41,6 @@ it('uses custom route names when configured', function () {
     $plugin = SpidPlugin::make()
         ->loginRoute('custom.login')
         ->logoutRoute('custom.logout')
-        ->acsRoute('custom.acs')
         ->metadataRoute('custom.metadata')
         ->providersRoute('custom.providers')
         ->registerRoutes(true);
@@ -57,7 +54,6 @@ it('uses custom route names when configured', function () {
 
     expect($routeNames)->toContain('custom.login')
         ->and($routeNames)->toContain('custom.logout')
-        ->and($routeNames)->toContain('custom.acs')
         ->and($routeNames)->toContain('custom.metadata')
         ->and($routeNames)->toContain('custom.providers');
 });
@@ -79,7 +75,6 @@ it('registers routes with panel path prefix', function () {
     $routeNames = $spidRoutes->map(fn ($route) => $route->getName())->toArray();
     expect($routeNames)->toContain('spid.login')
         ->and($routeNames)->toContain('spid.logout')
-        ->and($routeNames)->toContain('spid.acs')
         ->and($routeNames)->toContain('spid.metadata')
         ->and($routeNames)->toContain('spid.providers');
 });
@@ -126,7 +121,6 @@ it('does not register routes when filament-spid.enabled is false', function () {
 
     expect($routeNames)->not->toContain('spid.login')
         ->and($routeNames)->not->toContain('spid.logout')
-        ->and($routeNames)->not->toContain('spid.acs')
         ->and($routeNames)->not->toContain('spid.metadata')
         ->and($routeNames)->not->toContain('spid.providers');
 });
@@ -160,4 +154,25 @@ it('can chain configuration and boot', function () {
 
     expect($routeNames)->toContain('custom.login')
         ->and($routeNames)->toContain('custom.logout');
+});
+
+it('does not register the controller routes by default', function () {
+    $plugin = SpidPlugin::make();
+    $panel = $this->setupFakeFilamentPanel();
+
+    $plugin->boot($panel);
+
+    $routeNames = collect(Route::getRoutes())->map(fn ($route) => $route->getName())->filter()->toArray();
+
+    expect($routeNames)->not->toContain('spid.login')
+        ->and($routeNames)->not->toContain('spid.logout');
+});
+
+it('leaves the library after_login_url untouched', function () {
+    Config::set('spid-auth.after_login_url', '/dashboard');
+
+    $plugin = SpidPlugin::make()->registerRoutes(true);
+    $plugin->boot($this->setupFakeFilamentPanel());
+
+    expect(config('spid-auth.after_login_url'))->toBe('/dashboard');
 });
