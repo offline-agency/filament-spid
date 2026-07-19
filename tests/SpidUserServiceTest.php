@@ -7,6 +7,8 @@ use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\UserWithSpidDataCast;
 
 beforeEach(function () {
     Config::set('filament-spid.auto_create_users', true);
@@ -197,7 +199,7 @@ it('uses update_user_callback when provided', function () {
     expect($called)->toBeTrue();
 });
 
-it('stores spid_data as JSON', function () {
+it('stores spid_data as JSON when the model does not cast it', function () {
     $service = app(SpidUserService::class);
 
     $spidData = new SpidUserData(
@@ -216,6 +218,66 @@ it('stores spid_data as JSON', function () {
     expect($user->spid_data)->toBeString()
         ->and(json_decode($user->spid_data, true))->toBeArray()
         ->and(json_decode($user->spid_data, true)['fiscalNumber'])->toBe('RSSMRA80A01H501U');
+});
+
+it('stores spid_data as an array when the model casts it', function () {
+    Config::set('filament-spid.user_model', UserWithSpidDataCast::class);
+
+    $service = app(SpidUserService::class);
+
+    $spidData = new SpidUserData(
+        fiscalNumber: 'RSSMRA80A01H501U',
+        name: 'Mario',
+        familyName: 'Rossi',
+        email: 'mario@example.com',
+    );
+
+    $user = $service->findOrCreateUser($spidData);
+
+    // The cast decodes on read, so a double-encoded value would come back as a string.
+    expect($user->spid_data)->toBeArray()
+        ->and($user->spid_data['fiscalNumber'])->toBe('RSSMRA80A01H501U');
+
+    expect($user->fresh()->spid_data)->toBeArray();
+});
+
+it('stores spid_data as an array when the model casts it on update', function () {
+    Config::set('filament-spid.user_model', UserWithSpidDataCast::class);
+
+    $service = app(SpidUserService::class);
+
+    $service->findOrCreateUser(new SpidUserData(
+        fiscalNumber: 'RSSMRA80A01H501U',
+        name: 'Mario',
+        familyName: 'Rossi',
+        email: 'mario@example.com',
+    ));
+
+    $user = $service->findOrCreateUser(new SpidUserData(
+        fiscalNumber: 'RSSMRA80A01H501U',
+        name: 'Mario',
+        familyName: 'Rossi',
+        email: 'mario.rossi@example.com',
+    ));
+
+    expect($user->fresh()->spid_data)->toBeArray()
+        ->and($user->fresh()->spid_data['email'])->toBe('mario.rossi@example.com');
+});
+
+it('falls back to the spid-auth user model config key', function () {
+    Config::set('filament-spid.user_model', null);
+    Config::set('spid-auth.user_model', User::class);
+
+    $service = app(SpidUserService::class);
+
+    $user = $service->findOrCreateUser(new SpidUserData(
+        fiscalNumber: 'RSSMRA80A01H501U',
+        name: 'Mario',
+        familyName: 'Rossi',
+        email: 'mario@example.com',
+    ));
+
+    expect($user)->toBeInstanceOf(User::class);
 });
 
 it('dispatches SpidUserCreated event when creating user', function () {

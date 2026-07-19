@@ -6,6 +6,7 @@ namespace OfflineAgency\FilamentSpid\Services;
 
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
@@ -15,7 +16,7 @@ class SpidUserService
 {
     public function findOrCreateUser(SpidUserData $spidData): ?Authenticatable
     {
-        $userModel = config('filament-spid.user_model', User::class);
+        $userModel = $this->resolveUserModel();
 
         return DB::transaction(function () use ($userModel, $spidData) {
             $user = $userModel::where('fiscal_code', $spidData->fiscalNumber)->first();
@@ -38,7 +39,7 @@ class SpidUserService
             return $callback($spidData);
         }
 
-        $userModel = config('filament-spid.user_model', User::class);
+        $userModel = $this->resolveUserModel();
         $mapping = config('filament-spid.field_mapping', []);
 
         $data = [];
@@ -46,7 +47,7 @@ class SpidUserService
             $data[$field] = is_callable($mapper) ? $mapper($spidData->toArray()) : $spidData->{$mapper};
         }
 
-        $data['spid_data'] = json_encode($spidData->toArray());
+        $data['spid_data'] = $this->spidDataFor(new $userModel, $spidData);
 
         return $userModel::create($data);
     }
@@ -68,8 +69,40 @@ class SpidUserService
             }
         }
 
-        $data['spid_data'] = json_encode($spidData->toArray());
+        $data['spid_data'] = $this->spidDataFor($user, $spidData);
 
         $user->update($data);
+    }
+
+    /**
+     * Resolve the configured user model.
+     *
+     * filament-spid.user_model is the documented key; spid-auth.user_model is
+     * honoured for backward compatibility with setups configured before it existed.
+     */
+    protected function resolveUserModel(): string
+    {
+        return config('filament-spid.user_model')
+            ?: config('spid-auth.user_model')
+            ?: User::class;
+    }
+
+    /**
+     * Encode the SPID payload the way the target model expects it.
+     *
+     * Models casting spid_data (as the README recommends) encode on write, so
+     * handing them a JSON string would store double-encoded JSON.
+     *
+     * @return array<string, mixed>|string
+     */
+    protected function spidDataFor(Authenticatable $user, SpidUserData $spidData): array|string
+    {
+        $payload = $spidData->toArray();
+
+        if ($user instanceof Model && $user->hasCast('spid_data')) {
+            return $payload;
+        }
+
+        return json_encode($payload);
     }
 }
