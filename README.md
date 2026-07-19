@@ -113,6 +113,35 @@ public function panel(Panel $panel): Panel
 }
 ```
 
+### Authenticating users
+
+Nothing else is required: the package listens to the `LoginEvent` and
+`LogoutEvent` fired by `italia/spid-laravel` once the SAML response is
+validated, and takes care of
+
+- building a `SpidUserData` from the SPID attributes,
+- creating or updating the user through `SpidUserService`,
+- authenticating them on the panel guard (no remember-me cookie) and
+  regenerating the session,
+- tearing the session down on SPID logout.
+
+A failed provisioning sends the citizen back to the panel login page with a
+translated `spid_error` flash message instead of surfacing a 500.
+
+Customize the behaviour through `config/filament-spid.php`:
+
+| Key | Purpose |
+| --- | --- |
+| `register_listeners` | Set to `false` to replace the listeners with your own |
+| `user_model` | Model to provision |
+| `field_mapping` | SPID attribute → user column mapping |
+| `create_user_callback` / `update_user_callback` | Take over provisioning entirely |
+| `auto_create_users` / `update_user_data` | Whether to create or refresh accounts |
+
+The package also emits its own events — `SpidUserCreated`, `SpidUserUpdated`,
+`SpidAuthenticationSucceeded` and `SpidAuthenticationFailed` — to hook into
+without replacing the flow.
+
 ### Customization
 
 #### Custom Login View
@@ -122,13 +151,17 @@ SpidPlugin::make()
     ->loginView('your-custom-view')
 ```
 
-#### Custom Routes
+#### Optional Helper Routes
+
+The SAML endpoints belong to `italia/spid-laravel`. The plugin can additionally
+expose a few convenience routes (a login redirect, a providers JSON endpoint, a
+metadata proxy and a logout); they are **off by default**:
 
 ```php
 SpidPlugin::make()
+    ->registerRoutes(true)
     ->loginRoute('custom.spid.login')
     ->logoutRoute('custom.spid.logout')
-    ->acsRoute('custom.spid.acs')
     ->metadataRoute('custom.spid.metadata')
 ```
 
