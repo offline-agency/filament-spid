@@ -16,21 +16,34 @@ This package allows you to integrate SPID authentication into your Filament admi
 - 🇮🇹 Full SPID integration for Filament
 - 🔐 Secure SAML2 authentication
 - 🎨 Customizable login view
-- 🔧 Compatible with Filament 3 & 4
-- 📦 Support for Laravel 10, 11, 12
+- 🔧 Compatible with Filament 3, 4 & 5
+- 📦 Support for Laravel 11, 12, 13
 - ⚡ PHP 8.2+ ready
 - 🧪 Fully tested
 
 ## Requirements
 
-- PHP 8.2 or higher
-- Laravel 10.x, 11.x, or 12.x
-- Filament 3.x or 4.x
+- PHP 8.2, 8.3, 8.4 or 8.5
+- Laravel 11.x, 12.x or 13.x
+- Filament 3.x, 4.x or 5.x
 - [italia/spid-laravel](https://github.com/italia/spid-laravel) package
 
 ## Installation
 
-You can install the package via composer:
+`italia/spid-laravel` is installed from its Git repository, which Composer does
+not inherit from a dependency: add it to your application's `composer.json`
+first.
+
+```json
+"repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/italia/spid-laravel"
+    }
+]
+```
+
+Then install the package:
 
 ```bash
 composer require offline-agency/filament-spid
@@ -99,15 +112,15 @@ public function panel(Panel $panel): Panel
             SpidPlugin::make()
                 ->spidButtonLabel('Entra con SPID')
                 ->providers([
-                    'arubaid',
-                    'infocertid',
-                    'lepidaid',
-                    'namirialid',
-                    'posteid',
-                    'sielteid',
+                    'aruba',
+                    'infocert',
+                    'lepida',
+                    'namirial',
+                    'poste',
+                    'sielte',
                     'spiditalia',
-                    'timid',
-                    'teamsystemid'
+                    'tim',
+                    'teamsystem',
                 ])
         );
 }
@@ -207,7 +220,7 @@ when listed here.
 
 ```php
 SpidPlugin::make()
-    ->providers(['posteid', 'infocertid', 'timid'])
+    ->providers(['poste', 'infocert', 'tim'])
 ```
 
 ## Configuration
@@ -255,11 +268,9 @@ SPID supports three security levels:
 - `SpidL2` - Level 2 (Username, password, and OTP) - **Default**
 - `SpidL3` - Level 3 (Smart card or hardware token)
 
-Configure the level in your config file or when calling the login:
-
-```php
-route('spid.login', ['provider' => 'posteid', 'level' => 'SpidL2'])
-```
+The level actually enforced comes from `spid-auth.sp_requested_attributes` and
+the library configuration; `filament-spid.spid_level` only drives what the UI
+suggests.
 
 ## Testing
 

@@ -30,6 +30,13 @@ All notable changes to `filament-spid` will be documented in this file.
 - `SpidUserData::fromSpidAuth()` accepts the `SPIDUser` object as well as an
   array, reading its magic `__get` attributes explicitly.
 
+### Removed
+
+- The providers JSON endpoint no longer caches: the list comes from config.
+  `filament-spid.cache` is gone with it.
+- `SpidLoginRequest`, which validated a provider for an action that no longer
+  takes one, and the unused `EvaluatesClosures` trait on the plugin.
+
 ### Fixed
 
 - `spid_data` is no longer double-encoded for models casting the column, and the
@@ -45,3 +52,11 @@ All notable changes to `filament-spid` will be documented in this file.
   application instead.
 - Redirects resolve the panel login URL from Filament instead of assuming a
   panel named `admin`.
+- The library config is only copied into `config_path()` under artisan, not on
+  every boot, and `SPIDAuth` resolves to the library singleton rather than a
+  second instance.
+- jQuery is loaded through the DOM instead of `document.write`, which a strict
+  Content-Security-Policy blocks.
+- Documentation matches reality: supported versions (PHP 8.2–8.5, Laravel 11–13,
+  Filament 3–5), the VCS repository the installation needs, and the real
+  `spid-idps` provider keys (`poste`, `infocert`, `tim`, …).
