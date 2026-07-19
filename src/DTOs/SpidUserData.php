@@ -9,6 +9,22 @@ use Illuminate\Contracts\Support\Jsonable;
 
 class SpidUserData implements Arrayable, Jsonable
 {
+    /**
+     * SPID attributes read from a SPIDUser object.
+     *
+     * @var list<string>
+     */
+    protected const ATTRIBUTES = [
+        'fiscalNumber',
+        'name',
+        'familyName',
+        'email',
+        'spidCode',
+        'placeOfBirth',
+        'dateOfBirth',
+        'gender',
+    ];
+
     public function __construct(
         public readonly string $fiscalNumber,
         public readonly string $name,
@@ -21,8 +37,16 @@ class SpidUserData implements Arrayable, Jsonable
         public readonly ?array $rawData = null,
     ) {}
 
-    public static function fromSpidAuth(array $spidUser): self
+    /**
+     * @param  array<string, mixed>|object  $spidUser  raw attributes, or the SPIDUser
+     *                                                 shipped by italia/spid-laravel
+     */
+    public static function fromSpidAuth(array|object $spidUser): self
     {
+        if (is_object($spidUser)) {
+            $spidUser = self::attributesFromObject($spidUser);
+        }
+
         return new self(
             fiscalNumber: $spidUser['fiscalNumber'] ?? throw new \InvalidArgumentException('fiscalNumber is required'),
             name: $spidUser['name'] ?? '',
@@ -34,6 +58,30 @@ class SpidUserData implements Arrayable, Jsonable
             gender: $spidUser['gender'] ?? null,
             rawData: $spidUser,
         );
+    }
+
+    /**
+     * Read the SPID attributes off an object.
+     *
+     * SPIDUser keeps its attributes in a protected property and exposes them
+     * through __get, so get_object_vars() would come back empty: each attribute
+     * has to be read by name.
+     *
+     * @return array<string, mixed>
+     */
+    protected static function attributesFromObject(object $spidUser): array
+    {
+        $attributes = [];
+
+        foreach (self::ATTRIBUTES as $attribute) {
+            $value = $spidUser->{$attribute} ?? null;
+
+            if ($value !== null) {
+                $attributes[$attribute] = $value;
+            }
+        }
+
+        return $attributes;
     }
 
     public function toArray(): array
