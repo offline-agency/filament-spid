@@ -1,140 +1,82 @@
 <?php
 
 use Illuminate\Support\Facades\Config;
-use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
+use Illuminate\Support\Facades\Validator;
+use OfflineAgency\FilamentSpid\Constants\SpidLevel;
+use OfflineAgency\FilamentSpid\Http\Requests\SpidLoginRequest;
+
+/**
+ * SpidController::login() no longer validates a provider: the SAML handshake is
+ * triggered by the button posting to italia/spid-laravel, so the rules are
+ * exercised here directly against the FormRequest.
+ */
+function validateSpidLogin(array $data): Illuminate\Contracts\Validation\Validator
+{
+    return Validator::make($data, (new SpidLoginRequest)->rules());
+}
+
+beforeEach(function () {
+    Config::set('spid-idps', [
+        'posteid' => ['provider' => 'poste', 'isActive' => true],
+        'infocertid' => ['provider' => 'infocert', 'isActive' => false],
+    ]);
+});
 
 it('fails validation when provider is missing', function () {
-    $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
+    $validator = validateSpidLogin([]);
 
-    $response = $this->get('/spid/login');
-
-    $response->assertRedirect();
-    $response->assertSessionHasErrors(['provider']);
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('provider'))->toBeTrue();
 });
 
 it('fails validation when provider is not active/allowed', function () {
-    Config::set('spid-idps', [
-        'posteid' => [
-            'provider' => 'poste',
-            'isActive' => false,
-        ],
-    ]);
+    $validator = validateSpidLogin(['provider' => 'infocertid']);
 
-    $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('provider'))->toBeTrue();
+});
 
-    $response = $this->get('/spid/login?provider=poste');
+it('fails validation when provider is unknown', function () {
+    $validator = validateSpidLogin(['provider' => 'nonexistent']);
 
-    $response->assertRedirect();
-    $response->assertSessionHasErrors(['provider']);
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('provider'))->toBeTrue();
 });
 
 it('fails validation when level is invalid', function () {
-    Config::set('spid-idps', [
-        'posteid' => [
-            'provider' => 'poste',
-            'isActive' => true,
-        ],
-    ]);
+    $validator = validateSpidLogin(['provider' => 'posteid', 'level' => 'INVALID']);
 
-    $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
-
-    $response = $this->get('/spid/login?provider=poste&level=INVALID');
-
-    $response->assertRedirect();
-    $response->assertSessionHasErrors(['level']);
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('level'))->toBeTrue();
 });
 
-it('accepts valid SPID level 1', function () {
-    Config::set('spid-idps', [
-        'posteid' => [
-            'provider' => 'poste',
-            'isActive' => true,
-        ],
-    ]);
+it('accepts each valid SPID level', function (string $level) {
+    $validator = validateSpidLogin(['provider' => 'posteid', 'level' => $level]);
 
-    $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
+    expect($validator->fails())->toBeFalse();
+})->with([
+    SpidLevel::LEVEL_1->value,
+    SpidLevel::LEVEL_2->value,
+    SpidLevel::LEVEL_3->value,
+]);
 
-    $response = $this->get('/spid/login?provider=posteid&level=https://www.spid.gov.it/SpidL1');
+it('accepts a missing level', function () {
+    $validator = validateSpidLogin(['provider' => 'posteid']);
 
-    // Validation passes (no 302 with validation errors)
-    // May redirect back with SPID error, but no validation error in session
-    if ($response->status() === 302) {
-        $response->assertSessionMissing('errors');
-    }
-    expect(true)->toBeTrue();
-});
-
-it('accepts valid SPID level 2', function () {
-    Config::set('spid-idps', [
-        'posteid' => [
-            'provider' => 'poste',
-            'isActive' => true,
-        ],
-    ]);
-
-    $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
-
-    $response = $this->get('/spid/login?provider=posteid&level=https://www.spid.gov.it/SpidL2');
-
-    if ($response->status() === 302) {
-        $response->assertSessionMissing('errors');
-    }
-    expect(true)->toBeTrue();
-});
-
-it('accepts valid SPID level 3', function () {
-    Config::set('spid-idps', [
-        'posteid' => [
-            'provider' => 'poste',
-            'isActive' => true,
-        ],
-    ]);
-
-    $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
-
-    $response = $this->get('/spid/login?provider=posteid&level=https://www.spid.gov.it/SpidL3');
-
-    if ($response->status() === 302) {
-        $response->assertSessionMissing('errors');
-    }
-    expect(true)->toBeTrue();
-});
-
-it('uses default level when not provided', function () {
-    Config::set('spid-idps', [
-        'posteid' => [
-            'provider' => 'poste',
-            'isActive' => true,
-        ],
-    ]);
-    Config::set('filament-spid.spid_level', 'https://www.spid.gov.it/SpidL2');
-
-    $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
-
-    $response = $this->get('/spid/login?provider=posteid');
-
-    if ($response->status() === 302) {
-        $response->assertSessionMissing('errors');
-    }
-    expect(true)->toBeTrue();
+    expect($validator->fails())->toBeFalse();
 });
 
 it('validates provider against active providers only', function () {
-    Config::set('spid-idps', [
-        'posteid' => [
-            'provider' => 'poste',
-            'isActive' => true,
-        ],
-        'infocertid' => [
-            'provider' => 'infocert',
-            'isActive' => false,
-        ],
-    ]);
+    expect(validateSpidLogin(['provider' => 'posteid'])->fails())->toBeFalse()
+        ->and(validateSpidLogin(['provider' => 'infocertid'])->fails())->toBeTrue();
+});
 
-    $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
+it('authorizes every request', function () {
+    expect((new SpidLoginRequest)->authorize())->toBeTrue();
+});
 
-    $response = $this->get('/spid/login?provider=infocert');
+it('provides translated validation messages', function () {
+    $messages = (new SpidLoginRequest)->messages();
 
-    $response->assertRedirect();
-    $response->assertSessionHasErrors(['provider']);
+    expect($messages)->toHaveKeys(['provider.required', 'provider.in', 'level.in']);
 });
