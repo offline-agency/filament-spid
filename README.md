@@ -178,6 +178,9 @@ return [
 
 ## User Model
 
+The model is resolved from `filament-spid.user_model`. For backward compatibility
+`spid-auth.user_model` is used when that key is not set.
+
 Your User model should have these fields:
 
 ```php
@@ -193,6 +196,10 @@ protected $casts = [
     'spid_data' => 'array',
 ];
 ```
+
+The `spid_data` cast is optional: the package stores the SPID payload as a raw
+array when the model casts the column, and as a JSON string when it does not, so
+the value is never double-encoded either way.
 
 ## SPID Levels
 
