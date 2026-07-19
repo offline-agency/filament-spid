@@ -5,9 +5,7 @@ namespace OfflineAgency\FilamentSpid;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
-use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Event;
 use Italia\SPIDAuth\Events\LoginEvent;
 use Italia\SPIDAuth\Events\LogoutEvent;
@@ -36,13 +34,6 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
     {
         $this->app->bind(SPIDAuth::class, function () {
             return new SPIDAuth;
-        });
-
-        // Register custom CSRF middleware with proper dependencies (avoid singleton for Octane compatibility)
-        $this->app->bind(VerifyCsrfToken::class, function ($app) {
-            return new Http\Middleware\VerifyCsrfToken(
-                $app, $app->make(Encrypter::class)
-            );
         });
     }
 
