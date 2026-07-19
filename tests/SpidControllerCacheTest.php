@@ -5,8 +5,6 @@ use Illuminate\Support\Facades\Config;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
 
 beforeEach(function () {
-    Cache::forget('filament_spid_providers');
-
     Config::set('spid-idps', [
         'posteid' => [
             'provider' => 'poste',
@@ -20,52 +18,28 @@ beforeEach(function () {
     $this->app['router']->get('/spid/providers', [SpidController::class, 'providers']);
 });
 
-it('stores providers in cache under filament_spid_providers key', function () {
+it('does not cache the providers list', function () {
     $this->get('/spid/providers')->assertStatus(200);
 
-    expect(Cache::has('filament_spid_providers'))->toBeTrue();
+    expect(Cache::has('filament_spid_providers'))->toBeFalse();
 });
 
-it('returns cached providers on second request', function () {
-    $this->get('/spid/providers')->assertStatus(200);
+it('reflects a configuration change immediately', function () {
+    expect($this->get('/spid/providers')->json('providers'))->toHaveCount(1);
 
-    // Override config to different data — second request must still return cached data
     Config::set('spid-idps', []);
 
-    $response = $this->get('/spid/providers');
-    $response->assertStatus(200);
-    $data = $response->json('providers');
-
-    expect($data)->toHaveCount(1)
-        ->and($data[0]['provider'])->toBe('poste');
+    expect($this->get('/spid/providers')->json('providers'))->toBeEmpty();
 });
 
-it('caches providers with default TTL when config is not overridden', function () {
-    // Use the actual default TTL from config (3600)
-    Cache::forget('filament_spid_providers');
+it('skips inactive providers and the empty placeholder', function () {
+    Config::set('spid-idps', [
+        'empty' => ['isActive' => true],
+        'posteid' => ['provider' => 'poste', 'isActive' => true],
+        'timid' => ['provider' => 'tim', 'isActive' => false],
+    ]);
 
-    $this->get('/spid/providers')->assertStatus(200);
+    $providers = collect($this->get('/spid/providers')->json('providers'))->pluck('provider');
 
-    expect(Cache::has('filament_spid_providers'))->toBeTrue();
-});
-
-it('respects custom providers_ttl from config', function () {
-    Config::set('filament-spid.cache.providers_ttl', 60);
-    Cache::forget('filament_spid_providers');
-
-    $this->get('/spid/providers')->assertStatus(200);
-
-    expect(Cache::has('filament_spid_providers'))->toBeTrue();
-});
-
-it('cache is cleared and refreshed after manual forget', function () {
-    $this->get('/spid/providers')->assertStatus(200);
-    expect(Cache::has('filament_spid_providers'))->toBeTrue();
-
-    Cache::forget('filament_spid_providers');
-    expect(Cache::has('filament_spid_providers'))->toBeFalse();
-
-    // After forget, new request repopulates cache
-    $this->get('/spid/providers')->assertStatus(200);
-    expect(Cache::has('filament_spid_providers'))->toBeTrue();
+    expect($providers->all())->toBe(['poste']);
 });
