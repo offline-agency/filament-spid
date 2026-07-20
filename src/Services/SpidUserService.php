@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Services;
 
+use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
@@ -14,7 +15,7 @@ class SpidUserService
 {
     public function findOrCreateUser(SpidUserData $spidData): ?Authenticatable
     {
-        $userModel = config('filament-spid.user_model', \App\Models\User::class);
+        $userModel = config('filament-spid.user_model', User::class);
 
         return DB::transaction(function () use ($userModel, $spidData) {
             $user = $userModel::where('fiscal_code', $spidData->fiscalNumber)->first();
@@ -37,7 +38,7 @@ class SpidUserService
             return $callback($spidData);
         }
 
-        $userModel = config('filament-spid.user_model', \App\Models\User::class);
+        $userModel = config('filament-spid.user_model', User::class);
         $mapping = config('filament-spid.field_mapping', []);
 
         $data = [];

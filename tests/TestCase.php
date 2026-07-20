@@ -5,6 +5,7 @@ namespace OfflineAgency\FilamentSpid\Tests;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
 use Filament\Actions\ActionsServiceProvider;
+use Filament\Facades\Filament;
 use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
 use Filament\Infolists\InfolistsServiceProvider;
@@ -14,9 +15,12 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Foundation\Auth\User;
 use Italia\SPIDAuth\ServiceProvider as SPIDAuthServiceProvider;
 use Livewire\LivewireServiceProvider;
 use OfflineAgency\FilamentSpid\FilamentSpidServiceProvider;
+use OfflineAgency\FilamentSpid\Pages\SpidLogin;
+use OfflineAgency\FilamentSpid\SpidPlugin;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 
@@ -60,7 +64,7 @@ class TestCase extends Orchestra
         config()->set('spid-auth.sp_base_url', 'https://test.local');
         config()->set('spid-auth.sp_service_name', 'Test Service');
         config()->set('spid-auth.sp_organization_name', 'Test Org');
-        config()->set('spid-auth.user_model', \Illuminate\Foundation\Auth\User::class);
+        config()->set('spid-auth.user_model', User::class);
 
         // Create users table first
         $app['db']->connection()->getSchemaBuilder()->create('users', function ($table) {
@@ -86,11 +90,11 @@ class TestCase extends Orchestra
         $panel = Panel::make()
             ->id('admin')
             ->path('admin')
-            ->login(\OfflineAgency\FilamentSpid\Pages\SpidLogin::class)
+            ->login(SpidLogin::class)
             ->default();
 
         // Register the panel with Filament
-        \Filament\Facades\Filament::registerPanel($panel);
+        Filament::registerPanel($panel);
 
         return $panel;
     }
@@ -103,7 +107,7 @@ class TestCase extends Orchestra
         $panel = $this->setupFakeFilamentPanel();
 
         // Register the SPID plugin with the panel
-        $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::make();
+        $plugin = SpidPlugin::make();
         $panel->plugin($plugin);
 
         return $panel;

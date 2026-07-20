@@ -12,6 +12,8 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Italia\SPIDAuth\Exceptions\SPIDLoginAnomalyException;
+use Italia\SPIDAuth\Exceptions\SPIDLoginException;
 use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
@@ -96,14 +98,14 @@ class SpidController extends Controller
             event(new SpidAuthenticationSucceeded($user, $spidData));
 
             return redirect()->intended(config('filament-spid.redirect_after_login', '/admin'));
-        } catch (\Italia\SPIDAuth\Exceptions\SPIDLoginAnomalyException $e) {
+        } catch (SPIDLoginAnomalyException $e) {
             \Log::warning('SPID anomaly code '.$e->getErrorCode().': '.$e->getMessage());
             event(new SpidAuthenticationFailed($e->getMessage()));
 
             return redirect()
                 ->route($this->loginRoute())
                 ->with('spid_error', $this->resolveAnomalyMessage($e));
-        } catch (\Italia\SPIDAuth\Exceptions\SPIDLoginException $e) {
+        } catch (SPIDLoginException $e) {
             \Log::error('SPID login exception code '.$e->getCode().': '.$e->getMessage());
             event(new SpidAuthenticationFailed($e->getMessage()));
 
@@ -176,14 +178,14 @@ class SpidController extends Controller
             event(new SpidAuthenticationSucceeded($user, $spidData));
 
             return redirect()->intended(config('filament-spid.redirect_after_login', '/admin'));
-        } catch (\Italia\SPIDAuth\Exceptions\SPIDLoginAnomalyException $e) {
+        } catch (SPIDLoginAnomalyException $e) {
             \Log::warning('SPID anomaly code '.$e->getErrorCode().': '.$e->getMessage());
             event(new SpidAuthenticationFailed($e->getMessage()));
 
             return redirect()
                 ->route($this->loginRoute())
                 ->with('spid_error', $this->resolveAnomalyMessage($e));
-        } catch (\Italia\SPIDAuth\Exceptions\SPIDLoginException $e) {
+        } catch (SPIDLoginException $e) {
             \Log::error('SPID login exception code '.$e->getCode().': '.$e->getMessage());
             event(new SpidAuthenticationFailed($e->getMessage()));
 
@@ -200,7 +202,7 @@ class SpidController extends Controller
         }
     }
 
-    private function resolveAnomalyMessage(\Italia\SPIDAuth\Exceptions\SPIDLoginAnomalyException $e): string
+    private function resolveAnomalyMessage(SPIDLoginAnomalyException $e): string
     {
         $key = 'filament-spid::spid.error_'.$e->getErrorCode();
         $translated = __($key);
@@ -209,7 +211,7 @@ class SpidController extends Controller
         return $translated !== $key ? $translated : $e->getUserMessage();
     }
 
-    private function resolveSamlMessage(\Italia\SPIDAuth\Exceptions\SPIDLoginException $e): string
+    private function resolveSamlMessage(SPIDLoginException $e): string
     {
         $keyMap = [
             0 => 'saml_validation_error',

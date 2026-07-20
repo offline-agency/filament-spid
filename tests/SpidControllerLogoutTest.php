@@ -1,12 +1,15 @@
 <?php
 
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
+use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
 it('can instantiate SpidController with dependencies', function () {
-    $spid = $this->app[\Italia\SPIDAuth\SPIDAuth::class];
-    $userService = $this->app[\OfflineAgency\FilamentSpid\Services\SpidUserService::class];
+    $spid = $this->app[SPIDAuth::class];
+    $userService = $this->app[SpidUserService::class];
 
     $controller = new SpidController($spid, $userService);
 
@@ -14,8 +17,8 @@ it('can instantiate SpidController with dependencies', function () {
 });
 
 it('logout method exists and is callable', function () {
-    $spid = $this->app[\Italia\SPIDAuth\SPIDAuth::class];
-    $userService = $this->app[\OfflineAgency\FilamentSpid\Services\SpidUserService::class];
+    $spid = $this->app[SPIDAuth::class];
+    $userService = $this->app[SpidUserService::class];
 
     $controller = new SpidController($spid, $userService);
 
@@ -24,8 +27,8 @@ it('logout method exists and is callable', function () {
 });
 
 it('logout method handles session invalidation', function () {
-    $spid = $this->app[\Italia\SPIDAuth\SPIDAuth::class];
-    $userService = $this->app[\OfflineAgency\FilamentSpid\Services\SpidUserService::class];
+    $spid = $this->app[SPIDAuth::class];
+    $userService = $this->app[SpidUserService::class];
 
     $controller = new SpidController($spid, $userService);
 
@@ -43,13 +46,13 @@ it('logout method handles session invalidation', function () {
 });
 
 it('logout method handles authentication', function () {
-    $spid = $this->app[\Italia\SPIDAuth\SPIDAuth::class];
-    $userService = $this->app[\OfflineAgency\FilamentSpid\Services\SpidUserService::class];
+    $spid = $this->app[SPIDAuth::class];
+    $userService = $this->app[SpidUserService::class];
 
     $controller = new SpidController($spid, $userService);
 
     // Mock an authenticated user
-    $user = new \Illuminate\Foundation\Auth\User;
+    $user = new User;
     $user->id = 1;
     Auth::login($user);
 

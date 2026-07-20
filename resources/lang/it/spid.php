@@ -23,10 +23,10 @@ return [
     'error_25' => 'Operazione non consentita.',
 
     // Errori a livello SAML
-    'saml_validation_error'           => 'La risposta di autenticazione non è valida.',
+    'saml_validation_error' => 'La risposta di autenticazione non è valida.',
     'saml_response_already_processed' => 'Questa risposta di autenticazione è già stata utilizzata.',
-    'saml_authentication_error'       => 'Il provider di identità ha rifiutato la richiesta.',
-    'saml_request_id_missing'         => 'Sessione di autenticazione persa. Riprova.',
-    'saml_malformed_idp'              => 'Provider di identità non valido.',
-    'saml_nonexistent_idp'            => 'Il provider di identità selezionato non esiste.',
+    'saml_authentication_error' => 'Il provider di identità ha rifiutato la richiesta.',
+    'saml_request_id_missing' => 'Sessione di autenticazione persa. Riprova.',
+    'saml_malformed_idp' => 'Provider di identità non valido.',
+    'saml_nonexistent_idp' => 'Il provider di identità selezionato non esiste.',
 ];
