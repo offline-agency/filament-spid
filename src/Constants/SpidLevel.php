@@ -29,14 +29,23 @@ enum SpidLevel: string
      *
      * italia/spid-laravel requests spid-auth.sp_spid_level and rejects any
      * assertion below it, so checking the configured level is enough to know
-     * every accepted login meets the minimum. An unreadable requested level
-     * fails; an unreadable minimum falls back to SpidL2.
+     * every accepted login meets the minimum. Fails closed when either level
+     * is unreadable: a typo in a minimum meant as SpidL3 must not quietly
+     * become a lower one.
      */
     public static function requestedMeetsMinimum(): bool
     {
         $requested = self::tryFrom((string) config('spid-auth.sp_spid_level'));
-        $minimum = self::tryFrom((string) config('filament-spid.minimum_level')) ?? self::LEVEL_2;
+        $minimum = self::minimum();
 
-        return $requested?->meets($minimum) ?? false;
+        return $requested !== null && $minimum !== null && $requested->meets($minimum);
+    }
+
+    /**
+     * filament-spid.minimum_level, or null when it is not a SPID level URI.
+     */
+    public static function minimum(): ?self
+    {
+        return self::tryFrom((string) config('filament-spid.minimum_level', self::LEVEL_2->value));
     }
 }

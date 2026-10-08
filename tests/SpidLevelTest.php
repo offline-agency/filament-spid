@@ -79,9 +79,18 @@ it('is satisfied when the requested level meets the minimum', function (string $
     ['not-a-level', 'https://www.spid.gov.it/SpidL2', false],
 ]);
 
-it('falls back to SpidL2 when the minimum is not a SPID level', function () {
-    config()->set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
-    config()->set('filament-spid.minimum_level', 'typo');
+it('fails closed when the minimum is not a SPID level', function () {
+    // A typo in a minimum meant to be SpidL3 must not quietly become SpidL2.
+    config()->set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL3');
+    config()->set('filament-spid.minimum_level', 'https://www.spid.gov.it/SpidL3 ');
 
     expect(SpidLevel::requestedMeetsMinimum())->toBeFalse();
+});
+
+it('reads the configured minimum level', function () {
+    config()->set('filament-spid.minimum_level', 'https://www.spid.gov.it/SpidL3');
+    expect(SpidLevel::minimum())->toBe(SpidLevel::LEVEL_3);
+
+    config()->set('filament-spid.minimum_level', 'typo');
+    expect(SpidLevel::minimum())->toBeNull();
 });

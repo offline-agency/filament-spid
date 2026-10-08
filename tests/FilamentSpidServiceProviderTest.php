@@ -118,6 +118,17 @@ describe('FilamentSpidServiceProvider - Listeners', function () {
         );
     });
 
+    it('warns at boot when the minimum level is not a SPID level', function () {
+        Config::set('filament-spid.minimum_level', 'SpidL3');
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldHaveReceived('warning')->withArgs(
+            fn (string $message) => str_contains($message, '[SpidL3]') && str_contains($message, 'not a SPID level')
+        );
+    });
+
     it('stays quiet at boot when the requested SPID level meets the minimum', function () {
         Log::spy();
 

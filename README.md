@@ -298,7 +298,9 @@ column is nullable, map it to `null` instead:
 any assertion below it. The plugin refuses every SPID login, and logs a warning
 at boot, while that level is below `filament-spid.minimum_level` (SpidL2 by
 default). Raise the minimum to SpidL3 for panels that need it; lowering it to
-SpidL1 is possible but not recommended for admin panels.
+SpidL1 is possible but not recommended for admin panels. The minimum must be
+one of the three URIs above: anything else refuses every login, so a typo can
+never lower it.
 
 ## Multiple panels
 

@@ -52,11 +52,16 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
 
         // HandleSpidLogin refuses these logins; say why before anyone tries.
         if (config('filament-spid.enabled', true) && ! SpidLevel::requestedMeetsMinimum()) {
-            Log::warning(sprintf(
-                'filament-spid: spid-auth.sp_spid_level [%s] is below filament-spid.minimum_level [%s]; SPID logins will be refused.',
-                config('spid-auth.sp_spid_level'),
-                config('filament-spid.minimum_level'),
-            ));
+            Log::warning(SpidLevel::minimum() === null
+                ? sprintf(
+                    'filament-spid: filament-spid.minimum_level [%s] is not a SPID level URI; SPID logins will be refused.',
+                    config('filament-spid.minimum_level'),
+                )
+                : sprintf(
+                    'filament-spid: spid-auth.sp_spid_level [%s] is below filament-spid.minimum_level [%s]; SPID logins will be refused.',
+                    config('spid-auth.sp_spid_level'),
+                    config('filament-spid.minimum_level'),
+                ));
         }
 
         // Asset Registration
