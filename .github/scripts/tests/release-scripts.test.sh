@@ -77,6 +77,26 @@ check "falls back to Unreleased" $'### Fixed\n\n- Bug.' "$(notes "$TMP/unrelease
 check "no partial version match" "" "$(notes "$TMP/prefix.md" 0.2.0)"
 check "missing changelog" "" "$(notes "$TMP/missing.md" 0.2.0)"
 
+# release-plan.sh runs against a throwaway repository.
+REPO="$TMP/repo"
+git init -q "$REPO"
+gitc() { git -C "$REPO" -c user.name=t -c user.email=t@example.com "$@"; }
+gitc commit -q --allow-empty -m one
+gitc tag 0.1.8
+gitc commit -q --allow-empty -m two
+SHA2=$(gitc rev-parse HEAD)
+gitc tag 0.2.0-rc1
+
+plan() { (cd "$REPO" && bash "$DIR/release-plan.sh" "$@"); }
+
+check "plans the next version for a new commit" $'latest=0.1.8\nnext=0.2.0' "$(plan "$SHA2" minor)"
+check "ignores pre-release tags" $'latest=0.1.8\nnext=0.1.9' "$(plan "$SHA2" patch)"
+gitc tag 0.2.0 "$SHA2"
+check_exit "refuses a commit that already has a release tag" 3 plan "$SHA2" minor
+gitc commit -q --allow-empty -m three
+check "moves on from the new tag" $'latest=0.2.0\nnext=0.2.1' "$(plan "$(gitc rev-parse HEAD)" patch)"
+check_exit "unknown commit" 2 plan deadbeef patch
+
 if [ "$failures" -gt 0 ]; then
     echo "$failures failure(s)"
     exit 1

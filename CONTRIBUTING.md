@@ -77,8 +77,12 @@ Releases are cut automatically when a pull request is merged into `main`
 - Every pull request into `main` needs exactly one of these labels;
   `release-check.yml` fails otherwise. Dependabot PRs are exempt and never
   release.
-- The version is computed from the latest tag. Tags carry no `v` prefix
-  (`0.2.0`). The job fails if the tag already exists.
+- The version is computed from the latest `X.Y.Z` tag (pre-release tags are
+  ignored). Tags carry no `v` prefix (`0.2.0`). The tag goes on the PR's merge
+  commit, and the job refuses a commit that already has a release tag, so
+  re-running a release never bumps twice.
+- Releases run one at a time. If several PRs are merged in quick succession,
+  GitHub may skip a queued run: re-run it from the Actions tab.
 - The workflow creates an annotated tag as `github-actions[bot]` and a GitHub
   release whose notes start with the matching `CHANGELOG.md` section
   (`## <version>`, or `## Unreleased` when there is none), followed by the notes

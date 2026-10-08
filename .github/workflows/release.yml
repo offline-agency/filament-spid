@@ -1,14 +1,19 @@
 name: release
 
-# Tags and releases a merged pull request into main.
+# Tags and releases the merge commit of a pull request merged into main.
 #
 # The bump comes from the PR labels release:major / release:minor /
 # release:patch (patch when none is set); skip-release and Dependabot PRs
 # produce no release. release-check.yml makes sure every PR carries one of
-# those labels. workflow_dispatch releases main by hand.
+# those labels. workflow_dispatch releases the head of main by hand.
+#
+# pull_request_target, not pull_request: a PR from a fork would otherwise get
+# a read-only token and could not push the tag. It is safe here because the
+# job only checks out the merge commit, which is already on main, and never
+# runs code from the PR branch.
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
     branches: [main]
   workflow_dispatch:
@@ -19,6 +24,9 @@ on:
         options: [patch, minor, major]
         default: patch
 
+# One release at a time, never cancelled. GitHub keeps a single pending run
+# per group: if three merges land within one release run, re-run the skipped
+# one; release-plan.sh refuses commits that are already tagged.
 concurrency:
   group: release
   cancel-in-progress: false
@@ -38,11 +46,12 @@ jobs:
        !contains(github.event.pull_request.labels.*.name, 'skip-release'))
 
     steps:
-      - name: Checkout main
+      - name: Checkout the merged commit
         uses: actions/checkout@v6
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.merge_commit_sha || 'main' }}
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Determine the bump
         id: bump
@@ -62,29 +71,24 @@ jobs:
           echo "bump=$bump" >> "$GITHUB_OUTPUT"
           echo "Bump: $bump"
 
-      - name: Compute the version
+      - name: Plan the version
         id: version
         env:
           BUMP: ${{ steps.bump.outputs.bump }}
         run: |
-          # Tags carry no v prefix (0.1.8).
-          latest=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)
-          next=$(bash .github/scripts/next-version.sh "$latest" "$BUMP")
-          if git rev-parse -q --verify "refs/tags/$next" >/dev/null; then
-            echo "::error::Tag $next already exists"
-            exit 1
-          fi
-          echo "latest=$latest" >> "$GITHUB_OUTPUT"
-          echo "next=$next" >> "$GITHUB_OUTPUT"
-          echo "Latest: ${latest:-none}, next: $next"
+          sha=$(git rev-parse HEAD)
+          # Fails when this commit already carries a release tag (re-runs).
+          bash .github/scripts/release-plan.sh "$sha" "$BUMP" | tee -a "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
       - name: Create the tag
         env:
           NEXT: ${{ steps.version.outputs.next }}
+          SHA: ${{ steps.version.outputs.sha }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$NEXT" -m "Release $NEXT"
+          git tag -a "$NEXT" -m "Release $NEXT" "$SHA"
           git push origin "refs/tags/$NEXT"
 
       - name: Create the GitHub release
