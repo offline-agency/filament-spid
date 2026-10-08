@@ -54,6 +54,8 @@ See "Upgrading from 0.1.x" in the README.
   `showSpidButton(false)`, which leaves the panel login page untouched.
 - `SpidPlugin::resolve()` returns the plugin on the current panel, or null, so
   views render outside a SPID panel.
+- A warning is logged when a `->login()` chained after the plugin replaced the
+  SPID login page.
 - `SpidUserData::fromSpidAuth()` accepts the `SPIDUser` object as well as an
   array.
 - Release automation: merging a PR into `main` tags and releases it from its

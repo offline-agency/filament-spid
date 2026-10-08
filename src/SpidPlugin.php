@@ -4,6 +4,7 @@ namespace OfflineAgency\FilamentSpid;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Illuminate\Support\Facades\Log;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
 use OfflineAgency\FilamentSpid\Pages\SpidLogin;
 
@@ -51,6 +52,18 @@ class SpidPlugin implements Plugin
 
     public function boot(Panel $panel): void
     {
+        // Filament runs register() inside ->plugin(), so a ->login() chained
+        // after it, as in the panel provider filament:install generates,
+        // silently puts the default login page back. Routes are registered by
+        // now, so all that can be done here is to say so.
+        if (config('filament-spid.enabled', true) && $this->showSpidButton
+            && $panel->getLoginRouteAction() !== SpidLogin::class) {
+            Log::warning(sprintf(
+                'filament-spid: panel [%s] does not use the SPID login page. Chain ->plugin(SpidPlugin::make()) after ->login(), or drop ->login().',
+                $panel->getId(),
+            ));
+        }
+
         if ($this->registerRoutes && config('filament-spid.enabled', true)) {
             \Route::middleware(['web'])
                 ->prefix($panel->getPath())

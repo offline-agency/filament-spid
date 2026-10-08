@@ -3,7 +3,42 @@
 use Filament\Facades\Filament;
 use Filament\Panel;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use OfflineAgency\FilamentSpid\SpidPlugin;
+
+it('warns when a later ->login() replaced the SPID login page', function () {
+    // Filament runs register() inside ->plugin(), so a ->login() after it (as
+    // the panel stub filament:install generates) puts the default page back.
+    Log::spy();
+    $plugin = SpidPlugin::make();
+    $panel = Panel::make()->id('late-login')->path('late-login')->plugin($plugin)->login();
+
+    $plugin->boot($panel);
+
+    Log::shouldHaveReceived('warning')->withArgs(
+        fn (string $message) => str_contains($message, 'late-login') && str_contains($message, '->login()')
+    );
+});
+
+it('stays quiet when the SPID login page is in place', function () {
+    Log::spy();
+    $plugin = SpidPlugin::make();
+    $panel = Panel::make()->id('spid-login')->path('spid-login')->login()->plugin($plugin);
+
+    $plugin->boot($panel);
+
+    Log::shouldNotHaveReceived('warning');
+});
+
+it('stays quiet when the panel opted out of the SPID login page', function () {
+    Log::spy();
+    $plugin = SpidPlugin::make()->showSpidButton(false);
+    $panel = Panel::make()->id('opted-out')->path('opted-out')->plugin($plugin)->login();
+
+    $plugin->boot($panel);
+
+    Log::shouldNotHaveReceived('warning');
+});
 
 it('registers routes when registerRoutes is true', function () {
     $plugin = SpidPlugin::make()->registerRoutes(true);

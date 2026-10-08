@@ -168,6 +168,8 @@ a token.
 
 ### 6. Register the plugin
 
+No panel yet? Create one with `php artisan filament:install --panels`.
+
 ```php
 use OfflineAgency\FilamentSpid\SpidPlugin;
 
@@ -177,9 +179,17 @@ public function panel(Panel $panel): Panel
         ->default()
         ->id('admin')
         ->path('admin')
+        ->login()
+        // After ->login(): the plugin swaps the login page when it is added,
+        // so a ->login() chained later would put the default page back.
         ->plugin(SpidPlugin::make());
 }
 ```
+
+The panel provider `filament:install` generates calls `->login()`; register the
+plugin after it, or remove it. If the order is wrong, the panel keeps the
+standard login form and the log says
+`panel [admin] does not use the SPID login page`.
 
 ### 7. Prepare the user model
 
@@ -381,6 +391,10 @@ development, `spid-auth.test_idp` adds the
 [SPID test environment](https://github.com/italia/spid-testenv2).
 
 ## Troubleshooting
+
+**The panel shows the standard email and password form.** `->login()` is chained
+after `->plugin(SpidPlugin::make())` and replaced the SPID page; move the plugin
+after it ([step 6](#6-register-the-plugin)).
 
 **419 Page Expired on the ACS.** The IdP's POST is hitting CSRF protection.
 Exclude `<routes_prefix>/acs` as shown in
