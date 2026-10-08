@@ -58,15 +58,24 @@ it('logout handles exception and still redirects to login', function () {
     $response->assertRedirect(route('filament.admin.auth.login'));
 });
 
-it('metadata returns xml on success', function () {
-    $spidMock = m::mock(SPIDAuth::class);
-    $spidMock->shouldReceive('getSPMetadata')->once()->andReturn('<xml/>');
-    $this->app->instance(SPIDAuth::class, $spidMock);
+it('metadata returns the signed SP metadata built by italia/spid-laravel', function () {
+    // Real SPIDAuth singleton: the library's default config ships a test SP
+    // key and certificate, so the metadata is actually generated and signed.
+    $this->app['router']->get('/spid/sp-metadata', [SpidController::class, 'metadata']);
 
-    $this->app['router']->get('/spid/metadata', [SpidController::class, 'metadata']);
+    $response = $this->get('/spid/sp-metadata');
 
-    $response = $this->get('/spid/metadata');
+    $response->assertOk();
+    expect($response->headers->get('Content-Type'))->toContain('xml')
+        ->and($response->getContent())
+        ->toContain('<md:EntityDescriptor')
+        ->toContain('entityID="https://test.local"')
+        ->toContain('<ds:Signature');
+});
 
-    $response->assertStatus(200);
-    expect($response->headers->get('Content-Type'))->toContain('xml');
+it('metadata is not found when the library does not expose it', function () {
+    config()->set('spid-auth.expose_sp_metadata', false);
+    $this->app['router']->get('/spid/sp-metadata', [SpidController::class, 'metadata']);
+
+    $this->get('/spid/sp-metadata')->assertNotFound();
 });

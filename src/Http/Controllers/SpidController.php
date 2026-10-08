@@ -92,18 +92,14 @@ class SpidController extends Controller
     }
 
     /**
-     * Return SPID metadata
+     * Return the signed SP metadata.
+     *
+     * The library answers 404 when spid-auth.expose_sp_metadata is off and
+     * throws SPIDMetadataException on a broken SP configuration, which should
+     * surface rather than be masked.
      */
     public function metadata(): Response
     {
-        try {
-            $metadata = $this->spid->getSPMetadata();
-
-            return response($metadata)->header('Content-Type', 'application/xml');
-        } catch (\Exception $e) {
-            \Log::error('SPID Metadata Error: '.$e->getMessage());
-
-            return response('Error generating metadata', 500);
-        }
+        return $this->spid->metadata();
     }
 }

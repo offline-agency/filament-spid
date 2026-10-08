@@ -14,9 +14,7 @@ parameters:
     ignoreErrors:
         # External dependencies that are not available during static analysis
         - '#Class App\\Models\\User not found#'
-        
-        # SPIDAuth library method signature issues - external library
-        - '#Call to an undefined method Italia\\SPIDAuth\\SPIDAuth::getSPMetadata\(\)#'
-        
+
+
         # Config files are allowed to use env() calls
         - '#Called .*env.*outside of the config directory#'
