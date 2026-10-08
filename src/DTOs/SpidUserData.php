@@ -7,6 +7,9 @@ namespace OfflineAgency\FilamentSpid\DTOs;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 
+/**
+ * @implements Arrayable<string, string|null>
+ */
 class SpidUserData implements Arrayable, Jsonable
 {
     /**
@@ -25,6 +28,9 @@ class SpidUserData implements Arrayable, Jsonable
         'gender',
     ];
 
+    /**
+     * @param  array<string, mixed>|null  $rawData
+     */
     public function __construct(
         public readonly string $fiscalNumber,
         public readonly string $name,
@@ -84,6 +90,9 @@ class SpidUserData implements Arrayable, Jsonable
         return $attributes;
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     public function toArray(): array
     {
         return [
@@ -100,6 +109,7 @@ class SpidUserData implements Arrayable, Jsonable
 
     public function toJson($options = 0): string
     {
-        return json_encode($this->toArray(), $options);
+        // Throw rather than return false, which the Jsonable contract does not allow.
+        return json_encode($this->toArray(), $options | JSON_THROW_ON_ERROR);
     }
 }

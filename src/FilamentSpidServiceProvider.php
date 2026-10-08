@@ -108,7 +108,7 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
         }
     }
 
-    protected function getAssetPackageName(): ?string
+    protected function getAssetPackageName(): string
     {
         return 'offline-agency/filament-spid';
     }

@@ -25,6 +25,7 @@ class SpidPlugin implements Plugin
 
     protected string $loginView = 'filament-spid::login';
 
+    /** @var list<string> */
     protected array $providers = [];
 
     /**
@@ -148,6 +149,9 @@ class SpidPlugin implements Plugin
         return $this;
     }
 
+    /**
+     * @param  list<string>  $providers  spid-idps keys allowed on the button; empty allows all
+     */
     public function providers(array $providers): static
     {
         $this->providers = $providers;
@@ -202,6 +206,9 @@ class SpidPlugin implements Plugin
         return $this->loginView;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getProviders(): array
     {
         return $this->providers;

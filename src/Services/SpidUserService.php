@@ -18,7 +18,7 @@ class SpidUserService
     {
         $userModel = $this->resolveUserModel();
 
-        return DB::transaction(function () use ($userModel, $spidData) {
+        return DB::transaction(function () use ($userModel, $spidData): ?Authenticatable {
             $user = $userModel::where('fiscal_code', $spidData->fiscalNumber)->first();
 
             if (! $user && config('filament-spid.auto_create_users', false)) {
@@ -52,6 +52,9 @@ class SpidUserService
         return $userModel::create($data);
     }
 
+    /**
+     * @param  Model&Authenticatable  $user
+     */
     protected function updateUser(Authenticatable $user, SpidUserData $spidData): void
     {
         if ($callback = config('filament-spid.update_user_callback')) {
@@ -79,6 +82,8 @@ class SpidUserService
      *
      * filament-spid.user_model is the documented key; spid-auth.user_model is
      * honoured for backward compatibility with setups configured before it existed.
+     *
+     * @return class-string<Model&Authenticatable>
      */
     protected function resolveUserModel(): string
     {
