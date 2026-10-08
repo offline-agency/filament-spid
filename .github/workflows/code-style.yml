@@ -1,4 +1,4 @@
-name: PHPStan
+name: code-style
 
 on:
   push:
@@ -7,18 +7,17 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: phpstan-${{ github.ref }}
+  group: code-style-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  phpstan:
-    name: PHPStan PHP ${{ matrix.php }}
+  pint:
+    name: Pint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        php: [8.5, 8.4, 8.3, 8.2]
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -27,7 +26,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: 8.4
           coverage: none
 
       - name: Use the patched italia/spid-laravel
@@ -36,5 +35,11 @@ jobs:
       - name: Install composer dependencies
         run: composer update --prefer-stable --prefer-dist --no-interaction
 
-      - name: Run PHPStan
-        run: ./vendor/bin/phpstan --error-format=github
+      # Check only: style fixes are the author's to commit, so CI never
+      # pushes to a branch.
+      - name: Check code style
+        run: vendor/bin/pint --test
+
+      - name: Test the CI helper scripts
+        run: |
+          for t in .github/scripts/tests/*.test.sh; do bash "$t"; done
