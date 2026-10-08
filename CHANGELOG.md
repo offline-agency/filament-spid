@@ -10,6 +10,10 @@ All notable changes to `filament-spid` will be documented in this file.
   the new `filament-spid.minimum_level` (default SpidL2), and boot logs a
   warning. The library defaults to SpidL1: set `sp_spid_level` to SpidL2 or
   higher.
+- **BREAKING** Without an email from SPID, the default mapping stores
+  `<fiscal code, lowercased>@spid.invalid` instead of `<fiscal code>@spid.local`
+  (`.local` is resolvable on a LAN). Accounts created before keep their address
+  until the next login updates it when `update_user_data` is on.
 - **BREAKING** `auto_create_users` defaults to `false` (`SPID_AUTO_CREATE_USERS`):
   a SPID identity no longer creates an account unless you opt in.
 - **BREAKING** The unused `redirect_after_login`, `spid_level` and `providers`

@@ -101,8 +101,12 @@ return [
         'name' => function ($spidUser) {
             return $spidUser['name'].' '.$spidUser['familyName'];
         },
+        // SPID only sends an email when the IdP has one. The fallback is unique
+        // per citizen and stable across logins, and .invalid (RFC 2606) never
+        // resolves, so it neither receives mail nor collides with a real
+        // address. Return null instead if your users table allows it.
         'email' => function ($spidUser) {
-            return $spidUser['email'] ?? $spidUser['fiscalNumber'].'@spid.local';
+            return $spidUser['email'] ?? strtolower($spidUser['fiscalNumber']).'@spid.invalid';
         },
         'fiscal_code' => function ($spidUser) {
             return $spidUser['fiscalNumber'];

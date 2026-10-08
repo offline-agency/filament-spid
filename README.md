@@ -301,6 +301,19 @@ The `spid_data` cast is optional: the package stores the SPID payload as a raw
 array when the model casts the column, and as a JSON string when it does not, so
 the value is never double-encoded either way.
 
+SPID only sends an email when the IdP holds one. When it does not, the default
+`field_mapping.email` stores `<fiscal code, lowercased>@spid.invalid`: unique
+per citizen, stable across logins, and undeliverable (`.invalid` is reserved by
+RFC 2606), so it can never collide with or reach a real mailbox. If your `email`
+column is nullable, map it to `null` instead:
+
+```php
+'field_mapping' => [
+    // ...
+    'email' => fn (array $spidUser) => $spidUser['email'] ?? null,
+],
+```
+
 ## SPID Levels
 
 SPID supports three security levels:

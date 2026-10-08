@@ -72,17 +72,26 @@ describe('Configuration', function () {
             ->and($fiscalCode)->toBe('RSSMRA80A01H501U');
     });
 
-    it('field_mapping email handles missing email', function () {
-        $mapping = config('filament-spid.field_mapping');
-        $spidUser = [
-            'name' => 'Mario',
-            'familyName' => 'Rossi',
-            'fiscalNumber' => 'RSSMRA80A01H501U',
-        ];
+    it('falls back to an undeliverable per-citizen email when SPID sends none', function () {
+        // .invalid is reserved (RFC 2606): it never resolves, so the address
+        // can neither receive mail nor collide with a real one.
+        $email = config('filament-spid.field_mapping.email')(['fiscalNumber' => 'RSSMRA80A01H501U']);
 
-        $email = $mapping['email']($spidUser);
+        expect($email)->toBe('rssmra80a01h501u@spid.invalid');
+    });
 
-        expect($email)->toBe('RSSMRA80A01H501U@spid.local');
+    it('gives each citizen a different fallback email, the same on every login', function () {
+        $email = config('filament-spid.field_mapping.email');
+
+        expect($email(['fiscalNumber' => 'RSSMRA80A01H501U']))
+            ->toBe($email(['fiscalNumber' => 'RSSMRA80A01H501U']))
+            ->not->toBe($email(['fiscalNumber' => 'VRDLGI85B02F205X']));
+    });
+
+    it('keeps the email SPID provides', function () {
+        $email = config('filament-spid.field_mapping.email')(['fiscalNumber' => 'RSSMRA80A01H501U', 'email' => 'mario@example.com']);
+
+        expect($email)->toBe('mario@example.com');
     });
 
     it('has create_user_callback configuration', function () {
