@@ -10,6 +10,7 @@ use Italia\SPIDAuth\Events\LoginEvent;
 use Italia\SPIDAuth\SPIDUser;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
+use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
 
@@ -170,10 +171,13 @@ it('authenticates against the configured panel', function () {
     expect(Auth::guard('web')->check())->toBeTrue();
 });
 
-it('falls back to the default guard when the configured panel is unknown', function () {
+it('refuses to log in when the configured panel is unknown', function () {
+    // A typo in FILAMENT_SPID_PANEL must not silently authenticate the
+    // citizen on whatever guard happens to be the default.
     Config::set('filament-spid.panel', 'does-not-exist');
 
-    app(HandleSpidLogin::class)->handle(loginEvent());
+    expect(fn () => app(HandleSpidLogin::class)->handle(loginEvent()))
+        ->toThrow(SpidPanelNotFoundException::class, 'does-not-exist');
 
-    expect(Auth::guard(config('auth.defaults.guard'))->check())->toBeTrue();
+    expect(Auth::guard(config('auth.defaults.guard'))->check())->toBeFalse();
 });

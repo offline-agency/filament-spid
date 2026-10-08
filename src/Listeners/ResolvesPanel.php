@@ -6,25 +6,45 @@ namespace OfflineAgency\FilamentSpid\Listeners;
 
 use Filament\Facades\Filament;
 use Filament\Panel;
+use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 
 trait ResolvesPanel
 {
     /**
      * Resolve the panel the SPID flow belongs to.
      *
-     * Filament throws when no panel is registered as default, which is a
-     * legitimate state outside a panel request.
+     * The ACS request runs on a library route, outside any panel, so in a
+     * multi-panel application the panel to authenticate against has to be
+     * named explicitly. A named panel that does not exist is a configuration
+     * error and throws: falling back would log the citizen in on whatever
+     * guard happens to be the default.
+     *
+     * @throws SpidPanelNotFoundException
      */
     protected function panel(): ?Panel
     {
-        try {
-            // The ACS request runs on a library route, outside any panel, so in a
-            // multi-panel application the panel to authenticate against has to be
-            // named explicitly.
-            if ($id = config('filament-spid.panel')) {
-                return Filament::getPanel($id);
+        if ($id = config('filament-spid.panel')) {
+            try {
+                // The facade docblock promises a Panel, but FilamentManager
+                // can return null (it does on Filament 5).
+                /** @var Panel|null $panel */
+                $panel = Filament::getPanel($id);
+            } catch (\Throwable $e) {
+                throw SpidPanelNotFoundException::forId($id, $e);
             }
 
+            // Depending on the major, Filament returns null or the default
+            // panel for an unknown id instead of throwing.
+            if (! $panel instanceof Panel || $panel->getId() !== $id) {
+                throw SpidPanelNotFoundException::forId($id);
+            }
+
+            return $panel;
+        }
+
+        // Filament throws when no panel is registered as default, which is a
+        // legitimate state outside a panel request.
+        try {
             return Filament::getCurrentPanel() ?? Filament::getDefaultPanel();
         } catch (\Throwable) {
             return null;

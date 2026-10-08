@@ -26,6 +26,10 @@ class HandleSpidLogin
 
     public function handle(LoginEvent $event): void
     {
+        // Resolved first: a misconfigured panel must fail before anyone is
+        // provisioned, and loudly rather than as a generic SPID error.
+        $guard = $this->guard();
+
         try {
             $spidData = SpidUserData::fromSpidAuth($event->getSPIDUser());
 
@@ -37,7 +41,7 @@ class HandleSpidLogin
             }
 
             // No remember token: a SPID session must not outlive the browser one.
-            Auth::guard($this->guard())->login($user);
+            Auth::guard($guard)->login($user);
 
             Session::regenerate();
 
