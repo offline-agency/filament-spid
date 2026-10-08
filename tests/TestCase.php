@@ -68,6 +68,8 @@ class TestCase extends Orchestra
         config()->set('spid-auth.sp_base_url', 'https://test.local');
         config()->set('spid-auth.sp_service_name', 'Test Service');
         config()->set('spid-auth.sp_organization_name', 'Test Org');
+        // The library defaults to SpidL1; admin panels need at least SpidL2.
+        config()->set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL2');
         config()->set('spid-auth.user_model', User::class);
         config()->set('filament-spid.user_model', User::class);
 

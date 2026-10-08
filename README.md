@@ -306,11 +306,22 @@ the value is never double-encoded either way.
 SPID supports three security levels:
 
 - `SpidL1` - Level 1 (Username and password)
-- `SpidL2` - Level 2 (Username, password, and OTP) - **Default**
+- `SpidL2` - Level 2 (Username, password, and OTP)
 - `SpidL3` - Level 3 (Smart card or hardware token)
 
-The level is requested and enforced by `italia/spid-laravel` through
-`spid-auth.sp_spid_level`.
+`italia/spid-laravel` requests `spid-auth.sp_spid_level` from the IdP and rejects
+any assertion below it. Its default is **SpidL1**, password only, which is not
+enough for an admin panel, so set it explicitly:
+
+```php
+// config/spid-auth.php
+'sp_spid_level' => 'https://www.spid.gov.it/SpidL2',
+```
+
+The plugin refuses every SPID login, and logs a warning at boot, while
+`spid-auth.sp_spid_level` is below `filament-spid.minimum_level`
+(`FILAMENT_SPID_MINIMUM_LEVEL`, default SpidL2). Raise the minimum to SpidL3 for
+panels that need it; lowering it to SpidL1 is possible but not recommended.
 
 ## Testing
 

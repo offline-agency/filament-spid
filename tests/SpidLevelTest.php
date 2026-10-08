@@ -45,3 +45,43 @@ it('throws for invalid value via from', function () {
 it('is string backed', function () {
     expect(SpidLevel::LEVEL_1->value)->toBeString();
 });
+
+it('ranks the levels', function (SpidLevel $level, int $rank) {
+    expect($level->rank())->toBe($rank);
+})->with([
+    [SpidLevel::LEVEL_1, 1],
+    [SpidLevel::LEVEL_2, 2],
+    [SpidLevel::LEVEL_3, 3],
+]);
+
+it('tells whether a level meets a minimum', function (SpidLevel $level, SpidLevel $minimum, bool $meets) {
+    expect($level->meets($minimum))->toBe($meets);
+})->with([
+    [SpidLevel::LEVEL_1, SpidLevel::LEVEL_2, false],
+    [SpidLevel::LEVEL_2, SpidLevel::LEVEL_2, true],
+    [SpidLevel::LEVEL_3, SpidLevel::LEVEL_2, true],
+    [SpidLevel::LEVEL_2, SpidLevel::LEVEL_3, false],
+]);
+
+it('requires SpidL2 by default', function () {
+    expect(config('filament-spid.minimum_level'))->toBe(SpidLevel::LEVEL_2->value);
+});
+
+it('is satisfied when the requested level meets the minimum', function (string $requested, string $minimum, bool $satisfied) {
+    config()->set('spid-auth.sp_spid_level', $requested);
+    config()->set('filament-spid.minimum_level', $minimum);
+
+    expect(SpidLevel::requestedMeetsMinimum())->toBe($satisfied);
+})->with([
+    ['https://www.spid.gov.it/SpidL1', 'https://www.spid.gov.it/SpidL2', false],
+    ['https://www.spid.gov.it/SpidL2', 'https://www.spid.gov.it/SpidL2', true],
+    ['https://www.spid.gov.it/SpidL3', 'https://www.spid.gov.it/SpidL2', true],
+    ['not-a-level', 'https://www.spid.gov.it/SpidL2', false],
+]);
+
+it('falls back to SpidL2 when the minimum is not a SPID level', function () {
+    config()->set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
+    config()->set('filament-spid.minimum_level', 'typo');
+
+    expect(SpidLevel::requestedMeetsMinimum())->toBeFalse();
+});

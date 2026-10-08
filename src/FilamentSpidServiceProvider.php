@@ -7,9 +7,11 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Italia\SPIDAuth\Events\LoginEvent;
 use Italia\SPIDAuth\Events\LogoutEvent;
 use Italia\SPIDAuth\SPIDAuth;
+use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogout;
 use Spatie\LaravelPackageTools\Package;
@@ -45,6 +47,15 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
         if (config('filament-spid.register_listeners', true)) {
             Event::listen(LoginEvent::class, HandleSpidLogin::class);
             Event::listen(LogoutEvent::class, HandleSpidLogout::class);
+        }
+
+        // HandleSpidLogin refuses these logins; say why before anyone tries.
+        if (config('filament-spid.enabled', true) && ! SpidLevel::requestedMeetsMinimum()) {
+            Log::warning(sprintf(
+                'filament-spid: spid-auth.sp_spid_level [%s] is below filament-spid.minimum_level [%s]; SPID logins will be refused.',
+                config('spid-auth.sp_spid_level'),
+                config('filament-spid.minimum_level'),
+            ));
         }
 
         // Asset Registration

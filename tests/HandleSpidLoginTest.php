@@ -136,6 +136,36 @@ it('clears the SPID session when provisioning fails so the citizen can retry', f
         ->and(session()->only(['spid_idp', 'spid_idpEntityName', 'spid_sessionId', 'spid_nameId', 'spid_user']))->toBe([]);
 });
 
+it('refuses the login when the requested SPID level is below the minimum', function () {
+    // The library only enforces spid-auth.sp_spid_level on the assertion, so
+    // a SpidL1 request lets password-only identities into the panel.
+    Config::set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
+    Event::fake([SpidAuthenticationFailed::class]);
+    session(['spid_sessionId' => 'ID_1']);
+
+    try {
+        app(HandleSpidLogin::class)->handle(loginEvent());
+        $response = null;
+    } catch (HttpResponseException $e) {
+        $response = $e->getResponse();
+    }
+
+    expect($response)->not->toBeNull()
+        ->and(session()->get('spid_error'))->toBe(__('filament-spid::spid.insufficient_level'))
+        ->and(Auth::guard('web')->check())->toBeFalse()
+        ->and(User::count())->toBe(0)
+        ->and(app('SPIDAuth')->isAuthenticated())->toBeFalse();
+    Event::assertDispatched(SpidAuthenticationFailed::class);
+});
+
+it('honours a stricter minimum level', function () {
+    Config::set('filament-spid.minimum_level', 'https://www.spid.gov.it/SpidL3');
+
+    expect(fn () => app(HandleSpidLogin::class)->handle(loginEvent()))
+        ->toThrow(HttpResponseException::class);
+    expect(Auth::guard('web')->check())->toBeFalse();
+});
+
 it('logs in an existing user without creating a duplicate', function () {
     User::create([
         'name' => 'Mario Rossi',

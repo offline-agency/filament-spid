@@ -7,6 +7,7 @@ return [
     'login_error' => 'Fehler bei der SPID-Anmeldung',
     'authentication_failed' => 'SPID-Authentifizierung fehlgeschlagen',
     'acs_error' => 'Fehler bei der Verarbeitung der SPID-Antwort',
+    'insufficient_level' => 'Dieses Panel erfordert eine höhere SPID-Sicherheitsstufe',
     'standard_login' => 'Mit Anmeldedaten anmelden',
     'info_text' => 'Melden Sie sich mit Ihrer digitalen SPID-Identität an',
     'more_info' => 'Mehr Informationen über SPID',

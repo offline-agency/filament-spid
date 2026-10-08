@@ -6,6 +6,10 @@ All notable changes to `filament-spid` will be documented in this file.
 
 ### Changed
 
+- **BREAKING** SPID logins are refused while `spid-auth.sp_spid_level` is below
+  the new `filament-spid.minimum_level` (default SpidL2), and boot logs a
+  warning. The library defaults to SpidL1: set `sp_spid_level` to SpidL2 or
+  higher.
 - **BREAKING** `auto_create_users` defaults to `false` (`SPID_AUTO_CREATE_USERS`):
   a SPID identity no longer creates an account unless you opt in.
 - **BREAKING** The unused `redirect_after_login`, `spid_level` and `providers`

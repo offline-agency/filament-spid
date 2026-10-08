@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Italia\SPIDAuth\Events\LoginEvent;
+use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
@@ -31,6 +32,10 @@ class HandleSpidLogin
         $guard = $this->guard();
 
         try {
+            if (! SpidLevel::requestedMeetsMinimum()) {
+                $this->fail('requested SPID level below filament-spid.minimum_level', $event, 'insufficient_level');
+            }
+
             $spidData = SpidUserData::fromSpidAuth($event->getSPIDUser());
 
             $user = $this->userService->findOrCreateUser($spidData);

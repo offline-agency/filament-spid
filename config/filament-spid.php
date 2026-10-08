@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 
 return [
     /*
@@ -38,6 +39,18 @@ return [
     |
     */
     'panel' => env('FILAMENT_SPID_PANEL'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Minimum SPID Level
+    |--------------------------------------------------------------------------
+    |
+    | Logins are refused unless spid-auth.sp_spid_level (the level the SP
+    | requests, which italia/spid-laravel enforces on every assertion) is at
+    | least this level. SpidL1 is password only: admin panels need SpidL2.
+    |
+    */
+    'minimum_level' => env('FILAMENT_SPID_MINIMUM_LEVEL', SpidLevel::LEVEL_2->value),
 
     /*
     |--------------------------------------------------------------------------

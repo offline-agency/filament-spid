@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Italia\SPIDAuth\Events\LoginEvent;
 use Italia\SPIDAuth\Events\LogoutEvent;
@@ -88,6 +89,25 @@ describe('FilamentSpidServiceProvider - Listeners', function () {
     it('listens to the SPID login and logout events', function () {
         expect(Event::hasListeners(LoginEvent::class))->toBeTrue()
             ->and(Event::hasListeners(LogoutEvent::class))->toBeTrue();
+    });
+
+    it('warns at boot when the requested SPID level is below the minimum', function () {
+        Config::set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldHaveReceived('warning')->withArgs(
+            fn (string $message) => str_contains($message, 'SpidL1') && str_contains($message, 'filament-spid.minimum_level')
+        );
+    });
+
+    it('stays quiet at boot when the requested SPID level meets the minimum', function () {
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldNotHaveReceived('warning');
     });
 
     it('provisions the user when the library fires its LoginEvent', function () {
