@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use OfflineAgency\FilamentSpid\Http\Middleware\VerifyCsrfToken;
 
@@ -18,10 +19,13 @@ it('does not bind a CSRF middleware of its own', function () {
     expect($this->app->bound(Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class))->toBeFalse();
 });
 
-it('is the ValidateCsrfToken middleware that guards the web group', function () {
+it('is the framework CSRF middleware that guards the web group', function () {
+    // Laravel 13 replaced ValidateCsrfToken in the web group with
+    // PreventRequestForgery (ValidateCsrfToken now extends it).
+    $csrf = class_exists(PreventRequestForgery::class) ? PreventRequestForgery::class : ValidateCsrfToken::class;
     $webGroup = $this->app['router']->getMiddlewareGroups()['web'] ?? [];
 
-    expect($webGroup)->toContain(ValidateCsrfToken::class);
+    expect($webGroup)->toContain($csrf);
 });
 
 it('documents the ACS path the identity provider actually posts to', function () {
