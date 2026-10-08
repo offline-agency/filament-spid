@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Italia\SPIDAuth\Exceptions\SPIDLogoutException;
 use Italia\SPIDAuth\SPIDAuth;
 use Italia\SPIDAuth\SPIDUser;
@@ -76,10 +77,10 @@ it('logs a session without SPID out of the panel guard', function () {
 });
 
 it('still ends the local session when the IdP logout fails', function () {
-    $spid = m::mock(SPIDAuth::class);
-    $spid->shouldReceive('isAuthenticated')->andReturnTrue();
-    $spid->shouldReceive('logout')->once()->andThrow(new SPIDLogoutException('boom', SPIDLogoutException::SAML_LOGOUT_ERROR));
-    $this->app->instance(SPIDAuth::class, $spid);
+    // Real singleton: an IdP without a single logout endpoint makes php-saml
+    // throw before redirecting, which the library wraps in SPIDLogoutException.
+    config()->set('spid-auth.test_idp.slo_endpoint', '');
+    Log::spy();
 
     $this->actingAs(panelUser())
         ->withSession(spidSession())
@@ -88,4 +89,5 @@ it('still ends the local session when the IdP logout fails', function () {
 
     expect(Auth::guard('web')->check())->toBeFalse()
         ->and(session()->has('spid_sessionId'))->toBeFalse();
+    Log::shouldHaveReceived('error')->withArgs(fn (string $message) => str_contains($message, SPIDLogoutException::class));
 });
