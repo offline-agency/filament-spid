@@ -5,6 +5,10 @@
          colors="true"
          failOnWarning="true"
          failOnRisky="true"
+         failOnDeprecation="true"
+         failOnPhpunitDeprecation="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnPhpunitDeprecations="true"
          failOnEmptyTestSuite="true"
          beStrictAboutOutputDuringTests="true"
          cacheDirectory=".phpunit.cache"
@@ -14,7 +18,7 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-    <source>
+    <source restrictNotices="true" restrictWarnings="true">
         <include>
             <directory suffix=".php">src</directory>
         </include>
