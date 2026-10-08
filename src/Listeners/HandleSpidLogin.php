@@ -62,6 +62,10 @@ class HandleSpidLogin
 
         event(new SpidAuthenticationFailed($reason));
 
+        // italia/spid-laravel stores these before firing LoginEvent. Left behind,
+        // isAuthenticated() stays true and doLogin() short-circuits the retry.
+        Session::forget(['spid_sessionId', 'spid_nameId', 'spid_user', 'spid_idp', 'spid_idpEntityName']);
+
         throw new HttpResponseException(
             redirect()->to($this->loginUrl())
                 ->with('spid_error', __("filament-spid::spid.{$translationKey}"))

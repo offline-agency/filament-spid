@@ -112,6 +112,27 @@ it('carries a flash error on the failure redirect', function () {
         ->and(session()->get('spid_error'))->toBe(__('filament-spid::spid.authentication_failed'));
 });
 
+it('clears the SPID session when provisioning fails so the citizen can retry', function () {
+    Config::set('filament-spid.auto_create_users', false);
+    // What italia/spid-laravel's acs() stores before it fires LoginEvent.
+    session([
+        'spid_idp' => 'test',
+        'spid_idpEntityName' => 'Test IdP',
+        'spid_sessionId' => 'ID_1',
+        'spid_nameId' => 'NAME_1',
+        'spid_user' => spidUser(),
+    ]);
+
+    try {
+        app(HandleSpidLogin::class)->handle(loginEvent());
+    } catch (HttpResponseException) {
+        // expected
+    }
+
+    expect(app('SPIDAuth')->isAuthenticated())->toBeFalse()
+        ->and(session()->only(['spid_idp', 'spid_idpEntityName', 'spid_sessionId', 'spid_nameId', 'spid_user']))->toBe([]);
+});
+
 it('logs in an existing user without creating a duplicate', function () {
     User::create([
         'name' => 'Mario Rossi',
