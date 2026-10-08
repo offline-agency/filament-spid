@@ -10,6 +10,11 @@ concurrency:
   group: phpstan-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Composer works on a copy, so the published composer.json stays intact
+  # (see .github/scripts/use-spid-laravel-fork.sh).
+  COMPOSER: composer.ci.json
+
 jobs:
   phpstan:
     name: PHPStan PHP ${{ matrix.php }}

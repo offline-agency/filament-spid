@@ -7,10 +7,19 @@
 # php-saml ^4.3.1, ships the SPID patch ported to it, and allows Laravel 13:
 # https://github.com/italia/spid-laravel/pull/131
 #
-# Run from the package root before `composer update`. Idempotent. Delete this
-# script, and its calls in the workflows, once upstream tags a fixed release.
+# The fork setup goes into a copy of composer.json named by $COMPOSER (the
+# workflows set COMPOSER=composer.ci.json), so the published manifest, which
+# the test suite checks, stays as consumers get it. Run from the package root
+# before `composer update`. Idempotent. Delete this script, and its calls in
+# the workflows, once upstream tags a fixed release.
 set -euo pipefail
 
+if [ -z "${COMPOSER:-}" ] || [ "$COMPOSER" = "composer.json" ]; then
+    echo "Set COMPOSER to a copy of composer.json, e.g. COMPOSER=composer.ci.json" >&2
+    exit 1
+fi
+
+cp composer.json "$COMPOSER"
 composer config repositories.spid-laravel vcs https://github.com/offline-agency/spid-laravel
 composer config allow-plugins.cweagans/composer-patches true
 # composer-patches only applies patches declared by dependencies when the

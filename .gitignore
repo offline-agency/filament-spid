@@ -16,3 +16,5 @@ Thumbs.db
 .env
 .env.backup
 .env.production
+composer.ci.json
+composer.ci.lock

@@ -13,6 +13,11 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # Composer works on a copy, so the published composer.json stays intact
+  # (see .github/scripts/use-spid-laravel-fork.sh).
+  COMPOSER: composer.ci.json
+
 jobs:
   pint:
     name: Pint

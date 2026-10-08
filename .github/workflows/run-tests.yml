@@ -10,6 +10,11 @@ concurrency:
   group: run-tests-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Composer works on a copy, so the published composer.json stays intact
+  # (see .github/scripts/use-spid-laravel-fork.sh).
+  COMPOSER: composer.ci.json
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -19,7 +24,9 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         php: [8.5, 8.4, 8.3, 8.2]
-        laravel: [13.*, 12.*, 11.*]
+        # Laravel 11 is not tested: every 11.x release carries unpatched
+        # advisories, so Composer refuses to install it.
+        laravel: [13.*, 12.*]
         stability: [prefer-stable]
         include:
           - laravel: 13.*
@@ -28,9 +35,6 @@ jobs:
           - laravel: 12.*
             testbench: 10.*
             carbon: ^3.0
-          - laravel: 11.*
-            testbench: 9.*
-            carbon: ^2.63|^3.0
         exclude:
           # Laravel 13 requires PHP 8.3
           - laravel: 13.*
