@@ -10,6 +10,9 @@ concurrency:
   group: run-tests-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   # Composer works on a copy, so the published composer.json stays intact
   # (see .github/scripts/use-spid-laravel-fork.sh).
