@@ -91,6 +91,22 @@ it('loads jQuery without document.write', function () {
         ->and($html)->toContain('createElement(\'script\')');
 });
 
+it('loads the AgID button script only after jQuery is available', function () {
+    // spid-sp-access-button.min.js starts with `jQuery&&...`: loaded by a
+    // plain <script src> before an injected jQuery has arrived it throws a
+    // ReferenceError and the IdP menu never opens.
+    $html = renderSpidButton();
+    $buttonJs = asset('vendor/spid-auth/js/spid-sp-access-button.min.js');
+
+    expect($html)->not->toContain('<script src="'.$buttonJs.'"')
+        ->and($html)->toContain(json_encode($buttonJs))
+        ->and($html)->toContain('.onload');
+});
+
+it('keeps the CDN jQuery pinned by its SRI hash', function () {
+    expect(renderSpidButton())->toContain('sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=');
+});
+
 it('renders the provider form posting to the library login route', function () {
     $html = renderSpidButton();
 

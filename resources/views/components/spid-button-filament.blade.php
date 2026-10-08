@@ -85,40 +85,50 @@
         </div>
     </form>
     
-    {{-- Load jQuery if not already loaded. The tag is appended through the DOM:
-         the deprecated write() call it replaces is blocked under a strict CSP. --}}
+    {{-- The AgID button script (spid-sp-access-button.min.js) needs jQuery at
+         the moment it runs: it starts with `jQuery&&...`. So the scripts are
+         chained: jQuery first, only when the page does not ship it, then the
+         button script from its onload, then the bindings. Tags are appended
+         through the DOM: write() is blocked under a strict CSP. --}}
     <script>
-        if (typeof jQuery === 'undefined' && !document.getElementById('spid-jquery')) {
-            var spidJq = document.createElement('script');
-            spidJq.id = 'spid-jquery';
-            spidJq.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
-            spidJq.integrity = 'sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=';
-            spidJq.crossOrigin = 'anonymous';
-            document.head.appendChild(spidJq);
-        }
-    </script>
-    
-    <!-- Official SPID Button Scripts -->
-    <script src="{{ asset('/vendor/spid-auth/js/spid-sp-access-button.min.js') }}"></script>
-    <script type="text/javascript">
-        (function() {
-            // Wait for jQuery to be available
-            function initSpid() {
-                if (typeof jQuery === 'undefined') {
-                    setTimeout(initSpid, 100);
+        (function () {
+            var buttonSrc = @json(asset('vendor/spid-auth/js/spid-sp-access-button.min.js'));
+
+            // Load a script once per page, even with several buttons, and run
+            // the callback when it is available.
+            function load(id, src, callback, configure) {
+                var script = document.getElementById(id);
+
+                if (script && script.dataset.loaded) {
+                    callback();
                     return;
                 }
-                
-                jQuery('.spid-idp-button-link').click(function(event) {
+
+                if (!script) {
+                    script = document.createElement('script');
+                    script.id = id;
+                    script.src = src;
+                    if (configure) {
+                        configure(script);
+                    }
+                    script.onload = function () { script.dataset.loaded = '1'; };
+                    document.head.appendChild(script);
+                }
+
+                script.addEventListener('load', callback);
+            }
+
+            function bind() {
+                jQuery('.spid-idp-button-link').click(function (event) {
                     jQuery('#spid_idp_access_provider').val(jQuery(event.currentTarget).data('idp'));
                 });
 
-                jQuery(document).ready(function(){
-                    var rootList = jQuery(".spid-idp-button-menu").first();
-                    var idpList = rootList.children(".spid-idp-button-link").get();
-                    var lnkList = rootList.children(".spid-idp-support-link");
-                    
-                    // Shuffle IdPs
+                jQuery(function () {
+                    var rootList = jQuery('.spid-idp-button-menu').first();
+                    var idpList = rootList.children('.spid-idp-button-link').get();
+                    var lnkList = rootList.children('.spid-idp-support-link');
+
+                    // Shuffle IdPs, as the AgID guidelines require.
                     for (var i = idpList.length - 1; i > 0; i--) {
                         var j = Math.floor(Math.random() * (i + 1));
                         rootList.append(idpList[j]);
@@ -126,8 +136,19 @@
                     rootList.append(lnkList);
                 });
             }
-            
-            initSpid();
+
+            function withButtonScript() {
+                load('spid-sp-access-button', buttonSrc, bind);
+            }
+
+            if (typeof jQuery === 'undefined') {
+                load('spid-jquery', 'https://code.jquery.com/jquery-3.7.1.min.js', withButtonScript, function (script) {
+                    script.integrity = 'sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=';
+                    script.crossOrigin = 'anonymous';
+                });
+            } else {
+                withButtonScript();
+            }
         })();
     </script>
 </div>
