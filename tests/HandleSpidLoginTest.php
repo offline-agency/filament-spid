@@ -213,3 +213,19 @@ it('refuses to log in when the configured panel is unknown', function () {
 
     expect(Auth::guard(config('auth.defaults.guard'))->check())->toBeFalse();
 });
+
+it('clears the SPID session when the configured panel is unknown', function () {
+    // Otherwise, once the config is fixed, doLogin() keeps short-circuiting
+    // on the stale spid_sessionId until the session expires.
+    Config::set('filament-spid.panel', 'does-not-exist');
+    session(['spid_idp' => 'test', 'spid_idpEntityName' => 'Test IdP', 'spid_sessionId' => 'ID_1', 'spid_nameId' => 'NAME_1', 'spid_user' => spidUser()]);
+
+    try {
+        app(HandleSpidLogin::class)->handle(loginEvent());
+    } catch (SpidPanelNotFoundException) {
+        // expected
+    }
+
+    expect(app('SPIDAuth')->isAuthenticated())->toBeFalse()
+        ->and(session()->only(['spid_idp', 'spid_idpEntityName', 'spid_sessionId', 'spid_nameId', 'spid_user']))->toBe([]);
+});

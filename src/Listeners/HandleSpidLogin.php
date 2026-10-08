@@ -13,6 +13,7 @@ use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
+use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
 /**
@@ -29,7 +30,13 @@ class HandleSpidLogin
     {
         // Resolved first: a misconfigured panel must fail before anyone is
         // provisioned, and loudly rather than as a generic SPID error.
-        $guard = $this->guard();
+        try {
+            $guard = $this->guard();
+        } catch (SpidPanelNotFoundException $e) {
+            $this->forgetSpidSession();
+
+            throw $e;
+        }
 
         try {
             if (! SpidLevel::requestedMeetsMinimum()) {
@@ -71,13 +78,21 @@ class HandleSpidLogin
 
         event(new SpidAuthenticationFailed($reason));
 
-        // italia/spid-laravel stores these before firing LoginEvent. Left behind,
-        // isAuthenticated() stays true and doLogin() short-circuits the retry.
-        Session::forget(['spid_sessionId', 'spid_nameId', 'spid_user', 'spid_idp', 'spid_idpEntityName']);
+        $this->forgetSpidSession();
 
         throw new HttpResponseException(
             redirect()->to($this->loginUrl())
                 ->with('spid_error', __("filament-spid::spid.{$translationKey}"))
         );
+    }
+
+    /**
+     * Forget the SPID session italia/spid-laravel stores before firing
+     * LoginEvent. Left behind, isAuthenticated() stays true and doLogin()
+     * short-circuits every retry.
+     */
+    protected function forgetSpidSession(): void
+    {
+        Session::forget(['spid_sessionId', 'spid_nameId', 'spid_user', 'spid_idp', 'spid_idpEntityName']);
     }
 }
