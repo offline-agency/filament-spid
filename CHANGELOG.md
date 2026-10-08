@@ -4,12 +4,15 @@ All notable changes to `filament-spid` will be documented in this file.
 
 ## Unreleased
 
-## 0.2.0 - 2026-10-08
+## 1.0.0 - 2026-10-08
 
 ### BREAKING
 
-See "Upgrading from 0.1.x" in the README.
+First stable release: from here on the public API follows SemVer. See
+"Upgrading from 0.1.x to 1.0" in the README.
 
+- PHP 8.3 or later is required. PHP 8.2 leaves security support on
+  31 December 2026.
 - Installing requires the patched `italia/spid-laravel` fork, patching enabled
   and beta stability in the application's `composer.json`: every published
   `italia/spid-laravel` pins `onelogin/php-saml` 4.1.0 (CVE-2025-66475), which
@@ -42,7 +45,7 @@ See "Upgrading from 0.1.x" in the README.
 ### Added
 
 - Laravel 13, PHP 8.5 and Filament 5 support. CI proves every combination of
-  PHP 8.2–8.5, Laravel 12–13 and Filament 3–5 (Laravel 13 from PHP 8.3).
+  PHP 8.3–8.5, Laravel 12–13 and Filament 3–5.
 - `HandleSpidLogin` and `HandleSpidLogout` listeners provision the user,
   authenticate them on the panel guard and tear the session down on logout, so
   applications need no listeners of their own. Opt out with
@@ -72,7 +75,7 @@ See "Upgrading from 0.1.x" in the README.
   coming from `code.jquery.com`; run `php artisan filament:assets` after
   upgrading. Pages that already load jQuery keep using theirs.
 - The AGID logo is served from the package assets instead of a third-party CDN.
-- `php` is required as `^8.2` and `italia/spid-laravel` as `^2.1.0-beta`;
+- `italia/spid-laravel` is required as `^2.1.0-beta`;
   `spatie/laravel-package-tools` needs `^1.93`.
 - CI runs on every pull request, checks style without committing, and runs
   `composer audit`. PHPStan runs at level 8 without a baseline.

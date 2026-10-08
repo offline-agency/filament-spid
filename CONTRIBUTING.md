@@ -69,16 +69,16 @@ Releases are cut automatically when a pull request is merged into `main`
 
 | Label | Effect on merge |
 |---|---|
-| `release:major` | `0.2.0` → `1.0.0` |
-| `release:minor` | `0.2.0` → `0.3.0` |
-| `release:patch` | `0.2.0` → `0.2.1` |
+| `release:major` | `1.0.0` → `2.0.0` |
+| `release:minor` | `1.0.0` → `1.1.0` |
+| `release:patch` | `1.0.0` → `1.0.1` |
 | `skip-release` | no tag, no release |
 
 - Every pull request into `main` needs exactly one of these labels;
   `release-check.yml` fails otherwise. Dependabot PRs are exempt and never
   release.
 - The version is computed from the latest `X.Y.Z` tag (pre-release tags are
-  ignored). Tags carry no `v` prefix (`0.2.0`). The tag goes on the PR's merge
+  ignored). Tags carry no `v` prefix (`1.0.0`). The tag goes on the PR's merge
   commit, and the job refuses a commit that already has a release tag, so
   re-running a release never bumps twice.
 - Releases run one at a time. If several PRs are merged in quick succession,

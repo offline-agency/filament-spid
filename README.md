@@ -25,13 +25,15 @@ Every combination below is tested in CI:
 
 | | Supported |
 |---|---|
-| PHP | 8.2, 8.3, 8.4, 8.5 |
-| Laravel | 12.x, 13.x (13 needs PHP 8.3+) |
+| PHP | 8.3, 8.4, 8.5 |
+| Laravel | 12.x, 13.x |
 | Filament | 3.x, 4.x, 5.x |
 | `italia/spid-laravel` | the patched fork, see [Installation](#installation) |
 
 Laravel 11 is not supported: it is end of life and every 11.x release carries
-unpatched advisories, so Composer refuses to install it.
+unpatched advisories, so Composer refuses to install it. PHP 8.2 is not
+supported either: it leaves security support on 31 December 2026. Stay on
+0.1.x for those.
 
 ## Installation
 
@@ -360,11 +362,14 @@ To take over provisioning entirely, set `register_listeners` to `false` and
 listen to `LoginEvent`/`LogoutEvent` yourself, or keep the listeners and use
 `create_user_callback`/`update_user_callback`.
 
-## Upgrading from 0.1.x
+## Upgrading from 0.1.x to 1.0
 
+- **Platform**: PHP 8.3+ and Laravel 12 or 13. PHP 8.2 and Laravel 11 are no
+  longer supported.
 - **Composer**: add the fork repository, `enable-patching`, the
   `cweagans/composer-patches` plugin and beta stability as shown in
-  [Installation](#1-prepare-composerjson). Laravel 11 is no longer supported.
+  [Installation](#1-prepare-composerjson), then require
+  `offline-agency/filament-spid:^1.0`.
 - **SPID level**: set `spid-auth.sp_spid_level` to SpidL2 or higher; logins are
   refused below `filament-spid.minimum_level` (SpidL2).
 - **Provisioning**: `auto_create_users` now defaults to `false`. Set
@@ -421,14 +426,14 @@ be served over HTTPS.
 
 **Clicking an IdP goes straight back to the login page.** The browser still holds
 a SPID session from an earlier attempt (`spid_sessionId`), so the library's
-`doLogin()` skips the IdP. 0.2.0 clears it after a failed login; for an older
+`doLogin()` skips the IdP. 1.0.0 clears it after a failed login; for an older
 session, log out or clear the session cookie.
 
 **"Requires a higher SPID security level".** `spid-auth.sp_spid_level` is below
 `filament-spid.minimum_level`; the boot log says which. Raise the requested
 level.
 
-**`spid_data` stored as an escaped JSON string.** Releases before 0.2.0
+**`spid_data` stored as an escaped JSON string.** Releases before 1.0.0
 double-encoded it for models casting the column. The package now writes an array
 when the column is cast and JSON otherwise; re-save affected rows (a login with
 `update_user_data` on does it).
@@ -450,7 +455,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 Merging a pull request into `main` tags and releases it automatically. Each pull
 request carries exactly one of `release:major`, `release:minor`,
 `release:patch` or `skip-release`, which decides the next version (tags have
-no `v` prefix, e.g. `0.2.0`). The release notes start with the matching
+no `v` prefix, e.g. `1.0.0`). The release notes start with the matching
 `CHANGELOG.md` section. See [CONTRIBUTING](CONTRIBUTING.md#releasing) for the
 full flow.
 

@@ -7,10 +7,10 @@ security reports as a priority.
 
 | Version | Supported |
 |---|---|
-| 0.2.x | Yes |
-| < 0.2 | No |
+| 1.x | Yes |
+| < 1.0 | No |
 
-Only the latest minor release receives security fixes. Versions before 0.2.0
+Only the latest 1.x release receives security fixes. Versions before 1.0.0
 install `italia/spid-laravel` releases that pin `onelogin/php-saml` 4.1.0
 (CVE-2025-66475); upgrade.
 

@@ -23,9 +23,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        php: [8.5, 8.4, 8.3, 8.2]
-        # Laravel 11 is not tested: every 11.x release carries unpatched
-        # advisories, so Composer refuses to install it.
+        # PHP 8.2 leaves security support on 2026-12-31 and is not supported.
+        php: [8.5, 8.4, 8.3]
+        # Laravel 11 is not tested: it is end of life and every 11.x release
+        # carries unpatched advisories, so Composer refuses to install it.
         laravel: [13.*, 12.*]
         # Filament 3 and 4 run on Livewire 3, Filament 5 on Livewire 4.
         filament: [5.*, 4.*, 3.*]
@@ -37,10 +38,6 @@ jobs:
           - laravel: 12.*
             testbench: 10.*
             carbon: ^3.0
-        exclude:
-          # Laravel 13 requires PHP 8.3
-          - laravel: 13.*
-            php: 8.2
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - F${{ matrix.filament }} - ${{ matrix.stability }} - ${{ matrix.os }}
 

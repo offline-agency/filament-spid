@@ -13,8 +13,9 @@ it('does not ship a repositories entry', function () {
     expect(composerManifest())->not->toHaveKey('repositories');
 });
 
-it('requires php ^8.2', function () {
-    expect(composerManifest()['require']['php'])->toBe('^8.2');
+it('requires php ^8.3', function () {
+    // PHP 8.2 leaves security support on 2026-12-31.
+    expect(composerManifest()['require']['php'])->toBe('^8.3');
 });
 
 it('allows beta dependencies while preferring stable ones', function () {
