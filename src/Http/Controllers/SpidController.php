@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Http\Controllers;
 
-use Filament\Facades\Filament;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Italia\SPIDAuth\Exceptions\SPIDLogoutException;
 use Italia\SPIDAuth\SPIDAuth;
+use OfflineAgency\FilamentSpid\Listeners\ResolvesPanel;
 
 class SpidController extends Controller
 {
+    use ResolvesPanel;
+
     protected SPIDAuth $spid;
 
     public function __construct(SPIDAuth $spid)
@@ -57,38 +61,30 @@ class SpidController extends Controller
     }
 
     /**
-     * Handle SPID logout
+     * Log the citizen out.
+     *
+     * A SPID session is handed to italia/spid-laravel, which starts the IdP
+     * single logout (or, with only_sp_logout, ends it right away); either way
+     * it fires LogoutEvent and HandleSpidLogout tears the panel session down.
+     * Without a SPID session there is nothing to tell the IdP, so the panel
+     * guard is logged out here.
      */
     public function logout(Request $request): RedirectResponse
     {
-        try {
-            $this->spid->logout();
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return redirect()->to($this->loginUrl());
-        } catch (\Exception $e) {
-            \Log::error('SPID Logout Error: '.$e->getMessage());
-
-            return redirect()->to($this->loginUrl());
+        if ($this->spid->isAuthenticated()) {
+            try {
+                return $this->spid->logout();
+            } catch (SPIDLogoutException $e) {
+                // The IdP could not be reached: end the local session anyway.
+                Log::error('SPID logout failed: '.$e::class.' (code '.$e->getCode().')');
+            }
         }
-    }
 
-    /**
-     * URL of the panel login page.
-     *
-     * Resolved from the panel rather than built from a route name, so panels
-     * with a custom id or a custom login page keep working.
-     */
-    private function loginUrl(): string
-    {
-        try {
-            return (Filament::getCurrentPanel() ?? Filament::getDefaultPanel())
-                ->getLoginUrl() ?? url('/');
-        } catch (\Throwable) {
-            return url('/');
-        }
+        Auth::guard($this->guard())->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->to($this->loginUrl());
     }
 
     /**

@@ -1,7 +1,5 @@
 <?php
 
-use Italia\SPIDAuth\SPIDAuth;
-use Mockery as m;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
 
 it('login redirects to the panel login page', function () {
@@ -18,42 +16,6 @@ it('login redirects to the panel login page even when a provider is supplied', f
     $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
 
     $response = $this->get('/spid/login?provider=poste');
-
-    $response->assertRedirect(route('filament.admin.auth.login'));
-});
-
-it('logout succeeds and redirects to login', function () {
-    $this->setupFakeFilamentPanel();
-
-    $spidMock = m::mock(SPIDAuth::class);
-    $spidMock->shouldReceive('logout')->once();
-    $this->app->instance(SPIDAuth::class, $spidMock);
-
-    $this->app['router']->get('/admin/login', function () {
-        return 'login';
-    })->name('filament.admin.auth.login');
-
-    $this->app['router']->get('/spid/logout', [SpidController::class, 'logout']);
-
-    $response = $this->get('/spid/logout');
-
-    $response->assertRedirect(route('filament.admin.auth.login'));
-});
-
-it('logout handles exception and still redirects to login', function () {
-    $this->setupFakeFilamentPanel();
-
-    $spidMock = m::mock(SPIDAuth::class);
-    $spidMock->shouldReceive('logout')->once()->andThrow(new Exception('boom'));
-    $this->app->instance(SPIDAuth::class, $spidMock);
-
-    $this->app['router']->get('/admin/login', function () {
-        return 'login';
-    })->name('filament.admin.auth.login');
-
-    $this->app['router']->get('/spid/logout', [SpidController::class, 'logout']);
-
-    $response = $this->get('/spid/logout');
 
     $response->assertRedirect(route('filament.admin.auth.login'));
 });

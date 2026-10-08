@@ -60,6 +60,8 @@ class TestCase extends Orchestra
     public function getEnvironmentSetUp($app): void
     {
         config()->set('database.default', 'testing');
+        // The web middleware group encrypts cookies.
+        config()->set('app.key', 'base64:'.base64_encode(str_repeat('k', 32)));
 
         // Set minimal SPID configuration for tests
         config()->set('spid-auth.sp_entity_id', 'https://test.local');
