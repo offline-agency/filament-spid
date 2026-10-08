@@ -336,6 +336,15 @@ composer analyse
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
+## Releasing
+
+Merging a pull request into `main` tags and releases it automatically. Each pull
+request carries exactly one of `release:major`, `release:minor`,
+`release:patch` or `skip-release`, which decides the next version (tags have
+no `v` prefix, e.g. `0.2.0`). The release notes start with the matching
+`CHANGELOG.md` section. See [CONTRIBUTING](CONTRIBUTING.md#releasing) for the
+full flow.
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
