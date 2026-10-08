@@ -51,6 +51,11 @@ it('hands a SPID session to the IdP for single logout', function () {
         ->withSession(spidSession())
         ->get('/spid-test/logout')
         ->assertRedirect('https://spid-testenv/slo?SAMLRequest=abc');
+
+    // The panel session ends before the round trip: a citizen who closes the
+    // tab at the IdP, or an IdP that never redirects back, must not leave
+    // the panel logged in on a shared computer.
+    expect(Auth::guard('web')->check())->toBeFalse();
 });
 
 it('tears the panel session down through the library when only the SP logs out', function () {

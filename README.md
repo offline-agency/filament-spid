@@ -229,8 +229,16 @@ otherwise, never double-encoded.
 4. If anything fails, the SPID session is cleared, so the citizen can retry,
    and they land on the panel login page with a translated `spid_error` message.
    The log carries the exception class only, never SPID attributes.
-5. On logout the library runs the IdP single logout and fires `LogoutEvent`;
-   `HandleSpidLogout` logs the panel guard out and invalidates the session.
+5. Logging out:
+   - Filament's own user-menu logout ends the panel session (and, by
+     invalidating it, the library's SPID session keys) but not the citizen's
+     session at the IdP.
+   - To end that too, send users to the plugin's logout route (`spid.logout`,
+     a POST under the panel path, available with `registerRoutes(true)`). It
+     logs the panel guard out first, then starts the IdP single logout; when
+     the IdP redirects back, the library fires `LogoutEvent` and
+     `HandleSpidLogout` invalidates the session. Wire it to the panel's user
+     menu or your own logout button.
 
 ## Configuration
 

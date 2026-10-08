@@ -72,6 +72,11 @@ class SpidController extends Controller
     public function logout(Request $request): RedirectResponse
     {
         if ($this->spid->isAuthenticated()) {
+            // End the panel session before the round trip: the citizen may
+            // never come back from the IdP. The library saves the session
+            // before redirecting, so this sticks.
+            Auth::guard($this->guard())->logout();
+
             try {
                 return $this->spid->logout();
             } catch (SPIDLogoutException $e) {
