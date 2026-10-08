@@ -6,6 +6,12 @@ All notable changes to `filament-spid` will be documented in this file.
 
 ### Changed
 
+- **BREAKING** `auto_create_users` defaults to `false` (`SPID_AUTO_CREATE_USERS`):
+  a SPID identity no longer creates an account unless you opt in.
+- **BREAKING** The unused `redirect_after_login`, `spid_level` and `providers`
+  config keys are gone (with `SPID_REDIRECT_AFTER_LOGIN` and `SPID_LEVEL`). Use
+  `spid-auth.after_login_url`, `spid-auth.sp_spid_level` and
+  `SpidPlugin::providers()` instead.
 - **BREAKING** Laravel 11 is no longer supported. It is end of life and every
   11.x release carries unpatched advisories, so Composer refuses to install it.
 - **BREAKING** A `filament-spid.panel` (`FILAMENT_SPID_PANEL`) that names no

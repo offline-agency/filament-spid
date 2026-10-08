@@ -21,7 +21,7 @@ class SpidUserService
         return DB::transaction(function () use ($userModel, $spidData) {
             $user = $userModel::where('fiscal_code', $spidData->fiscalNumber)->first();
 
-            if (! $user && config('filament-spid.auto_create_users', true)) {
+            if (! $user && config('filament-spid.auto_create_users', false)) {
                 $user = $this->createUser($spidData);
                 event(new SpidUserCreated($user, $spidData));
             } elseif ($user && config('filament-spid.update_user_data', true)) {

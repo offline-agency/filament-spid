@@ -266,10 +266,15 @@ The `config/filament-spid.php` configuration file allows you to customize:
 ```php
 return [
     'user_model' => \App\Models\User::class,
-    'redirect_after_login' => '/admin',
-    'spid_level' => 'https://www.spid.gov.it/SpidL2',
+    // Off by default: turn on only if every SPID citizen may get an account.
+    'auto_create_users' => false,
 ];
 ```
+
+Whoever ends up with an account still needs `canAccessPanel()` to return true:
+in production Filament only lets in users whose model implements
+`Filament\Models\Contracts\FilamentUser`, and that method is the authorisation
+gate for SPID logins.
 
 ## User Model
 
@@ -304,9 +309,8 @@ SPID supports three security levels:
 - `SpidL2` - Level 2 (Username, password, and OTP) - **Default**
 - `SpidL3` - Level 3 (Smart card or hardware token)
 
-The level actually enforced comes from `spid-auth.sp_requested_attributes` and
-the library configuration; `filament-spid.spid_level` only drives what the UI
-suggests.
+The level is requested and enforced by `italia/spid-laravel` through
+`spid-auth.sp_spid_level`.
 
 ## Testing
 

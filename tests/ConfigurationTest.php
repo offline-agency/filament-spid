@@ -13,35 +13,20 @@ describe('Configuration', function () {
         }
     });
 
-    it('has redirect_after_login configuration', function () {
-        $redirect = config('filament-spid.redirect_after_login');
-
-        expect($redirect)->toBeString();
+    it('does not create users from SPID by default', function () {
+        // Any citizen with a SPID identity could otherwise provision an
+        // account on an admin panel.
+        expect(config('filament-spid.auto_create_users'))->toBeFalse();
     });
 
-    it('has spid_level configuration', function () {
-        $level = config('filament-spid.spid_level');
-
-        expect($level)->toBeString()
-            ->and($level)->toContain('https://www.spid.gov.it/SpidL');
-    });
-
-    it('has auto_create_users configuration', function () {
-        $autoCreate = config('filament-spid.auto_create_users');
-
-        expect($autoCreate)->toBeBool();
-    });
+    it('defines no keys the package does not read', function (string $key) {
+        expect(config('filament-spid'))->not->toHaveKey($key);
+    })->with(['redirect_after_login', 'spid_level', 'providers']);
 
     it('has update_user_data configuration', function () {
         $updateData = config('filament-spid.update_user_data');
 
         expect($updateData)->toBeBool();
-    });
-
-    it('has providers configuration', function () {
-        $providers = config('filament-spid.providers');
-
-        expect($providers)->toBeArray();
     });
 
     it('has field_mapping configuration', function () {

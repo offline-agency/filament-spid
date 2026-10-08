@@ -92,6 +92,7 @@ describe('FilamentSpidServiceProvider - Listeners', function () {
 
     it('provisions the user when the library fires its LoginEvent', function () {
         Model::unguard();
+        Config::set('filament-spid.auto_create_users', true);
         Config::set('filament-spid.field_mapping', [
             'name' => fn ($spidUser) => $spidUser['name'].' '.$spidUser['familyName'],
             'email' => fn ($spidUser) => $spidUser['fiscalNumber'].'@spid.local',

@@ -47,31 +47,24 @@ return [
     | The user model that will be used for SPID authentication.
     | Make sure this model has 'fiscal_code' and 'spid_data' fields.
     |
+    | In production Filament only lets users in whose model implements
+    | Filament\Models\Contracts\FilamentUser and returns true from
+    | canAccessPanel(): that method is the authorisation gate for SPID logins.
+    |
     */
     'user_model' => env('SPID_USER_MODEL', User::class),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Redirect After Login
-    |--------------------------------------------------------------------------
-    |
-    | The URL to redirect to after successful SPID authentication.
-    |
-    */
-    'redirect_after_login' => env('SPID_REDIRECT_AFTER_LOGIN', '/admin'),
-
-    // UI-only: default SPID level suggested in the UI (actual level enforcement comes from spid-auth config)
-    'spid_level' => env('SPID_LEVEL', 'https://www.spid.gov.it/SpidL2'),
 
     /*
     |--------------------------------------------------------------------------
     | Auto Create Users
     |--------------------------------------------------------------------------
     |
-    | Automatically create a new user if the fiscal code doesn't exist.
+    | Create a user when no account matches the citizen's fiscal code. Off by
+    | default: with it on, anyone holding a SPID identity gets an account, so
+    | canAccessPanel() becomes the only thing between them and the panel.
     |
     */
-    'auto_create_users' => env('SPID_AUTO_CREATE_USERS', true),
+    'auto_create_users' => env('SPID_AUTO_CREATE_USERS', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -82,9 +75,6 @@ return [
     |
     */
     'update_user_data' => env('SPID_UPDATE_USER_DATA', true),
-
-    // UI-only: optional allowlist for rendering provider logos; leave empty to defer entirely to spid-idps.php
-    'providers' => [],
 
     /*
     |--------------------------------------------------------------------------

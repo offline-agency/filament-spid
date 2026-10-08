@@ -47,6 +47,20 @@ it('creates a new user when not existing', function () {
         ->and($user->fiscal_code)->toBe('RSSMRA80A01H501U');
 });
 
+it('does not create a user when auto_create_users is not configured at all', function () {
+    // Applications that published an older config may not have the key.
+    Config::set('filament-spid', array_diff_key(config('filament-spid'), ['auto_create_users' => true]));
+
+    $user = app(SpidUserService::class)->findOrCreateUser(new SpidUserData(
+        fiscalNumber: 'NEWUSER123456789',
+        name: 'New',
+        familyName: 'User',
+    ));
+
+    expect($user)->toBeNull()
+        ->and(User::where('fiscal_code', 'NEWUSER123456789')->exists())->toBeFalse();
+});
+
 it('returns null when auto_create_users is false and user not found', function () {
     Config::set('filament-spid.auto_create_users', false);
 

@@ -32,6 +32,8 @@ function loginEvent(array $overrides = []): LoginEvent
 
 beforeEach(function () {
     Model::unguard();
+    // Provisioning is opt-in; these tests exercise it.
+    Config::set('filament-spid.auto_create_users', true);
     Config::set('filament-spid.field_mapping', [
         'name' => fn ($spidUser) => $spidUser['name'].' '.$spidUser['familyName'],
         'email' => fn ($spidUser) => $spidUser['email'] ?? $spidUser['fiscalNumber'].'@spid.local',

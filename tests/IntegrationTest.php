@@ -27,14 +27,6 @@ describe('Plugin Integration', function () {
 });
 
 describe('Configuration Integration', function () {
-    it('uses configured providers when set', function () {
-        config(['filament-spid.providers' => ['posteid', 'arubaid']]);
-
-        $providers = config('filament-spid.providers');
-
-        expect($providers)->toBe(['posteid', 'arubaid']);
-    });
-
     it('field mapping works with real spid data structure', function () {
         $mapping = config('filament-spid.field_mapping');
         $spidUser = [
@@ -58,12 +50,12 @@ describe('Configuration Integration', function () {
         $config = config('filament-spid');
 
         expect($config)->toHaveKeys([
+            'enabled',
+            'register_listeners',
+            'panel',
             'user_model',
-            'redirect_after_login',
-            'spid_level',
             'auto_create_users',
             'update_user_data',
-            'providers',
             'field_mapping',
             'create_user_callback',
             'update_user_callback',
