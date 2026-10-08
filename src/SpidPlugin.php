@@ -4,9 +4,9 @@ namespace OfflineAgency\FilamentSpid;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Illuminate\Support\Facades\Log;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
 use OfflineAgency\FilamentSpid\Pages\SpidLogin;
+use OfflineAgency\FilamentSpid\Support\Warning;
 
 class SpidPlugin implements Plugin
 {
@@ -58,7 +58,7 @@ class SpidPlugin implements Plugin
         // now, so all that can be done here is to say so.
         if (config('filament-spid.enabled', true) && $this->showSpidButton
             && $panel->getLoginRouteAction() !== SpidLogin::class) {
-            Log::warning(sprintf(
+            Warning::once(sprintf(
                 'filament-spid: panel [%s] does not use the SPID login page. Chain ->plugin(SpidPlugin::make()) after ->login(), or drop ->login().',
                 $panel->getId(),
             ));

@@ -8,13 +8,13 @@ use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 use Italia\SPIDAuth\Events\LoginEvent;
 use Italia\SPIDAuth\Events\LogoutEvent;
 use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogout;
+use OfflineAgency\FilamentSpid\Support\Warning;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -52,7 +52,7 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
 
         // HandleSpidLogin refuses these logins; say why before anyone tries.
         if (config('filament-spid.enabled', true) && ! SpidLevel::requestedMeetsMinimum()) {
-            Log::warning(SpidLevel::minimum() === null
+            Warning::once(SpidLevel::minimum() === null
                 ? sprintf(
                     'filament-spid: filament-spid.minimum_level [%s] is not a SPID level URI; SPID logins will be refused.',
                     config('filament-spid.minimum_level'),

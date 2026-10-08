@@ -61,6 +61,8 @@ First stable release: from here on the public API follows SemVer. See
 - The listener checks `FilamentUser::canAccessPanel()` before logging the
   citizen in and refuses with a translated `access_denied` message, instead of
   leaving them on Filament's 403 with a live SPID session.
+- Boot-time configuration warnings (SPID level, login page) are logged at most
+  once an hour per message, through the cache, instead of on every request.
 - A warning is logged when a `->login()` chained after the plugin replaced the
   SPID login page.
 - `SpidUserData::fromSpidAuth()` accepts the `SPIDUser` object as well as an

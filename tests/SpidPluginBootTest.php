@@ -20,6 +20,17 @@ it('warns when a later ->login() replaced the SPID login page', function () {
     );
 });
 
+it('warns about the login page once, not on every request', function () {
+    Log::spy();
+    $plugin = SpidPlugin::make();
+    $panel = Panel::make()->id('late-login-twice')->path('late-login-twice')->plugin($plugin)->login();
+
+    $plugin->boot($panel);
+    $plugin->boot($panel);
+
+    Log::shouldHaveReceived('warning')->once();
+});
+
 it('stays quiet when the SPID login page is in place', function () {
     Log::spy();
     $plugin = SpidPlugin::make();

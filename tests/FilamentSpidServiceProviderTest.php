@@ -3,6 +3,7 @@
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -116,6 +117,26 @@ describe('FilamentSpidServiceProvider - Listeners', function () {
         Log::shouldHaveReceived('warning')->withArgs(
             fn (string $message) => str_contains($message, 'SpidL1') && str_contains($message, 'filament-spid.minimum_level')
         );
+    });
+
+    it('logs a misconfiguration warning once, not on every request', function () {
+        Config::set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldHaveReceived('warning')->once();
+    });
+
+    it('still warns when the cache is unavailable', function () {
+        Config::set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
+        Cache::shouldReceive('add')->andThrow(new RuntimeException('cache down'));
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldHaveReceived('warning')->once();
     });
 
     it('warns at boot when the minimum level is not a SPID level', function () {
