@@ -4,6 +4,7 @@ namespace OfflineAgency\FilamentSpid;
 
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Event;
@@ -119,6 +120,11 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
     {
         return [
             Css::make('filament-spid-styles', __DIR__.'/../resources/dist/filament-spid.css'),
+            // jQuery 3.7.1 for the AgID SPID button, served from the app
+            // (php artisan filament:assets) instead of a third-party CDN.
+            // Loaded on request: only the button's loader pulls it in, and
+            // only when the page has no jQuery of its own.
+            Js::make('spid-jquery', __DIR__.'/../resources/dist/jquery.min.js')->loadedOnRequest(),
         ];
     }
 

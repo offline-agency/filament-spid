@@ -116,6 +116,18 @@ php artisan vendor:publish --tag="filament-spid-images"
 This copies the logo to `public/vendor/filament-spid/images/`, making it
 available at `/vendor/filament-spid/images/spid-agid-logo.png`.
 
+### Publishing Filament Assets
+
+The button's stylesheet and the jQuery build the AgID SPID button needs are
+Filament assets. Publish them after installing and after every upgrade:
+
+```bash
+php artisan filament:assets
+```
+
+jQuery is served from your application (`/js/offline-agency/filament-spid/spid-jquery.js`),
+not a CDN, and only when the page does not already load jQuery.
+
 ## SPID Configuration
 
 First, configure the base SPID Laravel package. Follow the [italia/spid-laravel documentation](https://github.com/italia/spid-laravel) to:

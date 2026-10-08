@@ -1,5 +1,6 @@
 <?php
 
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -66,6 +67,21 @@ describe('FilamentSpidServiceProvider - Assets', function () {
         // The bundle was empty and loaded on every Filament page; the button
         // ships its own Blade-rendered script instead.
         expect(file_exists(__DIR__.'/../resources/dist/filament-spid.js'))->toBeFalse();
+    });
+
+    it('registers jQuery as a script loaded only on request', function () {
+        $scripts = collect(FilamentAsset::getScripts(['offline-agency/filament-spid'], withCore: false))
+            ->keyBy(fn ($asset) => $asset->getId());
+
+        expect($scripts)->toHaveKey('spid-jquery')
+            ->and($scripts['spid-jquery']->isLoadedOnRequest())->toBeTrue();
+    });
+
+    it('ships the official jQuery 3.7.1 build', function () {
+        // Same SRI hash code.jquery.com publishes for jquery-3.7.1.min.js.
+        $hash = base64_encode(hash_file('sha256', __DIR__.'/../resources/dist/jquery.min.js', true));
+
+        expect($hash)->toBe('/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=');
     });
 });
 

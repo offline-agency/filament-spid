@@ -72,6 +72,9 @@ All notable changes to `filament-spid` will be documented in this file.
 - Package images are published to `public/vendor/filament-spid/images`, the path
   the views reference; previously they never reached it.
 - The AGID logo is served from the package assets instead of a third-party CDN.
+- jQuery 3.7.1 ships with the package as an on-request Filament asset instead of
+  coming from `code.jquery.com`; run `php artisan filament:assets` after
+  upgrading. Pages that already load jQuery keep using theirs.
 - CSRF: the package no longer ships a middleware overriding the deprecated
   VerifyCsrfToken, which Laravel 11+ does not use. Exclude the ACS path in your
   application instead.

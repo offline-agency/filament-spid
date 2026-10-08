@@ -1,5 +1,6 @@
 <?php
 
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\Config;
 use OfflineAgency\FilamentSpid\SpidPlugin;
 
@@ -103,13 +104,20 @@ it('loads the AgID button script only after jQuery is available', function () {
         ->and($html)->toContain('.onload');
 });
 
-it('keeps the CDN jQuery pinned by its SRI hash', function () {
-    expect(renderSpidButton())->toContain('sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=');
-});
-
 it('renders the provider form posting to the library login route', function () {
     $html = renderSpidButton();
 
     expect($html)->toContain(route('spid-auth_do-login'))
         ->and($html)->toContain('spid_idp_access_provider');
+});
+
+it('loads jQuery from the package assets, not a CDN', function () {
+    $html = renderSpidButton();
+
+    expect($html)->not->toContain('code.jquery.com')
+        ->and($html)->toContain(json_encode(FilamentAsset::getScriptSrc('spid-jquery', 'offline-agency/filament-spid')));
+});
+
+it('only loads jQuery when the page does not already ship it', function () {
+    expect(renderSpidButton())->toContain("typeof jQuery === 'undefined'");
 });

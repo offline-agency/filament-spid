@@ -87,16 +87,18 @@
     
     {{-- The AgID button script (spid-sp-access-button.min.js) needs jQuery at
          the moment it runs: it starts with `jQuery&&...`. So the scripts are
-         chained: jQuery first, only when the page does not ship it, then the
-         button script from its onload, then the bindings. Tags are appended
-         through the DOM: write() is blocked under a strict CSP. --}}
+         chained: jQuery first, only when the page does not ship it (from the
+         package's Filament assets, php artisan filament:assets, not a CDN),
+         then the button script from its onload, then the bindings. Tags are
+         appended through the DOM: write() is blocked under a strict CSP. --}}
     <script>
         (function () {
+            var jquerySrc = @json(\Filament\Support\Facades\FilamentAsset::getScriptSrc('spid-jquery', 'offline-agency/filament-spid'));
             var buttonSrc = @json(asset('vendor/spid-auth/js/spid-sp-access-button.min.js'));
 
             // Load a script once per page, even with several buttons, and run
             // the callback when it is available.
-            function load(id, src, callback, configure) {
+            function load(id, src, callback) {
                 var script = document.getElementById(id);
 
                 if (script && script.dataset.loaded) {
@@ -108,9 +110,6 @@
                     script = document.createElement('script');
                     script.id = id;
                     script.src = src;
-                    if (configure) {
-                        configure(script);
-                    }
                     script.onload = function () { script.dataset.loaded = '1'; };
                     document.head.appendChild(script);
                 }
@@ -142,10 +141,7 @@
             }
 
             if (typeof jQuery === 'undefined') {
-                load('spid-jquery', 'https://code.jquery.com/jquery-3.7.1.min.js', withButtonScript, function (script) {
-                    script.integrity = 'sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=';
-                    script.crossOrigin = 'anonymous';
-                });
+                load('spid-jquery', jquerySrc, withButtonScript);
             } else {
                 withButtonScript();
             }
