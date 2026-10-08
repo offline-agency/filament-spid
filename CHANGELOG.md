@@ -6,6 +6,17 @@ All notable changes to `filament-spid` will be documented in this file.
 
 ### Changed
 
+- **BREAKING** Laravel 11 is no longer supported. It is end of life and every
+  11.x release carries unpatched advisories, so Composer refuses to install it.
+- **BREAKING** A `filament-spid.panel` (`FILAMENT_SPID_PANEL`) that names no
+  registered panel throws `SpidPanelNotFoundException` instead of logging the
+  citizen in on the default guard.
+- **BREAKING** Installing requires the patched `italia/spid-laravel`, patching
+  enabled and beta stability in the application's `composer.json`: see
+  Installation in the README.
+- `SpidController::logout()` hands a SPID session to the IdP single logout and
+  lets `HandleSpidLogout` end it; other sessions are logged out of the panel
+  guard.
 - **BREAKING** `SpidPlugin::registerRoutes()` now defaults to `false`. The shipped
   login view posts straight to `italia/spid-laravel` and authentication runs off
   its events, so the plugin's own helper routes are opt-in. Call
@@ -57,6 +68,16 @@ All notable changes to `filament-spid` will be documented in this file.
   second instance.
 - jQuery is loaded through the DOM instead of `document.write`, which a strict
   Content-Security-Policy blocks.
-- Documentation matches reality: supported versions (PHP 8.2–8.5, Laravel 11–13,
-  Filament 3–5), the VCS repository the installation needs, and the real
+- Documentation matches reality: supported versions (PHP 8.2–8.5, Laravel 12–13,
+  Filament 3–5), the installation requirements, and the real
   `spid-idps` provider keys (`poste`, `infocert`, `tim`, …).
+- A failed SPID login forgets the library's SPID session keys, so the citizen
+  can retry instead of being short-circuited by `doLogin()`.
+- The metadata route serves `SPIDAuth::metadata()`; it called a method that does
+  not exist and answered 500.
+
+### Security
+
+- CI installs `italia/spid-laravel` with `onelogin/php-saml` ^4.3.1
+  (CVE-2025-66475, critical) and the SPID patch applied, and runs
+  `composer audit`. See [italia/spid-laravel#131](https://github.com/italia/spid-laravel/pull/131).

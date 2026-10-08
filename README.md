@@ -17,14 +17,14 @@ This package allows you to integrate SPID authentication into your Filament admi
 - 🔐 Secure SAML2 authentication
 - 🎨 Customizable login view
 - 🔧 Compatible with Filament 3, 4 & 5
-- 📦 Support for Laravel 11, 12, 13
+- 📦 Support for Laravel 12 and 13
 - ⚡ PHP 8.2+ ready
 - 🧪 Fully tested
 
 ## Requirements
 
 - PHP 8.2, 8.3, 8.4 or 8.5
-- Laravel 11.x, 12.x or 13.x
+- Laravel 12.x or 13.x (Laravel 11 is end of life and every release has unpatched advisories, so Composer refuses to install it)
 - Filament 3.x, 4.x or 5.x
 - [italia/spid-laravel](https://github.com/italia/spid-laravel) package
 
