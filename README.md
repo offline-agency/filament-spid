@@ -30,24 +30,60 @@ This package allows you to integrate SPID authentication into your Filament admi
 
 ## Installation
 
-`italia/spid-laravel` is installed from its Git repository, which Composer does
-not inherit from a dependency: add it to your application's `composer.json`
-first.
+### Prepare `composer.json`
+
+The SAML layer comes from [italia/spid-laravel](https://github.com/italia/spid-laravel),
+which needs three things from your application's `composer.json` that Composer
+does not inherit from a dependency:
+
+1. **The patched `italia/spid-laravel`.** Every published release pins
+   `onelogin/php-saml` 4.1.0, which is affected by a critical advisory
+   ([CVE-2025-66475](https://github.com/advisories/GHSA-5j8p-438x-rgg5)).
+   Composer 2.9+ refuses to install it. Until upstream merges
+   [italia/spid-laravel#131](https://github.com/italia/spid-laravel/pull/131)
+   and tags a release, install the fork branch that requires php-saml ^4.3.1
+   (it also adds Laravel 13 support).
+2. **Patching enabled.** `italia/spid-laravel` adapts php-saml to the SPID rules
+   through `cweagans/composer-patches`, which only applies patches declared by
+   dependencies when your application opts in. Without it, IdPs reject the
+   requests.
+3. **Beta stability.** `italia/spid-laravel` is only published as beta, and
+   Composer does not accept a beta that comes in transitively.
 
 ```json
-"repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/italia/spid-laravel"
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/offline-agency/spid-laravel"
+        }
+    ],
+    "require": {
+        "italia/spid-laravel": "dev-feat/laravel-13 as 2.1.0-beta"
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true,
+    "extra": {
+        "enable-patching": true
+    },
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true
+        }
     }
-]
+}
 ```
 
-Then install the package:
+Merge these keys into your existing `composer.json`. Once upstream tags a fixed
+release, drop the `repositories` entry and require that release instead.
+
+### Install
 
 ```bash
 composer require offline-agency/filament-spid
 ```
+
+`vendor/onelogin/php-saml/PATCHES.txt` exists when the SPID patch was applied.
 
 Publish the configuration file:
 
