@@ -391,7 +391,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Security Vulnerabilities
 
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+Please review [our security policy](SECURITY.md) on how to report security vulnerabilities. Participation in this project is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Credits
 
