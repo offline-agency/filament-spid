@@ -57,6 +57,9 @@ First stable release: from here on the public API follows SemVer. See
   `showSpidButton(false)`, which leaves the panel login page untouched.
 - `SpidPlugin::resolve()` returns the plugin on the current panel, or null, so
   views render outside a SPID panel.
+- The listener checks `FilamentUser::canAccessPanel()` before logging the
+  citizen in and refuses with a translated `access_denied` message, instead of
+  leaving them on Filament's 403 with a live SPID session.
 - A warning is logged when a `->login()` chained after the plugin replaced the
   SPID login page.
 - `SpidUserData::fromSpidAuth()` accepts the `SPIDUser` object as well as an

@@ -12,6 +12,7 @@ use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
 use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\PanelUser;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
 
 function spidUser(array $overrides = []): SPIDUser
@@ -212,6 +213,37 @@ it('refuses to log in when the configured panel is unknown', function () {
         ->toThrow(SpidPanelNotFoundException::class, 'does-not-exist');
 
     expect(Auth::guard(config('auth.defaults.guard'))->check())->toBeFalse();
+});
+
+it('refuses citizens the panel does not admit', function () {
+    // Logging them in would only land them on Filament's 403 with a live
+    // SPID session; outside production Filament does not even check.
+    Config::set('filament-spid.user_model', PanelUser::class);
+    PanelUser::$canAccessPanel = false;
+    Event::fake([SpidAuthenticationFailed::class]);
+    session(['spid_sessionId' => 'ID_1']);
+
+    try {
+        app(HandleSpidLogin::class)->handle(loginEvent());
+        $response = null;
+    } catch (HttpResponseException $e) {
+        $response = $e->getResponse();
+    }
+
+    expect($response)->not->toBeNull()
+        ->and(session()->get('spid_error'))->toBe(__('filament-spid::spid.access_denied'))
+        ->and(Auth::guard('web')->check())->toBeFalse()
+        ->and(app('SPIDAuth')->isAuthenticated())->toBeFalse();
+    Event::assertDispatched(SpidAuthenticationFailed::class);
+});
+
+it('logs in citizens the panel admits', function () {
+    Config::set('filament-spid.user_model', PanelUser::class);
+    PanelUser::$canAccessPanel = true;
+
+    app(HandleSpidLogin::class)->handle(loginEvent());
+
+    expect(Auth::guard('web')->user())->toBeInstanceOf(PanelUser::class);
 });
 
 it('clears the SPID session when the configured panel is unknown', function () {

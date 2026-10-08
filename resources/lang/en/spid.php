@@ -8,6 +8,7 @@ return [
     'authentication_failed' => 'SPID authentication failed',
     'acs_error' => 'Error handling SPID response',
     'insufficient_level' => 'This panel requires a higher SPID security level',
+    'access_denied' => 'Your account is not allowed to access this panel',
     'standard_login' => 'Login with credentials',
     'info_text' => 'Login with your SPID digital identity',
     'more_info' => 'More information about SPID',

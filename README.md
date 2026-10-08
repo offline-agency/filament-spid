@@ -226,8 +226,11 @@ otherwise, never double-encoded.
    validates it (signature, level, timing), stores the SPID session and fires
    `LoginEvent`.
 3. `HandleSpidLogin` checks the [SPID level](#spid-levels), finds the user by
-   `fiscal_code` (creating or updating it as configured), logs them in on the
-   panel guard without a remember-me cookie and regenerates the session.
+   `fiscal_code` (creating or updating it as configured), refuses users whose
+   `canAccessPanel()` returns false, logs them in on the panel guard without a
+   remember-me cookie and regenerates the session. With `auto_create_users` on,
+   a refused citizen's account is still created; `canAccessPanel()` decides who
+   gets in.
 4. If anything fails, the SPID session is cleared, so the citizen can retry,
    and they land on the panel login page with a translated `spid_error` message.
    The log carries the exception class only, never SPID attributes.

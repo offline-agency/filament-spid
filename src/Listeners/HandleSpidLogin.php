@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Listeners;
 
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -50,6 +51,14 @@ class HandleSpidLogin
             if (! $user) {
                 // auto_create_users is off and no account matches this fiscal code.
                 $this->fail('no user matches the SPID fiscal code', $event, 'authentication_failed');
+            }
+
+            // Filament's own gate, checked before logging in: otherwise the
+            // citizen lands on a 403 with a live SPID session, and outside
+            // production Filament does not check at all.
+            $panel = $this->panel();
+            if ($user instanceof FilamentUser && $panel && ! $user->canAccessPanel($panel)) {
+                $this->fail('the user may not access the panel', $event, 'access_denied');
             }
 
             // No remember token: a SPID session must not outlive the browser one.

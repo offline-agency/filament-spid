@@ -8,6 +8,7 @@ return [
     'authentication_failed' => 'Autenticazione SPID fallita',
     'acs_error' => 'Errore durante la gestione della risposta SPID',
     'insufficient_level' => 'Questo pannello richiede un livello di sicurezza SPID più alto',
+    'access_denied' => 'Il tuo account non è autorizzato ad accedere a questo pannello',
     'standard_login' => 'Accedi con credenziali',
     'info_text' => 'Accedi con la tua identità digitale SPID',
     'more_info' => 'Maggiori informazioni su SPID',
