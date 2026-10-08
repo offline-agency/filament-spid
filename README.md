@@ -1,54 +1,61 @@
 # Filament SPID
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/offline-agency/filament-spid.svg?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/filament-spid/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/offline-agency/filament-spid/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/offline-agency/filament-spid/php?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
+[![Tests](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/run-tests.yml?query=branch%3Amain)
+[![PHPStan](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/phpstan.yml?query=branch%3Amain)
+[![Code Style](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/code-style.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/code-style.yml?query=branch%3Amain)
+[![Coverage](https://img.shields.io/codecov/c/github/offline-agency/filament-spid/main?style=flat-square)](https://app.codecov.io/gh/offline-agency/filament-spid)
 [![Total Downloads](https://img.shields.io/packagist/dt/offline-agency/filament-spid.svg?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
+[![License](https://img.shields.io/packagist/l/offline-agency/filament-spid.svg?style=flat-square)](LICENSE.md)
 
-SPID (Sistema Pubblico di Identità Digitale) authentication plugin for Filament based on [italia/spid-laravel](https://github.com/italia/spid-laravel).
+SPID (Sistema Pubblico di Identità Digitale) authentication for
+[Filament](https://filamentphp.com) panels, built on
+[italia/spid-laravel](https://github.com/italia/spid-laravel).
 
-This package allows you to integrate SPID authentication into your Filament admin panels, enabling Italian public administration identity management.
+The plugin replaces the panel login page with the official AgID SPID button,
+listens to the events `italia/spid-laravel` fires once a SAML response is
+validated, provisions the user and logs them in on the panel guard.
 
 ![Filament SPID Banner](https://banners.beyondco.de/Filament%20Spid.png?theme=dark&packageManager=composer+require&packageName=offline-agency%2Ffilament-spid&pattern=eyes&style=style_1&description=Filament+plugin+for+SPID+authentication+in+Laravel.&md=1&showWatermark=0&fontSize=100px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
 
-## Features
-
-- 🇮🇹 Full SPID integration for Filament
-- 🔐 Secure SAML2 authentication
-- 🎨 Customizable login view
-- 🔧 Compatible with Filament 3, 4 & 5
-- 📦 Support for Laravel 12 and 13
-- ⚡ PHP 8.2+ ready
-- 🧪 Fully tested
-
 ## Requirements
 
-- PHP 8.2, 8.3, 8.4 or 8.5
-- Laravel 12.x or 13.x (Laravel 11 is end of life and every release has unpatched advisories, so Composer refuses to install it)
-- Filament 3.x, 4.x or 5.x
-- [italia/spid-laravel](https://github.com/italia/spid-laravel) package
+Every combination below is tested in CI:
+
+| | Supported |
+|---|---|
+| PHP | 8.2, 8.3, 8.4, 8.5 |
+| Laravel | 12.x, 13.x (13 needs PHP 8.3+) |
+| Filament | 3.x, 4.x, 5.x |
+| `italia/spid-laravel` | the patched fork, see [Installation](#installation) |
+
+Laravel 11 is not supported: it is end of life and every 11.x release carries
+unpatched advisories, so Composer refuses to install it.
 
 ## Installation
 
-### Prepare `composer.json`
+### 1. Prepare `composer.json`
 
-The SAML layer comes from [italia/spid-laravel](https://github.com/italia/spid-laravel),
-which needs three things from your application's `composer.json` that Composer
-does not inherit from a dependency:
+The SAML layer comes from `italia/spid-laravel`, which needs three things from
+your application's `composer.json` that Composer does not inherit from a
+dependency:
 
 1. **The patched `italia/spid-laravel`.** Every published release pins
    `onelogin/php-saml` 4.1.0, which is affected by a critical advisory
-   ([CVE-2025-66475](https://github.com/advisories/GHSA-5j8p-438x-rgg5)).
-   Composer 2.9+ refuses to install it. Until upstream merges
-   [italia/spid-laravel#131](https://github.com/italia/spid-laravel/pull/131)
-   and tags a release, install the fork branch that requires php-saml ^4.3.1
-   (it also adds Laravel 13 support).
+   ([CVE-2025-66475](https://github.com/advisories/GHSA-5j8p-438x-rgg5)), so
+   Composer 2.9+ refuses to install it, and no release allows Laravel 13. Until
+   upstream merges [italia/spid-laravel#131](https://github.com/italia/spid-laravel/pull/131)
+   and tags a release, install the fork branch: it requires php-saml ^4.3.1,
+   ships the SPID patch ported to it and allows Laravel 13.
 2. **Patching enabled.** `italia/spid-laravel` adapts php-saml to the SPID rules
    through `cweagans/composer-patches`, which only applies patches declared by
    dependencies when your application opts in. Without it, IdPs reject the
    requests.
 3. **Beta stability.** `italia/spid-laravel` is only published as beta, and
    Composer does not accept a beta that comes in transitively.
+
+Merge these keys into your `composer.json`:
 
 ```json
 {
@@ -74,10 +81,10 @@ does not inherit from a dependency:
 }
 ```
 
-Merge these keys into your existing `composer.json`. Once upstream tags a fixed
-release, drop the `repositories` entry and require that release instead.
+Once upstream tags a fixed release, drop the `repositories` entry and require
+that release instead.
 
-### Install
+### 2. Install
 
 ```bash
 composer require offline-agency/filament-spid
@@ -85,67 +92,81 @@ composer require offline-agency/filament-spid
 
 `vendor/onelogin/php-saml/PATCHES.txt` exists when the SPID patch was applied.
 
-Publish the configuration file:
+### 3. Publish and migrate
 
 ```bash
+# config/filament-spid.php, config/spid-auth.php and config/spid-idps.php
 php artisan vendor:publish --tag="filament-spid-config"
-```
 
-Publish and run the migrations:
-
-```bash
+# fiscal_code and spid_data columns on the users table
 php artisan vendor:publish --tag="filament-spid-migrations"
 php artisan migrate
-```
 
-Optionally, you can publish the views:
+# AgID SPID button CSS, JS and IdP logos (public/vendor/spid-auth)
+php artisan vendor:publish --tag="spid-assets"
 
-```bash
-php artisan vendor:publish --tag="filament-spid-views"
-```
-
-### Publishing Images
-
-The login page renders the SPID AGID logo from your own public directory, so
-publish it once:
-
-```bash
+# SPID AgID logo used by the login page (public/vendor/filament-spid/images)
 php artisan vendor:publish --tag="filament-spid-images"
-```
 
-This copies the logo to `public/vendor/filament-spid/images/`, making it
-available at `/vendor/filament-spid/images/spid-agid-logo.png`.
-
-### Publishing Filament Assets
-
-The button's stylesheet and the jQuery build the AgID SPID button needs are
-Filament assets. Publish them after installing and after every upgrade:
-
-```bash
+# the plugin's stylesheet and jQuery (public/css, public/js)
 php artisan filament:assets
 ```
 
-jQuery is served from your application (`/js/offline-agency/filament-spid/spid-jquery.js`),
-not a CDN, and only when the page does not already load jQuery.
+Re-run `php artisan filament:assets` after every upgrade. jQuery is served from
+your application (`/js/offline-agency/filament-spid/spid-jquery.js`), not a CDN,
+and only when the page does not already load jQuery. Optionally publish the views
+with `--tag="filament-spid-views"`.
 
-## SPID Configuration
+### 4. Configure the Service Provider
 
-First, configure the base SPID Laravel package. Follow the [italia/spid-laravel documentation](https://github.com/italia/spid-laravel) to:
-
-1. Generate SPID certificates
-2. Configure your Service Provider metadata
-3. Set up SPID Identity Providers
-
-Add the following fields to your users table migration (if not already published):
+Follow the [italia/spid-laravel documentation](https://github.com/italia/spid-laravel)
+to generate the SP certificate and fill in `config/spid-auth.php` (entity id,
+base URL, organisation, contact persons). Then set the SPID level, which the
+library defaults to SpidL1 (password only):
 
 ```php
-$table->string('fiscal_code')->unique()->nullable();
-$table->json('spid_data')->nullable();
+// config/spid-auth.php
+'sp_spid_level' => 'https://www.spid.gov.it/SpidL2',
 ```
 
-## Usage
+See [SPID levels](#spid-levels).
 
-Register the plugin in your Filament Panel Provider:
+### 5. Exclude the ACS route from CSRF
+
+The Identity Provider posts the SAML assertion straight to the ACS endpoint and
+cannot carry a Laravel CSRF token, so that one route must be excluded. The path
+is `<spid-auth.routes_prefix>/acs`, `spid/acs` by default.
+
+Laravel 12 (`bootstrap/app.php`):
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->validateCsrfTokens(except: ['spid/acs']);
+})
+```
+
+Laravel 13 (`bootstrap/app.php`), where `validateCsrfTokens()` is deprecated:
+
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->preventRequestForgery(except: ['spid/acs']);
+})
+```
+
+Applications that still use the Laravel 10 structure exclude it in
+`app/Http/Middleware/VerifyCsrfToken.php`:
+
+```php
+protected $except = [
+    'spid/acs',
+];
+```
+
+Keep the exclusion to the ACS path. The logout route is reached through
+redirects (the SP uses the HTTP-Redirect binding) and your own forms, which carry
+a token.
+
+### 6. Register the plugin
 
 ```php
 use OfflineAgency\FilamentSpid\SpidPlugin;
@@ -156,162 +177,73 @@ public function panel(Panel $panel): Panel
         ->default()
         ->id('admin')
         ->path('admin')
-        ->plugin(
-            SpidPlugin::make()
-                ->spidButtonLabel('Entra con SPID')
-                ->providers([
-                    'aruba',
-                    'infocert',
-                    'lepida',
-                    'namirial',
-                    'poste',
-                    'sielte',
-                    'spiditalia',
-                    'tim',
-                    'teamsystem',
-                ])
-        );
+        ->plugin(SpidPlugin::make());
 }
 ```
 
-### CSRF
-
-The Identity Provider posts the SAML assertion straight to the ACS endpoint and
-cannot carry a Laravel CSRF token, so that one route must be excluded. In
-`bootstrap/app.php`:
+### 7. Prepare the user model
 
 ```php
-->withMiddleware(function (Middleware $middleware) {
-    $middleware->validateCsrfTokens(except: ['spid/acs']);
-})
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+
+class User extends Authenticatable implements FilamentUser
+{
+    protected $fillable = ['name', 'email', 'fiscal_code', 'spid_data'];
+
+    protected $casts = ['spid_data' => 'array'];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // The authorisation gate for SPID logins: decide who may enter.
+        return $this->is_admin;
+    }
+}
 ```
 
-Keep the exclusion minimal: only the ACS path (matching
-`spid-auth.routes_prefix`). Never exclude the logout route, which is posted by
-your own forms and does carry a token.
+In production Filament only lets in users whose model implements
+`FilamentUser` and returns true from `canAccessPanel()`. The `spid_data` cast is
+optional: the payload is stored as an array when the column is cast and as JSON
+otherwise, never double-encoded.
 
-### Authenticating users
+## How it works
 
-Nothing else is required: the package listens to the `LoginEvent` and
-`LogoutEvent` fired by `italia/spid-laravel` once the SAML response is
-validated, and takes care of
-
-- building a `SpidUserData` from the SPID attributes,
-- creating or updating the user through `SpidUserService`,
-- authenticating them on the panel guard (no remember-me cookie) and
-  regenerating the session,
-- tearing the session down on SPID logout.
-
-A failed provisioning sends the citizen back to the panel login page with a
-translated `spid_error` flash message instead of surfacing a 500.
-
-Customize the behaviour through `config/filament-spid.php`:
-
-| Key | Purpose |
-| --- | --- |
-| `register_listeners` | Set to `false` to replace the listeners with your own |
-| `user_model` | Model to provision |
-| `field_mapping` | SPID attribute → user column mapping |
-| `create_user_callback` / `update_user_callback` | Take over provisioning entirely |
-| `auto_create_users` / `update_user_data` | Whether to create or refresh accounts |
-
-The package also emits its own events — `SpidUserCreated`, `SpidUserUpdated`,
-`SpidAuthenticationSucceeded` and `SpidAuthenticationFailed` — to hook into
-without replacing the flow.
-
-### Customization
-
-#### Custom Login View
-
-```php
-SpidPlugin::make()
-    ->loginView('your-custom-view')
-```
-
-#### Optional Helper Routes
-
-The SAML endpoints belong to `italia/spid-laravel`. The plugin can additionally
-expose a few convenience routes (a login redirect, a providers JSON endpoint, a
-metadata proxy and a logout); they are **off by default**:
-
-```php
-SpidPlugin::make()
-    ->registerRoutes(true)
-    ->loginRoute('custom.spid.login')
-    ->logoutRoute('custom.spid.logout')
-    ->metadataRoute('custom.spid.metadata')
-```
-
-#### Opt Out of the SPID Login Page
-
-```php
-SpidPlugin::make()
-    ->showSpidButton(false)
-```
-
-The panel keeps its own login page: a SPID page with the button hidden would
-leave no way to sign in.
-
-#### Custom Button Label and Icon
-
-```php
-SpidPlugin::make()
-    ->spidButtonLabel('Login con SPID')
-    ->spidButtonIcon('heroicon-o-shield-check')
-```
-
-#### Select Specific Providers
-
-Acts as an allowlist over the keys of `config/spid-idps.php`; an empty array (the
-default) shows every active provider. Inactive providers are never shown, even
-when listed here.
-
-```php
-SpidPlugin::make()
-    ->providers(['poste', 'infocert', 'tim'])
-```
+1. The panel login page shows the AgID SPID button. Picking an IdP posts to the
+   library's `spid-auth_do-login` route, which redirects to the IdP.
+2. The IdP posts the assertion to the library's ACS route. `italia/spid-laravel`
+   validates it (signature, level, timing), stores the SPID session and fires
+   `LoginEvent`.
+3. `HandleSpidLogin` checks the [SPID level](#spid-levels), finds the user by
+   `fiscal_code` (creating or updating it as configured), logs them in on the
+   panel guard without a remember-me cookie and regenerates the session.
+4. If anything fails, the SPID session is cleared, so the citizen can retry,
+   and they land on the panel login page with a translated `spid_error` message.
+   The log carries the exception class only, never SPID attributes.
+5. On logout the library runs the IdP single logout and fires `LogoutEvent`;
+   `HandleSpidLogout` logs the panel guard out and invalidates the session.
 
 ## Configuration
 
-The `config/filament-spid.php` configuration file allows you to customize:
+`config/filament-spid.php`:
 
-```php
-return [
-    'user_model' => \App\Models\User::class,
-    // Off by default: turn on only if every SPID citizen may get an account.
-    'auto_create_users' => false,
-];
-```
+| Key | Env | Default | Purpose |
+|---|---|---|---|
+| `enabled` | `FILAMENT_SPID_ENABLED` | `true` | Replace the panel login page with the SPID one |
+| `register_listeners` | `FILAMENT_SPID_REGISTER_LISTENERS` | `true` | Listen to the library's `LoginEvent`/`LogoutEvent`; disable to take over the flow |
+| `panel` | `FILAMENT_SPID_PANEL` | `null` | Panel id SPID users authenticate against; `null` uses the current or default panel. An unknown id throws `SpidPanelNotFoundException` |
+| `minimum_level` | `FILAMENT_SPID_MINIMUM_LEVEL` | SpidL2 URI | Lowest `spid-auth.sp_spid_level` the plugin accepts |
+| `user_model` | `SPID_USER_MODEL` | `App\Models\User` | Model to provision; falls back to `spid-auth.user_model` |
+| `auto_create_users` | `SPID_AUTO_CREATE_USERS` | `false` | Create a user when no `fiscal_code` matches |
+| `update_user_data` | `SPID_UPDATE_USER_DATA` | `true` | Refresh mapped columns and `spid_data` on every login |
+| `field_mapping` | | name, email, fiscal_code | Column => SPID attribute name or `fn (array $spidUser)` |
+| `create_user_callback` | | `null` | `fn (SpidUserData $data): Authenticatable` replacing user creation |
+| `update_user_callback` | | `null` | `fn (Authenticatable $user, SpidUserData $data): void` replacing the update |
 
-Whoever ends up with an account still needs `canAccessPanel()` to return true:
-in production Filament only lets in users whose model implements
-`Filament\Models\Contracts\FilamentUser`, and that method is the authorisation
-gate for SPID logins.
+The SAML side (entity id, certificates, level, IdPs, routes prefix, redirects
+after login and logout) lives in `config/spid-auth.php` and `config/spid-idps.php`,
+owned by `italia/spid-laravel`.
 
-## User Model
-
-The model is resolved from `filament-spid.user_model`. For backward compatibility
-`spid-auth.user_model` is used when that key is not set.
-
-Your User model should have these fields:
-
-```php
-protected $fillable = [
-    'name',
-    'email',
-    'fiscal_code',
-    'spid_data',
-    // ... other fields
-];
-
-protected $casts = [
-    'spid_data' => 'array',
-];
-```
-
-The `spid_data` cast is optional: the package stores the SPID payload as a raw
-array when the model casts the column, and as a JSON string when it does not, so
-the value is never double-encoded either way.
+### Email without SPID email
 
 SPID only sends an email when the IdP holds one. When it does not, the default
 `field_mapping.email` stores `<fiscal code, lowercased>@spid.invalid`: unique
@@ -326,51 +258,157 @@ column is nullable, map it to `null` instead:
 ],
 ```
 
-## SPID Levels
+## SPID levels
 
-SPID supports three security levels:
-
-- `SpidL1` - Level 1 (Username and password)
-- `SpidL2` - Level 2 (Username, password, and OTP)
-- `SpidL3` - Level 3 (Smart card or hardware token)
+| Level | URI | Credentials |
+|---|---|---|
+| SpidL1 | `https://www.spid.gov.it/SpidL1` | username and password |
+| SpidL2 | `https://www.spid.gov.it/SpidL2` | plus a one-time password |
+| SpidL3 | `https://www.spid.gov.it/SpidL3` | plus a smart card or hardware token |
 
 `italia/spid-laravel` requests `spid-auth.sp_spid_level` from the IdP and rejects
-any assertion below it. Its default is **SpidL1**, password only, which is not
-enough for an admin panel, so set it explicitly:
+any assertion below it. The plugin refuses every SPID login, and logs a warning
+at boot, while that level is below `filament-spid.minimum_level` (SpidL2 by
+default). Raise the minimum to SpidL3 for panels that need it; lowering it to
+SpidL1 is possible but not recommended for admin panels.
 
-```php
-// config/spid-auth.php
-'sp_spid_level' => 'https://www.spid.gov.it/SpidL2',
+## Multiple panels
+
+The ACS request runs on a library route, outside any panel, so with more than
+one panel name the one SPID users belong to:
+
+```dotenv
+FILAMENT_SPID_PANEL=admin
 ```
 
-The plugin refuses every SPID login, and logs a warning at boot, while
-`spid-auth.sp_spid_level` is below `filament-spid.minimum_level`
-(`FILAMENT_SPID_MINIMUM_LEVEL`, default SpidL2). Raise the minimum to SpidL3 for
-panels that need it; lowering it to SpidL1 is possible but not recommended.
+Register `SpidPlugin` on that panel. A value that matches no registered panel
+throws `SpidPanelNotFoundException` instead of logging the citizen in on another
+guard.
+
+## Events
+
+From `italia/spid-laravel`: `Italia\SPIDAuth\Events\LoginEvent` and `LogoutEvent`.
+
+From this package (`OfflineAgency\FilamentSpid\Events`):
+
+| Event | Payload | When |
+|---|---|---|
+| `SpidUserCreated` | `$user`, `$spidData` | a user was provisioned |
+| `SpidUserUpdated` | `$user`, `$spidData` | a user's data was refreshed |
+| `SpidAuthenticationSucceeded` | `$user`, `$spidData` | the user is logged in on the panel |
+| `SpidAuthenticationFailed` | `$reason` | the login was refused; the reason holds no personal data |
+
+`$spidData` is a `SpidUserData` (fiscal number, name, family name, email, SPID
+code, place and date of birth, gender).
+
+## Customisation
+
+```php
+SpidPlugin::make()
+    // Button text and a blade-icons icon instead of the SPID mark
+    ->spidButtonLabel('Entra con SPID')
+    ->spidButtonIcon('heroicon-o-shield-check')
+    // Allowlist over the keys of config/spid-idps.php; empty shows every active IdP
+    ->providers(['poste', 'infocert', 'aruba', 'namirial', 'tim'])
+    // Your own login view
+    ->loginView('auth.spid-login')
+    // Keep the panel's own login page instead of the SPID one
+    ->showSpidButton(false);
+```
+
+Valid provider keys are those of `config/spid-idps.php`: `aruba`, `eht`,
+`infocamere`, `infocert`, `intesigroup`, `lepida`, `namirial`, `poste`,
+`sielte`, `spiditalia`, `teamsystem`, `tim`. Inactive IdPs are never shown.
+
+The plugin can also register convenience routes under the panel path (a login
+redirect, a providers JSON endpoint, the SP metadata and a logout that goes
+through the IdP). They are off by default:
+
+```php
+SpidPlugin::make()
+    ->registerRoutes(true)
+    ->loginRoute('custom.spid.login')
+    ->logoutRoute('custom.spid.logout')
+    ->metadataRoute('custom.spid.metadata')
+    ->providersRoute('custom.spid.providers');
+```
+
+To take over provisioning entirely, set `register_listeners` to `false` and
+listen to `LoginEvent`/`LogoutEvent` yourself, or keep the listeners and use
+`create_user_callback`/`update_user_callback`.
+
+## Upgrading from 0.1.x
+
+- **Composer**: add the fork repository, `enable-patching`, the
+  `cweagans/composer-patches` plugin and beta stability as shown in
+  [Installation](#1-prepare-composerjson). Laravel 11 is no longer supported.
+- **SPID level**: set `spid-auth.sp_spid_level` to SpidL2 or higher; logins are
+  refused below `filament-spid.minimum_level` (SpidL2).
+- **Provisioning**: `auto_create_users` now defaults to `false`. Set
+  `SPID_AUTO_CREATE_USERS=true` to keep creating accounts.
+- **Config**: delete `redirect_after_login`, `spid_level` and `providers` from
+  your published `config/filament-spid.php` (and `SPID_REDIRECT_AFTER_LOGIN`,
+  `SPID_LEVEL` from `.env`); they were never read. Use
+  `spid-auth.after_login_url`, `spid-auth.sp_spid_level` and
+  `SpidPlugin::providers()`.
+- **Fallback email**: users without a SPID email get
+  `<fiscal code>@spid.invalid` instead of `@spid.local` on their next login. If
+  your published config still has the old mapping, update it.
+- **Panel**: an unknown `FILAMENT_SPID_PANEL` now throws instead of falling back
+  to the default guard.
+- **Routes**: the plugin's helper routes are opt-in (`registerRoutes(true)`) and
+  the plugin no longer has an ACS route of its own: exclude the library's
+  `spid/acs` from CSRF.
+- **Assets**: run `php artisan filament:assets` (jQuery is now served by your
+  application) and `vendor:publish --tag="spid-assets"` if you have not.
 
 ## Testing
 
 ```bash
 composer test
-```
-
-Run tests with coverage:
-
-```bash
-composer test-coverage
-```
-
-## Code Style
-
-```bash
-composer format
-```
-
-## Static Analysis
-
-```bash
 composer analyse
+vendor/bin/pint --test
 ```
+
+See [CONTRIBUTING](CONTRIBUTING.md#local-setup) for the local setup that
+mirrors CI.
+
+Before going live, validate your SP with the AgID
+[spid-saml-check](https://github.com/italia/spid-saml-check) validator. Enable
+`spid-auth.validator_idp` to add it to the button, check the metadata at
+`/<routes_prefix>/metadata`, then run its request and response tests. In
+development, `spid-auth.test_idp` adds the
+[SPID test environment](https://github.com/italia/spid-testenv2).
+
+## Troubleshooting
+
+**419 Page Expired on the ACS.** The IdP's POST is hitting CSRF protection.
+Exclude `<routes_prefix>/acs` as shown in
+[step 5](#5-exclude-the-acs-route-from-csrf). Also check the session cookie:
+the library sets its own cookies with `SameSite=None; Secure`, so the site must
+be served over HTTPS.
+
+**Clicking an IdP goes straight back to the login page.** The browser still holds
+a SPID session from an earlier attempt (`spid_sessionId`), so the library's
+`doLogin()` skips the IdP. 0.2.0 clears it after a failed login; for an older
+session, log out or clear the session cookie.
+
+**"Requires a higher SPID security level".** `spid-auth.sp_spid_level` is below
+`filament-spid.minimum_level`; the boot log says which. Raise the requested
+level.
+
+**`spid_data` stored as an escaped JSON string.** Releases before 0.2.0
+double-encoded it for models casting the column. The package now writes an array
+when the column is cast and JSON otherwise; re-save affected rows (a login with
+`update_user_data` on does it).
+
+**Composer refuses `onelogin/php-saml` 4.1.0** ("affected by security
+advisories"). The fork from [Installation](#1-prepare-composerjson) is missing;
+do not silence the advisory.
+
+**IdPs reject the AuthnRequest.** Check that `vendor/onelogin/php-saml/PATCHES.txt`
+exists. If not, `extra.enable-patching` or the `cweagans/composer-patches`
+plugin permission is missing; fix it and reinstall `onelogin/php-saml`.
 
 ## Changelog
 
