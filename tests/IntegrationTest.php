@@ -1,6 +1,7 @@
 <?php
 
 use Filament\Panel;
+use OfflineAgency\FilamentSpid\Mapping\FieldMapper;
 use OfflineAgency\FilamentSpid\SpidPlugin;
 
 describe('Plugin Integration', function () {
@@ -37,9 +38,9 @@ describe('Configuration Integration', function () {
             'email' => 'mario.rossi@example.com',
         ];
 
-        $name = $mapping['name']($spidUser);
-        $email = $mapping['email']($spidUser);
-        $fiscalCode = $mapping['fiscal_code']($spidUser);
+        $name = FieldMapper::value($mapping['name'], $spidUser);
+        $email = FieldMapper::value($mapping['email'], $spidUser);
+        $fiscalCode = FieldMapper::value($mapping['fiscal_code'], $spidUser);
 
         expect($name)->toBe('Mario Rossi')
             ->and($email)->toBe('mario.rossi@example.com')

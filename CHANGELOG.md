@@ -77,6 +77,11 @@ See "Upgrading from 0.1.x" in the README.
 - CI runs on every pull request, checks style without committing, and runs
   `composer audit`. PHPStan runs at level 8 without a baseline.
 
+- The default `field_mapping` uses attribute names and invokable mappers
+  (`Mapping\FullName`, `Mapping\EmailOrFallback`) instead of closures, so the
+  config can be cached with `php artisan config:cache` / `optimize`. Closures
+  are still accepted.
+
 ### Removed
 
 - The providers JSON endpoint no longer caches: the list comes from config.

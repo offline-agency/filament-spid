@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
+use OfflineAgency\FilamentSpid\Mapping\FieldMapper;
 
 class SpidUserService
 {
@@ -44,7 +45,7 @@ class SpidUserService
 
         $data = [];
         foreach ($mapping as $field => $mapper) {
-            $data[$field] = is_callable($mapper) ? $mapper($spidData->toArray()) : $spidData->{$mapper};
+            $data[$field] = FieldMapper::value($mapper, $spidData->toArray());
         }
 
         $data['spid_data'] = $this->spidDataFor(new $userModel, $spidData);
@@ -68,7 +69,7 @@ class SpidUserService
 
         foreach ($mapping as $field => $mapper) {
             if ($field !== 'fiscal_code') {
-                $data[$field] = is_callable($mapper) ? $mapper($spidData->toArray()) : $spidData->{$mapper};
+                $data[$field] = FieldMapper::value($mapper, $spidData->toArray());
             }
         }
 

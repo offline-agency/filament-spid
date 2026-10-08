@@ -253,9 +253,14 @@ otherwise, never double-encoded.
 | `user_model` | `SPID_USER_MODEL` | `App\Models\User` | Model to provision; falls back to `spid-auth.user_model` |
 | `auto_create_users` | `SPID_AUTO_CREATE_USERS` | `false` | Create a user when no `fiscal_code` matches |
 | `update_user_data` | `SPID_UPDATE_USER_DATA` | `true` | Refresh mapped columns and `spid_data` on every login |
-| `field_mapping` | | name, email, fiscal_code | Column => SPID attribute name or `fn (array $spidUser)` |
+| `field_mapping` | | name, email, fiscal_code | Column => SPID attribute name (`'fiscalNumber'`) or invokable mapper class (`FullName::class`) |
 | `create_user_callback` | | `null` | `fn (SpidUserData $data): Authenticatable` replacing user creation |
 | `update_user_callback` | | `null` | `fn (Authenticatable $user, SpidUserData $data): void` replacing the update |
+
+Keep the config cacheable: `php artisan config:cache` (and `optimize`) cannot
+store closures. `field_mapping` accepts attribute names and invokable classes
+(`__invoke(array $spidUser)`) for that reason; closures still work there and in
+the two callbacks, but only if you do not cache the config.
 
 The SAML side (entity id, certificates, level, IdPs, routes prefix, redirects
 after login and logout) lives in `config/spid-auth.php` and `config/spid-idps.php`,
@@ -272,7 +277,7 @@ column is nullable, map it to `null` instead:
 ```php
 'field_mapping' => [
     // ...
-    'email' => fn (array $spidUser) => $spidUser['email'] ?? null,
+    'email' => 'email',
 ],
 ```
 
@@ -369,9 +374,13 @@ listen to `LoginEvent`/`LogoutEvent` yourself, or keep the listeners and use
   `SPID_LEVEL` from `.env`); they were never read. Use
   `spid-auth.after_login_url`, `spid-auth.sp_spid_level` and
   `SpidPlugin::providers()`.
+- **Field mapping**: the published config's closures stop `config:cache`.
+  Republish it, or replace them with `FullName::class`,
+  `EmailOrFallback::class` and `'fiscalNumber'`
+  (`OfflineAgency\FilamentSpid\Mapping`).
 - **Fallback email**: users without a SPID email get
-  `<fiscal code>@spid.invalid` instead of `@spid.local` on their next login. If
-  your published config still has the old mapping, update it.
+  `<fiscal code>@spid.invalid` instead of `@spid.local` on their next login,
+  once the mapping above is updated.
 - **Panel**: an unknown `FILAMENT_SPID_PANEL` now throws instead of falling back
   to the default guard.
 - **Routes**: the plugin's helper routes are opt-in (`registerRoutes(true)`) and

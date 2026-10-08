@@ -2,6 +2,8 @@
 
 use App\Models\User;
 use OfflineAgency\FilamentSpid\Constants\SpidLevel;
+use OfflineAgency\FilamentSpid\Mapping\EmailOrFallback;
+use OfflineAgency\FilamentSpid\Mapping\FullName;
 
 return [
     /*
@@ -94,23 +96,19 @@ return [
     | User Field Mapping
     |--------------------------------------------------------------------------
     |
-    | Map SPID attributes to user model fields.
+    | Map SPID attributes to user model columns. A value is a SPID attribute
+    | name (fiscalNumber, name, familyName, email, spidCode, placeOfBirth,
+    | dateOfBirth, gender) or the class name of an invokable mapper receiving
+    | the attributes array. Closures work too, but stop
+    | `php artisan config:cache` (and `optimize`) from caching the config.
     |
     */
     'field_mapping' => [
-        'name' => function ($spidUser) {
-            return $spidUser['name'].' '.$spidUser['familyName'];
-        },
-        // SPID only sends an email when the IdP has one. The fallback is unique
-        // per citizen and stable across logins, and .invalid (RFC 2606) never
-        // resolves, so it neither receives mail nor collides with a real
-        // address. Return null instead if your users table allows it.
-        'email' => function ($spidUser) {
-            return $spidUser['email'] ?? strtolower($spidUser['fiscalNumber']).'@spid.invalid';
-        },
-        'fiscal_code' => function ($spidUser) {
-            return $spidUser['fiscalNumber'];
-        },
+        'name' => FullName::class,
+        // The SPID email, or <fiscal code>@spid.invalid: unique, stable and
+        // never deliverable. Use 'email' instead if your column is nullable.
+        'email' => EmailOrFallback::class,
+        'fiscal_code' => 'fiscalNumber',
     ],
 
     /*

@@ -1,5 +1,17 @@
 <?php
 
+use OfflineAgency\FilamentSpid\Mapping\FieldMapper;
+
+/**
+ * Map one column through the default filament-spid.field_mapping.
+ *
+ * @param  array<string, mixed>  $spidUser
+ */
+function mapField(string $column, array $spidUser): mixed
+{
+    return FieldMapper::value(config("filament-spid.field_mapping.{$column}"), $spidUser);
+}
+
 describe('Configuration', function () {
     it('has user_model configuration', function () {
         $userModel = config('filament-spid.user_model');
@@ -36,26 +48,16 @@ describe('Configuration', function () {
             ->and($mapping)->toHaveKeys(['name', 'email', 'fiscal_code']);
     });
 
-    it('field_mapping name is callable', function () {
-        $mapping = config('filament-spid.field_mapping');
+    it('can be cached with php artisan config:cache', function () {
+        // config:cache writes the config with var_export, which cannot
+        // represent closures: a closure here breaks `php artisan optimize`.
+        $config = config('filament-spid');
+        $restored = eval('return '.var_export($config, true).';');
 
-        expect($mapping['name'])->toBeCallable();
+        expect($restored)->toBe($config);
     });
 
-    it('field_mapping email is callable', function () {
-        $mapping = config('filament-spid.field_mapping');
-
-        expect($mapping['email'])->toBeCallable();
-    });
-
-    it('field_mapping fiscal_code is callable', function () {
-        $mapping = config('filament-spid.field_mapping');
-
-        expect($mapping['fiscal_code'])->toBeCallable();
-    });
-
-    it('field_mapping functions work correctly', function () {
-        $mapping = config('filament-spid.field_mapping');
+    it('field_mapping defaults map the SPID attributes', function () {
         $spidUser = [
             'name' => 'Mario',
             'familyName' => 'Rossi',
@@ -63,25 +65,25 @@ describe('Configuration', function () {
             'fiscalNumber' => 'RSSMRA80A01H501U',
         ];
 
-        $name = $mapping['name']($spidUser);
-        $email = $mapping['email']($spidUser);
-        $fiscalCode = $mapping['fiscal_code']($spidUser);
+        expect(mapField('name', $spidUser))->toBe('Mario Rossi')
+            ->and(mapField('email', $spidUser))->toBe('mario@example.com')
+            ->and(mapField('fiscal_code', $spidUser))->toBe('RSSMRA80A01H501U');
+    });
 
-        expect($name)->toBe('Mario Rossi')
-            ->and($email)->toBe('mario@example.com')
-            ->and($fiscalCode)->toBe('RSSMRA80A01H501U');
+    it('field_mapping still accepts closures', function () {
+        expect(FieldMapper::value(fn (array $spidUser) => strtoupper($spidUser['name']), ['name' => 'Mario']))->toBe('MARIO');
     });
 
     it('falls back to an undeliverable per-citizen email when SPID sends none', function () {
         // .invalid is reserved (RFC 2606): it never resolves, so the address
         // can neither receive mail nor collide with a real one.
-        $email = config('filament-spid.field_mapping.email')(['fiscalNumber' => 'RSSMRA80A01H501U']);
+        $email = mapField('email', ['fiscalNumber' => 'RSSMRA80A01H501U']);
 
         expect($email)->toBe('rssmra80a01h501u@spid.invalid');
     });
 
     it('gives each citizen a different fallback email, the same on every login', function () {
-        $email = config('filament-spid.field_mapping.email');
+        $email = fn (array $spidUser) => mapField('email', $spidUser);
 
         expect($email(['fiscalNumber' => 'RSSMRA80A01H501U']))
             ->toBe($email(['fiscalNumber' => 'RSSMRA80A01H501U']))
@@ -89,7 +91,7 @@ describe('Configuration', function () {
     });
 
     it('keeps the email SPID provides', function () {
-        $email = config('filament-spid.field_mapping.email')(['fiscalNumber' => 'RSSMRA80A01H501U', 'email' => 'mario@example.com']);
+        $email = mapField('email', ['fiscalNumber' => 'RSSMRA80A01H501U', 'email' => 'mario@example.com']);
 
         expect($email)->toBe('mario@example.com');
     });
