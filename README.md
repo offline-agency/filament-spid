@@ -46,10 +46,10 @@ dependency:
 1. **The patched `italia/spid-laravel`.** Every published release pins
    `onelogin/php-saml` 4.1.0, which is affected by a critical advisory
    ([CVE-2025-66475](https://github.com/advisories/GHSA-5j8p-438x-rgg5)), so
-   Composer 2.9+ refuses to install it, and no release allows Laravel 13. Until
-   upstream merges [italia/spid-laravel#131](https://github.com/italia/spid-laravel/pull/131)
-   and tags a release, install the fork branch: it requires php-saml ^4.3.1,
-   ships the SPID patch ported to it and allows Laravel 13.
+   Composer 2.9+ refuses to install it, and no release allows Laravel 13. The
+   fix is merged upstream ([italia/spid-laravel#132](https://github.com/italia/spid-laravel/pull/132)) but not tagged yet. Until it is, install the
+   fork branch: it requires php-saml ^4.3.1, ships the SPID patch ported to it
+   and allows Laravel 13.
 2. **Patching enabled.** `italia/spid-laravel` adapts php-saml to the SPID rules
    through `cweagans/composer-patches`, which only applies patches declared by
    dependencies when your application opts in. Without it, IdPs reject the

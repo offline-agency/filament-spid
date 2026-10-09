@@ -17,7 +17,7 @@ We accept contributions via Pull Requests on [GitHub](https://github.com/offline
 
 Every published `italia/spid-laravel` pins `onelogin/php-saml` 4.1.0, which
 Composer refuses to install (CVE-2025-66475). Until
-[italia/spid-laravel#131](https://github.com/italia/spid-laravel/pull/131) is
+[italia/spid-laravel#132](https://github.com/italia/spid-laravel/pull/132) is
 released, work on a copy of `composer.json` that uses the patched fork, exactly
 as CI does, so the published manifest stays untouched:
 

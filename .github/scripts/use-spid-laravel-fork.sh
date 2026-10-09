@@ -4,8 +4,9 @@
 # Every tagged italia/spid-laravel pins onelogin/php-saml 4.1.0, which carries
 # a critical advisory (CVE-2025-66475) that Composer refuses to install, and
 # allows Laravel up to 12. The fork's feat/laravel-13 branch requires
-# php-saml ^4.3.1, ships the SPID patch ported to it, and allows Laravel 13:
-# https://github.com/italia/spid-laravel/pull/131
+# php-saml ^4.3.1, ships the SPID patch ported to it, and allows Laravel 13.
+# Upstream merged it in https://github.com/italia/spid-laravel/pull/132 but has
+# not tagged it, and its master points the patch URL at a deleted branch.
 #
 # The fork setup goes into a copy of composer.json named by $COMPOSER (the
 # workflows set COMPOSER=composer.ci.json), so the published manifest, which

@@ -123,7 +123,7 @@ First stable release: from here on the public API follows SemVer. See
 
 - `onelogin/php-saml` ^4.3.1 (CVE-2025-66475, critical) and
   `robrichards/xmlseclibs` ^3.1.5 through the patched `italia/spid-laravel`
-  ([italia/spid-laravel#131](https://github.com/italia/spid-laravel/pull/131)),
+  ([italia/spid-laravel#132](https://github.com/italia/spid-laravel/pull/132)),
   with the SPID patch actually applied.
 - Minimum SPID level enforcement (SpidL2 by default) and no automatic account
   creation by default.
