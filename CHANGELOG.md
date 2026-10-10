@@ -131,6 +131,17 @@ First stable release: from here on the public API follows SemVer. See
 
 ### Fixed
 
+- The SPID button shuffles the IdPs with Fisher–Yates: the previous loop
+  produced only 4 of the 6 orders of three providers, unevenly. Each button
+  has its own ids and scopes its script to itself, so several buttons on a page
+  submit the right provider; it is initialised once, also across Livewire
+  navigation. Its behaviour moved from an inline script and `onerror`
+  attributes to `resources/dist/filament-spid-button.js` (a Filament asset), so
+  a strict CSP does not need `unsafe-inline`. The trigger exposes
+  `role="button"`, `aria-controls` and an `aria-expanded` that follows the menu;
+  Space opens it and Escape closes it, returning focus. If the scripts cannot
+  load, the button shows a message and logs a console error instead of failing
+  silently.
 - A SPID login fails closed: when a `SpidAuthenticationSucceeded` listener, a
   listener of Laravel's `Login` event or `login()` itself throws, the panel
   guard is logged out and the SPID session cleared. A redirect thrown by an

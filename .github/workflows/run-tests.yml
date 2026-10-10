@@ -120,12 +120,30 @@ jobs:
           files: ./build/logs/coverage.xml
           fail_ci_if_error: false
 
+  # The SPID button script: dependency-free, tested with Node's own runner.
+  button-script:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    name: Button script
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Execute tests
+        run: node --test 'tests/js/*.test.mjs'
+
   # One check for branch protection to require instead of every matrix leg.
   tests-passed:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     name: tests-passed
-    needs: [test, coverage]
+    needs: [test, coverage, button-script]
     if: always()
 
     steps:
@@ -133,6 +151,7 @@ jobs:
         env:
           TEST_RESULT: ${{ needs.test.result }}
           COVERAGE_RESULT: ${{ needs.coverage.result }}
+          BUTTON_RESULT: ${{ needs.button-script.result }}
         run: |
-          echo "test: $TEST_RESULT, coverage: $COVERAGE_RESULT"
-          [ "$TEST_RESULT" = success ] && [ "$COVERAGE_RESULT" = success ]
+          echo "test: $TEST_RESULT, coverage: $COVERAGE_RESULT, button script: $BUTTON_RESULT"
+          [ "$TEST_RESULT" = success ] && [ "$COVERAGE_RESULT" = success ] && [ "$BUTTON_RESULT" = success ]

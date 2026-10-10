@@ -10,6 +10,7 @@ return [
     'insufficient_level' => 'Questo pannello richiede un livello di sicurezza SPID più alto',
     'access_denied' => 'Il tuo account non è autorizzato ad accedere a questo pannello',
     'standard_login' => 'Accedi con credenziali',
+    'button_unavailable' => 'L\'accesso con SPID non è disponibile: non è stato possibile caricare gli script. Ricarica la pagina o contatta l\'amministratore.',
     'info_text' => 'Accedi con la tua identità digitale SPID',
     'more_info' => 'Maggiori informazioni su SPID',
     'no_spid' => 'Non hai SPID?',

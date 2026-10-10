@@ -10,6 +10,7 @@ return [
     'insufficient_level' => 'This panel requires a higher SPID security level',
     'access_denied' => 'Your account is not allowed to access this panel',
     'standard_login' => 'Login with credentials',
+    'button_unavailable' => 'The SPID login is unavailable: its scripts could not be loaded. Reload the page or contact the administrator.',
     'info_text' => 'Login with your SPID digital identity',
     'more_info' => 'More information about SPID',
     'no_spid' => 'Don\'t have SPID?',

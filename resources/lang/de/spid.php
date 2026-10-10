@@ -10,6 +10,7 @@ return [
     'insufficient_level' => 'Dieses Panel erfordert eine höhere SPID-Sicherheitsstufe',
     'access_denied' => 'Ihr Konto hat keinen Zugriff auf dieses Panel',
     'standard_login' => 'Mit Anmeldedaten anmelden',
+    'button_unavailable' => 'Die SPID-Anmeldung ist nicht verfügbar: Die Skripte konnten nicht geladen werden. Laden Sie die Seite neu oder wenden Sie sich an den Administrator.',
     'info_text' => 'Melden Sie sich mit Ihrer digitalen SPID-Identität an',
     'more_info' => 'Mehr Informationen über SPID',
     'no_spid' => 'Haben Sie kein SPID?',

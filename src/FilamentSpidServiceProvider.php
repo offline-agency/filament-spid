@@ -132,6 +132,8 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
             // Loaded on request: only the button's loader pulls it in, and
             // only when the page has no jQuery of its own.
             Js::make('spid-jquery', __DIR__.'/../resources/dist/jquery.min.js')->loadedOnRequest(),
+            // The SPID button's behaviour, included by the component itself.
+            Js::make('filament-spid-button', __DIR__.'/../resources/dist/filament-spid-button.js')->loadedOnRequest(),
         ];
     }
 

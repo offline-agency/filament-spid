@@ -85,39 +85,90 @@ it('never lists an inactive provider even when allowed', function () {
         ->and($html)->not->toContain('Tim ID');
 });
 
-it('loads jQuery without document.write', function () {
+/**
+ * The button's behaviour script, as shipped.
+ */
+function spidButtonScript(): string
+{
+    return file_get_contents(__DIR__.'/../resources/dist/filament-spid-button.js');
+}
+
+it('loads its behaviour from a script file, with no inline script or handler', function () {
+    // A strict Content-Security-Policy blocks inline scripts and on* attributes.
     $html = renderSpidButton();
 
-    expect($html)->not->toContain('document.write')
-        ->and($html)->toContain('createElement(\'script\')');
+    expect($html)->toContain('<script src="'.FilamentAsset::getScriptSrc('filament-spid-button', 'offline-agency/filament-spid').'"')
+        ->and($html)->not->toMatch('/<script(?![^>]*\bsrc=)[^>]*>/')
+        ->and($html)->not->toMatch('/\son[a-z]+=/i');
 });
 
-it('loads the AgID button script only after jQuery is available', function () {
-    // spid-sp-access-button.min.js starts with `jQuery&&...`: loaded by a
-    // plain <script src> before an injected jQuery has arrived it throws a
-    // ReferenceError and the IdP menu never opens.
+it('hands the loader the jQuery and AgID script URLs from the package assets', function () {
     $html = renderSpidButton();
-    $buttonJs = asset('vendor/spid-auth/js/spid-sp-access-button.min.js');
 
-    expect($html)->not->toContain('<script src="'.$buttonJs.'"')
-        ->and($html)->toContain(json_encode($buttonJs))
-        ->and($html)->toContain('.onload');
+    expect($html)->toContain('data-jquery-src="'.e(FilamentAsset::getScriptSrc('spid-jquery', 'offline-agency/filament-spid')).'"')
+        ->and($html)->toContain('data-button-src="'.e(asset('vendor/spid-auth/js/spid-sp-access-button.min.js')).'"')
+        ->and($html)->not->toContain('code.jquery.com');
+});
+
+it('loads jQuery only when missing, and the AgID script after it, without document.write', function () {
+    // spid-sp-access-button.min.js starts with `jQuery&&...`.
+    $script = spidButtonScript();
+
+    expect($script)->toContain("typeof win.jQuery === 'undefined'")
+        ->and($script)->toContain("loadScript(doc, 'spid-jquery'")
+        ->and($script)->toContain('withButtonScript')
+        ->and($script)->not->toContain('document.write');
 });
 
 it('renders the provider form posting to the library login route', function () {
     $html = renderSpidButton();
 
     expect($html)->toContain(route('spid-auth_do-login'))
-        ->and($html)->toContain('spid_idp_access_provider');
+        ->and($html)->toContain('name="provider"');
 });
 
-it('loads jQuery from the package assets, not a CDN', function () {
+it('gives every button on a page its own form, input and menu ids', function () {
+    $html = renderSpidButton().renderSpidButton();
+
+    preg_match_all('/\sid="([^"]+)"/', $html, $ids);
+    expect($ids[1])->toHaveCount(6)
+        ->and(array_unique($ids[1]))->toHaveCount(6);
+
+    // Each trigger opens its own menu.
+    preg_match_all('/spid-idp-button="#([^"]+)"/', $html, $targets);
+    expect($targets[1])->toHaveCount(2)
+        ->and(array_unique($targets[1]))->toHaveCount(2);
+    foreach ($targets[1] as $target) {
+        expect($html)->toContain('id="'.$target.'"');
+    }
+});
+
+it('scopes its script to its own wrapper', function () {
+    $script = spidButtonScript();
+
+    expect($script)->toContain("wrapper.querySelector('input[name=\"provider\"]')")
+        ->and($script)->not->toContain("jQuery('#spid_idp_access_provider')")
+        ->and($script)->toContain('data-spid-initialized')
+        ->and($script)->toContain('livewire:navigated');
+});
+
+it('exposes the menu state to assistive technology', function () {
     $html = renderSpidButton();
 
-    expect($html)->not->toContain('code.jquery.com')
-        ->and($html)->toContain(json_encode(FilamentAsset::getScriptSrc('spid-jquery', 'offline-agency/filament-spid')));
+    expect($html)->toContain('role="button"')
+        ->and($html)->toContain('aria-haspopup="true"')
+        ->and($html)->toContain('aria-expanded="false"')
+        ->and($html)->toMatch('/aria-controls="spid-[a-z0-9]+-menu"/');
 });
 
-it('only loads jQuery when the page does not already ship it', function () {
-    expect(renderSpidButton())->toContain("typeof jQuery === 'undefined'");
+it('keeps the information links after the providers', function () {
+    $html = renderSpidButton();
+
+    expect(strpos($html, 'data-spidlink="info"'))->toBeGreaterThan(strpos($html, 'data-idp="posteid"'))
+        ->and($html)->toContain('https://www.spid.gov.it/richiedi-spid')
+        ->and($html)->toContain('https://www.spid.gov.it/serve-aiuto');
+});
+
+it('ships a hidden message for when its scripts cannot load', function () {
+    expect(renderSpidButton())->toMatch('/<p[^>]*data-spid-load-error[^>]*hidden/');
 });

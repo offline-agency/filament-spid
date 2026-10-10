@@ -5,17 +5,22 @@
     $buttonLabel = $plugin?->getSpidButtonLabel() ?? __('filament-spid::spid.login_with_spid');
     $buttonIcon = $plugin?->getSpidButtonIcon();
     $allowedProviders = $plugin?->getProviders() ?? [];
+    // Unique per instance: several buttons can share a page.
+    $uid = 'spid-'.\Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(10));
 @endphp
 
-<div class="spid-button-wrapper">
+<div class="spid-button-wrapper"
+     data-spid-button
+     data-jquery-src="{{ \Filament\Support\Facades\FilamentAsset::getScriptSrc('spid-jquery', 'offline-agency/filament-spid') }}"
+     data-button-src="{{ asset('vendor/spid-auth/js/spid-sp-access-button.min.js') }}">
     <!-- Official SPID Button Styles -->
     <link rel="stylesheet" href="{{ asset('/vendor/spid-auth/css/spid-sp-access-button.min.css') }}">
     
-    <form id="spid_idp_access" name="spid_idp_access" action="{{ route('spid-auth_do-login') }}" method="post">
+    <form id="{{ $uid }}-form" action="{{ route('spid-auth_do-login') }}" method="post">
         @csrf
-        <input id="spid_idp_access_provider" type="hidden" name="provider" value="" />
-        
-        <a href="#" class="italia-it-button italia-it-button-size-{{ $size }} button-spid" spid-idp-button="#spid-idp-button-{{ $size }}-post" aria-haspopup="true" aria-expanded="false">
+        <input type="hidden" name="provider" value="" />
+
+        <a href="#" role="button" class="italia-it-button italia-it-button-size-{{ $size }} button-spid" spid-idp-button="#{{ $uid }}-menu" aria-haspopup="true" aria-expanded="false" aria-controls="{{ $uid }}-menu">
             <span class="italia-it-button-icon">
                 @if ($buttonIcon)
                     {{-- @svg comes from blade-icons, which every supported
@@ -23,16 +28,14 @@
                          component whose props changed between majors. --}}
                     @svg($buttonIcon, 'h-6 w-6')
                 @else
-                    <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}"
-                         onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.png') }}'; this.onerror=null;"
-                         alt="" />
+                    <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}" alt="" />
                 @endif
             </span>
             <span class="italia-it-button-text">{{ $buttonLabel }}</span>
         </a>
         
-        <div id="spid-idp-button-{{ $size }}-post" class="spid-idp-button spid-idp-button-tip spid-idp-button-relative">
-            <ul id="spid-idp-list-{{ $size }}-root-post" class="spid-idp-button-menu">
+        <div id="{{ $uid }}-menu" class="spid-idp-button spid-idp-button-tip spid-idp-button-relative">
+            <ul id="{{ $uid }}-list" class="spid-idp-button-menu" aria-label="{{ __('filament-spid::spid.select_provider') }}">
                 @unless(config('spid-auth.hide_real_idps'))
                 @foreach (config('spid-idps') as $idp => $idpData)
                 @if ($idpData['real'] && $idpData['isActive'] && (empty($allowedProviders) || in_array($idp, $allowedProviders, true)))
@@ -53,8 +56,7 @@
                     <button class="idp-button-idp-logo" name="test" type="submit">
                         <span class="spid-sr-only">Test IdP</span>
                         <img class="spid-idp-button-logo" 
-                             src="{{ asset('/vendor/spid-auth/img/spid-idp-test.svg') }}" 
-                             onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-idp-test.png') }}'; this.onerror=null;" 
+                             src="{{ asset('/vendor/spid-auth/img/spid-idp-test.svg') }}"
                              alt="Test IdP" />
                     </button>
                 </li>
@@ -65,8 +67,7 @@
                     <button class="idp-button-idp-logo" name="validator" type="submit">
                         <span class="spid-sr-only">Validator IdP</span>
                         <img class="spid-idp-button-logo" 
-                             src="{{ asset('/vendor/spid-auth/img/spid-validator.svg') }}" 
-                             onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-validator.png') }}'; this.onerror=null;" 
+                             src="{{ asset('/vendor/spid-auth/img/spid-validator.svg') }}"
                              alt="Validator" />
                     </button>
                 </li>
@@ -85,67 +86,13 @@
         </div>
     </form>
     
-    {{-- The AgID button script (spid-sp-access-button.min.js) needs jQuery at
-         the moment it runs: it starts with `jQuery&&...`. So the scripts are
-         chained: jQuery first, only when the page does not ship it (from the
-         package's Filament assets, php artisan filament:assets, not a CDN),
-         then the button script from its onload, then the bindings. Tags are
-         appended through the DOM: write() is blocked under a strict CSP. --}}
-    <script>
-        (function () {
-            var jquerySrc = @json(\Filament\Support\Facades\FilamentAsset::getScriptSrc('spid-jquery', 'offline-agency/filament-spid'));
-            var buttonSrc = @json(asset('vendor/spid-auth/js/spid-sp-access-button.min.js'));
+    <p class="text-sm text-danger-600 dark:text-danger-400" data-spid-load-error hidden>
+        {{ __('filament-spid::spid.button_unavailable') }}
+    </p>
 
-            // Load a script once per page, even with several buttons, and run
-            // the callback when it is available.
-            function load(id, src, callback) {
-                var script = document.getElementById(id);
-
-                if (script && script.dataset.loaded) {
-                    callback();
-                    return;
-                }
-
-                if (!script) {
-                    script = document.createElement('script');
-                    script.id = id;
-                    script.src = src;
-                    script.onload = function () { script.dataset.loaded = '1'; };
-                    document.head.appendChild(script);
-                }
-
-                script.addEventListener('load', callback);
-            }
-
-            function bind() {
-                jQuery('.spid-idp-button-link').click(function (event) {
-                    jQuery('#spid_idp_access_provider').val(jQuery(event.currentTarget).data('idp'));
-                });
-
-                jQuery(function () {
-                    var rootList = jQuery('.spid-idp-button-menu').first();
-                    var idpList = rootList.children('.spid-idp-button-link').get();
-                    var lnkList = rootList.children('.spid-idp-support-link');
-
-                    // Shuffle IdPs, as the AgID guidelines require.
-                    for (var i = idpList.length - 1; i > 0; i--) {
-                        var j = Math.floor(Math.random() * (i + 1));
-                        rootList.append(idpList[j]);
-                    }
-                    rootList.append(lnkList);
-                });
-            }
-
-            function withButtonScript() {
-                load('spid-sp-access-button', buttonSrc, bind);
-            }
-
-            if (typeof jQuery === 'undefined') {
-                load('spid-jquery', jquerySrc, withButtonScript);
-            } else {
-                withButtonScript();
-            }
-        })();
-    </script>
+    {{-- Behaviour (shuffle, provider choice, keyboard) and the jQuery/AgID
+         script loading live in resources/dist/filament-spid-button.js, a
+         Filament asset loaded on request: no inline script for a CSP to allow.
+         It runs once per page and initialises each button once. --}}
+    <script src="{{ \Filament\Support\Facades\FilamentAsset::getScriptSrc('filament-spid-button', 'offline-agency/filament-spid') }}" defer></script>
 </div>
-
