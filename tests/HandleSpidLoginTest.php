@@ -33,14 +33,9 @@ function loginEvent(array $overrides = []): LoginEvent
 
 beforeEach(function () {
     Model::unguard();
-    // Provisioning is opt-in; these tests exercise it.
+    // Provisioning is opt-in; these tests exercise it with the shipped
+    // field_mapping against the stock (password NOT NULL) users table.
     Config::set('filament-spid.auto_create_users', true);
-    Config::set('filament-spid.field_mapping', [
-        'name' => fn ($spidUser) => $spidUser['name'].' '.$spidUser['familyName'],
-        'email' => fn ($spidUser) => $spidUser['email'] ?? $spidUser['fiscalNumber'].'@spid.local',
-        'fiscal_code' => fn ($spidUser) => $spidUser['fiscalNumber'],
-        'password' => fn () => bcrypt('secret'),
-    ]);
 });
 
 it('provisions and authenticates the user on the panel guard', function () {

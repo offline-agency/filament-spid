@@ -4,6 +4,7 @@ use App\Models\User;
 use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\Mapping\EmailOrFallback;
 use OfflineAgency\FilamentSpid\Mapping\FullName;
+use OfflineAgency\FilamentSpid\Mapping\RandomPassword;
 
 return [
     /*
@@ -109,6 +110,9 @@ return [
         // never deliverable. Use 'email' instead if your column is nullable.
         'email' => EmailOrFallback::class,
         'fiscal_code' => 'fiscalNumber',
+        // A hash of a random password, set on creation only: the stock users
+        // table declares password NOT NULL. Drop it if yours has no password.
+        'password' => RandomPassword::class,
     ],
 
     /*

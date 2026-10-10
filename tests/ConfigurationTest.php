@@ -45,7 +45,7 @@ describe('Configuration', function () {
         $mapping = config('filament-spid.field_mapping');
 
         expect($mapping)->toBeArray()
-            ->and($mapping)->toHaveKeys(['name', 'email', 'fiscal_code']);
+            ->and($mapping)->toHaveKeys(['name', 'email', 'fiscal_code', 'password']);
     });
 
     it('can be cached with php artisan config:cache', function () {

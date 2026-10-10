@@ -201,7 +201,7 @@ use Filament\Panel;
 
 class User extends Authenticatable implements FilamentUser
 {
-    protected $fillable = ['name', 'email', 'fiscal_code', 'spid_data'];
+    protected $fillable = ['name', 'email', 'password', 'fiscal_code', 'spid_data'];
 
     protected $casts = ['spid_data' => 'array'];
 
@@ -217,6 +217,16 @@ In production Filament only lets in users whose model implements
 `FilamentUser` and returns true from `canAccessPanel()`. The `spid_data` cast is
 optional: the payload is stored as an array when the column is cast and as JSON
 otherwise, never double-encoded.
+
+`password` is in `$fillable` because Laravel's stock `users` table declares it
+NOT NULL: on creation, the default `field_mapping.password`
+(`RandomPassword::class`) stores the hash of a 64-character random password
+nobody knows, so the citizen can only sign in with SPID. The value is already
+hashed, which the stock `'password' => 'hashed'` cast detects and stores as
+given. It is applied on creation only: later logins keep the hash, so a password
+set afterwards (for example through a reset) survives. If your `users` table
+has no `password` column, or it is nullable, remove the entry from
+`field_mapping`.
 
 ## How it works
 
@@ -258,7 +268,7 @@ otherwise, never double-encoded.
 | `user_model` | `SPID_USER_MODEL` | `App\Models\User` | Model to provision; falls back to `spid-auth.user_model` |
 | `auto_create_users` | `SPID_AUTO_CREATE_USERS` | `false` | Create a user when no `fiscal_code` matches |
 | `update_user_data` | `SPID_UPDATE_USER_DATA` | `true` | Refresh mapped columns and `spid_data` on every login |
-| `field_mapping` | | name, email, fiscal_code | Column => SPID attribute name (`'fiscalNumber'`) or invokable mapper class (`FullName::class`) |
+| `field_mapping` | | name, email, fiscal_code, password | Column => SPID attribute name (`'fiscalNumber'`) or invokable mapper class (`FullName::class`); `password` gets a random hash on creation only |
 | `create_user_callback` | | `null` | `fn (SpidUserData $data): Authenticatable` replacing user creation |
 | `update_user_callback` | | `null` | `fn (Authenticatable $user, SpidUserData $data): void` replacing the update |
 
@@ -442,6 +452,12 @@ level.
 double-encoded it for models casting the column. The package now writes an array
 when the column is cast and JSON otherwise; re-save affected rows (a login with
 `update_user_data` on does it).
+
+**Creating users fails with a NOT NULL constraint on `password`.** The published
+`config/filament-spid.php` predates the default `password` mapping, or the
+entry was removed. Add `'password' => RandomPassword::class`
+(`OfflineAgency\FilamentSpid\Mapping\RandomPassword`) to `field_mapping` and
+`password` to the model's `$fillable` ([step 7](#7-prepare-the-user-model)).
 
 **Composer refuses `onelogin/php-saml` 4.1.0** ("affected by security
 advisories", or a conflict with `onelogin/php-saml <4.3.1` declared by

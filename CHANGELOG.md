@@ -65,6 +65,10 @@ First stable release: from here on the public API follows SemVer. See
   once an hour per message, through the cache, instead of on every request.
 - A warning is logged when a `->login()` chained after the plugin replaced the
   SPID login page.
+- The default `field_mapping` maps `password` to `RandomPassword`, the hash of
+  a random password, so `auto_create_users` works on Laravel's stock `users`
+  table (`password` NOT NULL). Mappers implementing `Mapping\Contracts\CreateOnly`
+  run on creation only, never on later logins.
 - `SpidUserData::fromSpidAuth()` accepts the `SPIDUser` object as well as an
   array.
 - Release automation: merging a PR into `main` tags and releases it from its

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
+use OfflineAgency\FilamentSpid\Mapping\Contracts\CreateOnly;
 use OfflineAgency\FilamentSpid\Mapping\FieldMapper;
 
 class SpidUserService
@@ -68,7 +69,7 @@ class SpidUserService
         $data = [];
 
         foreach ($mapping as $field => $mapper) {
-            if ($field !== 'fiscal_code') {
+            if ($field !== 'fiscal_code' && ! $this->isCreateOnly($mapper)) {
                 $data[$field] = FieldMapper::value($mapper, $spidData->toArray());
             }
         }
@@ -76,6 +77,17 @@ class SpidUserService
         $data['spid_data'] = $this->spidDataFor($user, $spidData);
 
         $user->update($data);
+    }
+
+    /**
+     * Whether the mapper only runs on creation, checked on the class name
+     * without instantiating it.
+     */
+    protected function isCreateOnly(mixed $mapper): bool
+    {
+        return is_string($mapper)
+            ? is_a($mapper, CreateOnly::class, true)
+            : $mapper instanceof CreateOnly;
     }
 
     /**
