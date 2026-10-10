@@ -85,6 +85,9 @@ First stable release: from here on the public API follows SemVer. See
   coming from `code.jquery.com`; run `php artisan filament:assets` after
   upgrading. Pages that already load jQuery keep using theirs.
 - The AGID logo is served from the package assets instead of a third-party CDN.
+- The login page no longer shows a "Login with credentials" link to
+  `filament()->getLoginUrl()`, which is the SPID page itself. Name a real page
+  with `SpidPlugin::credentialsLoginUrl()` to show the link.
 - `italia/spid-laravel` is required as `^2.1.0-beta`;
   `spatie/laravel-package-tools` needs `^1.93`.
 - CI runs on every pull request, checks style without committing, and runs

@@ -352,6 +352,9 @@ SpidPlugin::make()
     ->providers(['poste', 'infocert', 'aruba', 'namirial', 'tim'])
     // Your own login view
     ->loginView('auth.spid-login')
+    // A "Login with credentials" link under the button, to a page outside the
+    // SPID flow (for example a second panel with the standard login)
+    ->credentialsLoginUrl('/staff/login')
     // Keep the panel's own login page instead of the SPID one
     ->showSpidButton(false);
 ```
@@ -359,6 +362,9 @@ SpidPlugin::make()
 Valid provider keys are those of `config/spid-idps.php`: `aruba`, `eht`,
 `infocamere`, `infocert`, `intesigroup`, `lepida`, `namirial`, `poste`,
 `sielte`, `spiditalia`, `teamsystem`, `tim`. Inactive IdPs are never shown.
+
+The SPID page shows no credentials link by default: the panel's login URL is
+the SPID page itself, so the link has to point somewhere else.
 
 The plugin can also register convenience routes under the panel path (a login
 redirect, a providers JSON endpoint, the SP metadata and a logout that goes

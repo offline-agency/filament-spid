@@ -26,6 +26,8 @@ class SpidPlugin implements Plugin
 
     protected string $loginView = 'filament-spid::login';
 
+    protected ?string $credentialsLoginUrl = null;
+
     /** @var list<string> */
     protected array $providers = [];
 
@@ -163,6 +165,18 @@ class SpidPlugin implements Plugin
     }
 
     /**
+     * Link the SPID page to a login page for non-SPID credentials, such as a
+     * second panel. Null (the default) renders no link: the panel's own login
+     * URL is the SPID page itself.
+     */
+    public function credentialsLoginUrl(?string $url): static
+    {
+        $this->credentialsLoginUrl = $url;
+
+        return $this;
+    }
+
+    /**
      * @param  list<string>  $providers  spid-idps keys allowed on the button; empty allows all
      */
     public function providers(array $providers): static
@@ -212,6 +226,11 @@ class SpidPlugin implements Plugin
     public function getSpidButtonIcon(): ?string
     {
         return $this->spidButtonIcon;
+    }
+
+    public function getCredentialsLoginUrl(): ?string
+    {
+        return $this->credentialsLoginUrl;
     }
 
     public function getLoginView(): string

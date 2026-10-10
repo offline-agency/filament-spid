@@ -43,10 +43,10 @@
             >
         </div>
 
-        <!-- Standard login fallback -->
-        @if (filament()->hasLogin())
+        <!-- Login with other credentials, when the plugin names a page for it -->
+        @if ($credentialsLoginUrl = \OfflineAgency\FilamentSpid\SpidPlugin::resolve()?->getCredentialsLoginUrl())
             <div class="text-center">
-                <a href="{{ filament()->getLoginUrl() }}"
+                <a href="{{ $credentialsLoginUrl }}"
                    class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                     {{ __('filament-spid::spid.standard_login') }}
                 </a>

@@ -151,3 +151,13 @@ it('resolves to null on a panel the plugin is not registered on', function () {
 
     expect(SpidPlugin::resolve())->toBeNull();
 });
+
+it('has no credentials login url by default', function () {
+    expect(SpidPlugin::make()->getCredentialsLoginUrl())->toBeNull();
+});
+
+it('can set a credentials login url', function () {
+    $plugin = SpidPlugin::make()->credentialsLoginUrl('/admin/password-login');
+
+    expect($plugin->getCredentialsLoginUrl())->toBe('/admin/password-login');
+});
