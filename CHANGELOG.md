@@ -69,6 +69,9 @@ First stable release: from here on the public API follows SemVer. See
   a random password, so `auto_create_users` works on Laravel's stock `users`
   table (`password` NOT NULL). Mappers implementing `Mapping\Contracts\CreateOnly`
   run on creation only, never on later logins.
+- `filament-spid.store_spid_data` and `filament-spid.spid_data_attributes`
+  limit what `spid_data` stores (data minimisation). The defaults keep today's
+  behaviour: all eight attributes.
 - `SpidUserData::fromSpidAuth()` accepts the `SPIDUser` object as well as an
   array.
 - Release automation: merging a PR into `main` tags and releases it from its

@@ -75,7 +75,9 @@ class SpidUserService
             $data[$field] = FieldMapper::value($mapper, $spidData->toArray());
         }
 
-        $data['spid_data'] = $this->spidDataFor(new $userModel, $spidData);
+        if (config('filament-spid.store_spid_data', true)) {
+            $data['spid_data'] = $this->spidDataFor(new $userModel, $spidData);
+        }
 
         return $userModel::create($data);
     }
@@ -100,7 +102,9 @@ class SpidUserService
             }
         }
 
-        $data['spid_data'] = $this->spidDataFor($user, $spidData);
+        if (config('filament-spid.store_spid_data', true)) {
+            $data['spid_data'] = $this->spidDataFor($user, $spidData);
+        }
 
         $user->update($data);
     }
@@ -135,13 +139,20 @@ class SpidUserService
      * Encode the SPID payload the way the target model expects it.
      *
      * Models casting spid_data (as the README recommends) encode on write, so
-     * handing them a JSON string would store double-encoded JSON.
+     * handing them a JSON string would store double-encoded JSON. Only the
+     * attributes listed in filament-spid.spid_data_attributes are kept (null
+     * keeps all of them).
      *
      * @return array<string, mixed>|string
      */
     protected function spidDataFor(Authenticatable $user, SpidUserData $spidData): array|string
     {
         $payload = $spidData->toArray();
+
+        $attributes = config('filament-spid.spid_data_attributes');
+        if (is_array($attributes)) {
+            $payload = array_intersect_key($payload, array_flip($attributes));
+        }
 
         if ($user instanceof Model && $user->hasCast('spid_data')) {
             return $payload;

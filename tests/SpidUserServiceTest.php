@@ -512,3 +512,62 @@ describe('authorisation inside the provisioning transaction', function () {
         expect(User::count())->toBe(0);
     });
 });
+
+describe('spid_data minimisation', function () {
+    beforeEach(function () {
+        Config::set('filament-spid.user_model', UserWithSpidDataCast::class);
+    });
+
+    function fullSpidData(string $name = 'Mario'): SpidUserData
+    {
+        return new SpidUserData(
+            fiscalNumber: 'MNMDTA80A01H501U',
+            name: $name,
+            familyName: 'Rossi',
+            email: 'mario@example.com',
+            spidCode: 'SPID123',
+            placeOfBirth: 'H501',
+            dateOfBirth: '1980-01-01',
+            gender: 'M',
+        );
+    }
+
+    it('stores all eight SPID attributes by default', function () {
+        app(SpidUserService::class)->findOrCreateUser(fullSpidData());
+
+        expect(array_keys(UserWithSpidDataCast::sole()->spid_data))->toBe([
+            'fiscalNumber', 'name', 'familyName', 'email', 'spidCode', 'placeOfBirth', 'dateOfBirth', 'gender',
+        ]);
+    });
+
+    it('stores only the configured attributes, ignoring unknown names', function () {
+        Config::set('filament-spid.spid_data_attributes', ['fiscalNumber', 'name', 'notAnAttribute']);
+
+        app(SpidUserService::class)->findOrCreateUser(fullSpidData());
+
+        expect(UserWithSpidDataCast::sole()->spid_data)->toBe([
+            'fiscalNumber' => 'MNMDTA80A01H501U',
+            'name' => 'Mario',
+        ]);
+    });
+
+    it('leaves spid_data empty on creation when storing is off', function () {
+        Config::set('filament-spid.store_spid_data', false);
+
+        app(SpidUserService::class)->findOrCreateUser(fullSpidData());
+
+        expect(UserWithSpidDataCast::sole()->spid_data)->toBeNull();
+    });
+
+    it('leaves spid_data untouched on update when storing is off', function () {
+        $service = app(SpidUserService::class);
+        $service->findOrCreateUser(fullSpidData());
+        Config::set('filament-spid.store_spid_data', false);
+
+        $service->findOrCreateUser(fullSpidData('Updated'));
+
+        expect(UserWithSpidDataCast::sole())
+            ->name->toBe('Updated Rossi')
+            ->spid_data->name->toBe('Mario');
+    });
+});

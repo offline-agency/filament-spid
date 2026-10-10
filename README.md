@@ -269,6 +269,8 @@ has no `password` column, or it is nullable, remove the entry from
 | `user_model` | `SPID_USER_MODEL` | `App\Models\User` | Model to provision; falls back to `spid-auth.user_model` |
 | `auto_create_users` | `SPID_AUTO_CREATE_USERS` | `false` | Create a user when no `fiscal_code` matches |
 | `update_user_data` | `SPID_UPDATE_USER_DATA` | `true` | Refresh mapped columns and `spid_data` on every login |
+| `store_spid_data` | `FILAMENT_SPID_STORE_SPID_DATA` | `true` | Store the SPID attributes in `spid_data`; `false` never writes the column |
+| `spid_data_attributes` | | `null` | Attributes kept in `spid_data`; `null` keeps all eight ([data minimisation](#data-minimisation)) |
 | `field_mapping` | | name, email, fiscal_code, password | Column => SPID attribute name (`'fiscalNumber'`) or invokable mapper class (`FullName::class`); `password` gets a random hash on creation only |
 | `create_user_callback` | | `null` | `fn (SpidUserData $data): Authenticatable` replacing user creation |
 | `update_user_callback` | | `null` | `fn (Authenticatable $user, SpidUserData $data): void` replacing the update |
@@ -281,6 +283,21 @@ the two callbacks, but only if you do not cache the config.
 The SAML side (entity id, certificates, level, IdPs, routes prefix, redirects
 after login and logout) lives in `config/spid-auth.php` and `config/spid-idps.php`,
 owned by `italia/spid-laravel`.
+
+### Data minimisation
+
+`spid_data` stores every attribute the IdP sent by default: fiscal number,
+name, family name, email, SPID code, place and date of birth, gender. Keep only
+what the panel needs (GDPR art. 5(1)(c)); for an admin panel that is usually:
+
+```php
+'spid_data_attributes' => ['fiscalNumber', 'name', 'familyName', 'email', 'spidCode'],
+```
+
+Unknown names are ignored. To keep no SPID payload at all, set
+`store_spid_data` to `false` (or `FILAMENT_SPID_STORE_SPID_DATA=false`): the
+column is never written, and existing values stay as they are. Columns filled
+through `field_mapping` are not affected.
 
 ### Email without SPID email
 

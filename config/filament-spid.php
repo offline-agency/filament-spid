@@ -94,6 +94,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | SPID Data
+    |--------------------------------------------------------------------------
+    |
+    | Whether to store the SPID attributes in the spid_data column, and which
+    | ones. null stores all eight (fiscalNumber, name, familyName, email,
+    | spidCode, placeOfBirth, dateOfBirth, gender); store only what you need,
+    | for example ['fiscalNumber', 'name', 'familyName', 'email', 'spidCode']
+    | for an admin panel. With store_spid_data off the column is never written.
+    |
+    */
+    'store_spid_data' => env('FILAMENT_SPID_STORE_SPID_DATA', true),
+
+    'spid_data_attributes' => null,
+
+    /*
+    |--------------------------------------------------------------------------
     | User Field Mapping
     |--------------------------------------------------------------------------
     |
