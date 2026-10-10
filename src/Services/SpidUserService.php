@@ -8,7 +8,6 @@ use App\Models\User;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
 use OfflineAgency\FilamentSpid\Events\SpidUserProvisioning;
@@ -27,7 +26,9 @@ class SpidUserService
      * SpidUserProvisioning fires inside the transaction, then $authorize runs on
      * the provisioned user: when it returns false, SpidAccessDeniedException
      * rolls the creation or update back, listener changes included.
-     * SpidUserCreated / SpidUserUpdated fire after the transaction.
+     * The transaction runs on the user model's connection. SpidUserCreated /
+     * SpidUserUpdated fire once that connection commits for real: after an
+     * enclosing transaction too, and never when it rolls back.
      *
      * @param  (Closure(Authenticatable): bool)|null  $authorize
      *
@@ -36,10 +37,11 @@ class SpidUserService
     public function findOrCreateUser(SpidUserData $spidData, ?Closure $authorize = null): ?Authenticatable
     {
         $userModel = $this->resolveUserModel();
+        $connection = (new $userModel)->getConnection();
 
-        $event = null;
+        return $connection->transaction(function () use ($userModel, $spidData, $authorize, $connection): ?Authenticatable {
+            $event = null;
 
-        $user = DB::transaction(function () use ($userModel, $spidData, $authorize, &$event): ?Authenticatable {
             $user = $userModel::query()->where('fiscal_code', $spidData->fiscalNumber)->first();
 
             if (! $user && config('filament-spid.auto_create_users', false)) {
@@ -58,14 +60,12 @@ class SpidUserService
                 throw SpidAccessDeniedException::make();
             }
 
+            if ($event) {
+                $connection->afterCommit(fn () => event($event));
+            }
+
             return $user;
         });
-
-        if ($event) {
-            event($event);
-        }
-
-        return $user;
     }
 
     protected function createUser(SpidUserData $spidData): Authenticatable

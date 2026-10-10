@@ -87,6 +87,24 @@ class TestCase extends Orchestra
         // Run SPID migration
         $migration = include __DIR__.'/../database/migrations/add_spid_fields_to_users_table.php.stub';
         $migration->up();
+
+        // A second database, for user models on a connection of their own.
+        config()->set('database.connections.secondary', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+            'foreign_key_constraints' => true,
+        ]);
+        $app['db']->connection('secondary')->getSchemaBuilder()->create('users', function ($table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('fiscal_code')->unique()->nullable();
+            $table->json('spid_data')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
     }
 
     /**

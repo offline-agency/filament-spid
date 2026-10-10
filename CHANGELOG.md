@@ -92,8 +92,11 @@ First stable release: from here on the public API follows SemVer. See
   (`SpidUserService::findOrCreateUser()` takes an `$authorize` callback and
   throws `SpidAccessDeniedException`): a refused citizen's account is rolled
   back instead of created, and an existing account keeps its pre-login data.
-- `SpidUserCreated` and `SpidUserUpdated` are dispatched after the provisioning
-  transaction, so a rolled-back creation or update never emits one. Listeners
+- Provisioning runs in a transaction on the user model's connection (it used
+  the default one). `SpidUserCreated` and `SpidUserUpdated` are dispatched once
+  that connection really commits, through `afterCommit()`: after an enclosing
+  transaction too, and never when the creation, the update or an enclosing
+  transaction rolls back. Listeners
   that prepare the account for the panel gate (a default role) move to the new
   `SpidUserProvisioning` event, which fires inside the transaction before
   `canAccessPanel()`.
