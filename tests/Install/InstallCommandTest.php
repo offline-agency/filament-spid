@@ -63,8 +63,9 @@ it('installs and configures from an input file', function () {
         ->and(panelProvider())->toContain('use OfflineAgency\FilamentSpid\SpidPlugin;')
         ->and(File::get(base_path('bootstrap/app.php')))->toContain("\$middleware->validateCsrfTokens(except: ['spid/acs']);");
 
-    expect($output)->toContain(route('spid-auth_metadata'))
-        ->and($output)->toContain(route('spid-auth_acs'))
+    expect($output)->toContain('Metadata: https://sp.example.test/spid/metadata')
+        ->and($output)->toContain('ACS:      https://sp.example.test/spid/acs')
+        ->and($output)->toContain('--profile=spid-sp-public')
         ->and($output)->toContain('php artisan migrate')
         ->and($output)->toContain('php artisan filament-spid:doctor');
 });

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace OfflineAgency\FilamentSpid\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Route;
 use OfflineAgency\FilamentSpid\Install\Change;
 use OfflineAgency\FilamentSpid\Install\Editors\SpidAuthConfig;
 use OfflineAgency\FilamentSpid\Install\InstallInput;
@@ -234,8 +233,10 @@ class InstallCommand extends Command
         $this->newLine();
         $this->info('Done.');
         $this->line('  Login:    '.($panel?->getLoginUrl() ?? 'panel not resolved'));
-        $this->line('  Metadata: '.(Route::has('spid-auth_metadata') ? route('spid-auth_metadata') : 'route spid-auth_metadata not registered'));
-        $this->line('  ACS:      '.(Route::has('spid-auth_acs') ? route('spid-auth_acs') : 'route spid-auth_acs not registered'));
+        // As italia/spid-laravel publishes them: sp_base_url and the routes prefix.
+        $sp = rtrim($input->baseUrl, '/').'/'.trim(TypedConfig::string('spid-auth.routes_prefix', 'spid') ?? 'spid', '/');
+        $this->line('  Metadata: '.$sp.'/metadata');
+        $this->line('  ACS:      '.$sp.'/acs');
         $this->line('  Profile:  '.$input->profile.', deployment '.$input->deployment.', auto_create_users '.($input->autoCreateUsers ? 'on' : 'off'));
         $this->newLine();
         $this->line('Next:');
@@ -243,7 +244,7 @@ class InstallCommand extends Command
             $this->line('  php artisan migrate');
         }
         $this->line('  php artisan filament-spid:doctor');
-        $this->line('  php artisan filament-spid:metadata:validate --url='.(Route::has('spid-auth_metadata') ? route('spid-auth_metadata') : '<metadata URL>'));
+        $this->line('  php artisan filament-spid:metadata:validate --url='.$sp.'/metadata --profile=spid-sp-'.$input->profile);
 
         $this->renderManual($plan);
 

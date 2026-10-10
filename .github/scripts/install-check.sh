@@ -93,6 +93,9 @@ git status --porcelain | grep -v '^?? setup.json$' && fail "the second run chang
 [ "$(grep -c 'SpidPlugin::make()' app/Providers/Filament/AdminPanelProvider.php)" = 1 ] || fail "plugin registered more than once"
 [ "$(ls database/migrations/*_add_spid_fields_to_users_table.php | wc -l | tr -d ' ')" = 1 ] || fail "migration published more than once"
 
+# The CSRF probe for the HTTP checks (part of this test only, not of the guide).
+printf "\nRoute::post('/csrf-probe', fn () => 'reached');\n" >> routes/web.php
+
 step "Caches"
 php artisan config:cache >/dev/null
 php artisan route:cache >/dev/null
@@ -131,9 +134,10 @@ case "$ACS" in 2*) fail "an empty ACS POST was accepted ($ACS)";; esac
 ADMIN=$(curl -s -o /dev/null -c "$JAR" -b "$JAR" -w '%{http_code} %{redirect_url}' "$BASE/admin")
 case "$ADMIN" in 302*login*) ;; *) fail "after the ACS POST /admin is not a redirect to login ($ADMIN)";; esac
 
-# Any other POST without a token is still refused.
-OTHER=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/admin/logout")
-[ "$OTHER" = 419 ] || fail "POST /admin/logout without a token answered $OTHER, not 419: CSRF protection is too wide"
+# Any other POST without a token is still refused: a probe route added to the
+# throwaway app only, with no auth middleware in front of CSRF verification.
+OTHER=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/csrf-probe")
+[ "$OTHER" = 419 ] || fail "POST /csrf-probe without a token answered $OTHER, not 419: CSRF protection is too wide"
 
 if [ -n "${SPID_SP_TEST_BIN:-}" ]; then
     step "spid_sp_test on the served metadata"
