@@ -110,6 +110,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Metadata Validation
+    |--------------------------------------------------------------------------
+    |
+    | php artisan filament-spid:metadata:validate runs spid_sp_test
+    | (italia/spid-sp-test, pinned to 1.2.18). Only the command needs it: the
+    | login never does.
+    |
+    */
+    'validation' => [
+        'spid_sp_test' => env('SPID_SP_TEST_BIN', 'spid_sp_test'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | SPID Data
     |--------------------------------------------------------------------------
     |

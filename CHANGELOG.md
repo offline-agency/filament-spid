@@ -60,6 +60,16 @@ First stable release: from here on the public API follows SemVer. See
   manual step, and the command then exits with 1. Running it again with the
   same input changes nothing. Examples: `examples/setup.public.json`,
   `examples/setup.private.json`.
+- `php artisan filament-spid:metadata:validate --url=|--file= [--profile=]
+  [--report=] [--json] [--strict]`: a thin adapter over `spid_sp_test`
+  (italia/spid-sp-test, pinned to 1.2.18). It takes the exact metadata bytes
+  (HTTPS only, TLS verified, no redirects, size and time limits), runs the
+  tool with `--extra` and a JSON report, and reads both its exit code and its
+  report: a missing tool, another version, a crash, a timeout, a missing
+  `xmlsec1`, an empty or unreadable report are errors (exit 2), never a pass.
+  The report records the SHA-256 of the document, the plugin and tool
+  versions, the profile and the time, and states `HOSTED_VALIDATOR_NOT_RUN`
+  and `FORMAL_AGID_ACCEPTANCE_NOT_OBTAINED`. Nothing is uploaded anywhere.
 - `filament-spid.sp_profile` and `filament-spid.deployment`
   (`FILAMENT_SPID_SP_PROFILE`, `FILAMENT_SPID_DEPLOYMENT`).
 - `php artisan filament-spid:doctor [--json] [--strict]`: read-only checks of
