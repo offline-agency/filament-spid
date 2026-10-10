@@ -4,7 +4,7 @@
 build
 composer.lock
 coverage
-docs
+docs/superpowers/
 phpunit.xml
 phpstan.neon
 testbench.yaml

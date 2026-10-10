@@ -128,6 +128,12 @@ First stable release: from here on the public API follows SemVer. See
 
 ### Fixed
 
+- A SPID login fails closed: when a `SpidAuthenticationSucceeded` listener, a
+  listener of Laravel's `Login` event or `login()` itself throws, the panel
+  guard is logged out and the SPID session cleared. A redirect thrown by an
+  observer is treated as a failure. Cleanup runs before
+  `SpidAuthenticationFailed`, and a throwing failure listener is logged without
+  hiding the original error. Other guards are not touched.
 - A failed SPID login forgets the library's SPID session, so the citizen can
   retry instead of being sent back by `doLogin()`.
 - The metadata route serves `SPIDAuth::metadata()`; it called a method that does

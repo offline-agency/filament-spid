@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OfflineAgency\FilamentSpid\Listeners;
 
 use Filament\Models\Contracts\FilamentUser;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Auth\SessionGuard;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -15,16 +15,28 @@ use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
 use OfflineAgency\FilamentSpid\Exceptions\SpidAccessDeniedException;
+use OfflineAgency\FilamentSpid\Exceptions\SpidLoginAborted;
 use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
 /**
  * Provisions and authenticates the citizen once italia/spid-laravel has
  * validated the SAML response and fired its LoginEvent.
+ *
+ * The login succeeds once every SpidAuthenticationSucceeded listener has
+ * returned. Anything that throws before that, including a listener of
+ * Laravel's own Login event, fails closed: the panel guard is logged out and
+ * the SPID session cleared.
  */
 class HandleSpidLogin
 {
     use ResolvesPanel;
+
+    /**
+     * The guard login() was called on, so a failure can undo it. Set before
+     * the call: the guard may hold the user even if login() throws.
+     */
+    protected ?string $attemptedGuard = null;
 
     public function __construct(protected SpidUserService $userService) {}
 
@@ -68,13 +80,17 @@ class HandleSpidLogin
                 $this->fail('no user matches the SPID fiscal code', $event, 'authentication_failed');
             }
 
-            // No remember token: a SPID session must not outlive the browser one.
+            // No remember token: the session ends with the browser one, unless
+            // the application configures its session to outlive it.
+            $this->attemptedGuard = $guard;
             Auth::guard($guard)->login($user);
 
             Session::regenerate();
 
             event(new SpidAuthenticationSucceeded($user, $spidData));
-        } catch (HttpResponseException $e) {
+
+            $this->attemptedGuard = null;
+        } catch (SpidLoginAborted $e) {
             throw $e;
         } catch (\Throwable $e) {
             // Only the exception class reaches the log: messages routinely carry
@@ -90,16 +106,50 @@ class HandleSpidLogin
      */
     protected function fail(string $reason, LoginEvent $event, string $translationKey): never
     {
-        Log::error('SPID login failed ('.$event->getIdp().'): '.$reason);
-
-        event(new SpidAuthenticationFailed($reason));
-
+        // Cleanup first: an observer below must not be able to prevent it.
+        $this->revokeAuthentication();
         $this->forgetSpidSession();
 
-        throw new HttpResponseException(
+        Log::error('SPID login failed ('.$event->getIdp().'): '.$reason);
+
+        try {
+            event(new SpidAuthenticationFailed($reason));
+        } catch (\Throwable $e) {
+            // Reported, but it neither replaces the original failure nor
+            // re-enters this method.
+            Log::error('SPID login failure listener threw '.$e::class.' (code '.$e->getCode().')');
+        }
+
+        throw new SpidLoginAborted(
             redirect()->to($this->loginUrl())
                 ->with('spid_error', __("filament-spid::spid.{$translationKey}"))
         );
+    }
+
+    /**
+     * Undo a login() that was attempted on the panel guard. Other guards are
+     * left alone; panels sharing a guard share its session too.
+     */
+    protected function revokeAuthentication(): void
+    {
+        if ($this->attemptedGuard === null) {
+            return;
+        }
+
+        $guard = Auth::guard($this->attemptedGuard);
+        $this->attemptedGuard = null;
+
+        try {
+            if ($guard instanceof SessionGuard) {
+                // Without Logout listeners, which could throw in turn.
+                Session::forget($guard->getName());
+                $guard->forgetUser();
+            } else {
+                $guard->logout();
+            }
+        } catch (\Throwable $e) {
+            Log::error('SPID login could not log the guard out: '.$e::class);
+        }
     }
 
     /**

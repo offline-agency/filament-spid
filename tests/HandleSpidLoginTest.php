@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Auth\Events\Login;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,9 @@ use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\PanelUser;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\RecordingGuard;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
+use Symfony\Component\HttpFoundation\Response;
 
 function spidUser(array $overrides = []): SPIDUser
 {
@@ -321,5 +324,147 @@ describe('a citizen the panel refuses', function () {
             ->email->toBe('before@example.com')
             ->spid_data->toBeNull();
         Event::assertNotDispatched(SpidUserUpdated::class);
+    });
+});
+
+describe('fail-closed authentication', function () {
+    /**
+     * Run the listener as the ACS request would, with the SPID session the
+     * library stores before firing LoginEvent, and return the redirect a
+     * refused login ends in (null when the login succeeded).
+     */
+    function spidAcs(): ?Response
+    {
+        session(['spid_sessionId' => 'ID_1', 'spid_user' => 'serialized', 'spid_idp' => 'posteid']);
+
+        try {
+            app(HandleSpidLogin::class)->handle(loginEvent());
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
+        }
+
+        return null;
+    }
+
+    function expectSpidSessionCleared(): void
+    {
+        foreach (['spid_sessionId', 'spid_nameId', 'spid_user', 'spid_idp', 'spid_idpEntityName'] as $key) {
+            expect(session()->has($key))->toBeFalse("{$key} survived the failed login");
+        }
+    }
+
+    it('keeps the citizen logged in when every observer succeeds', function () {
+        $before = session()->getId();
+
+        expect(spidAcs())->toBeNull()
+            ->and(Auth::guard('web')->check())->toBeTrue()
+            ->and(session()->getId())->not->toBe($before)
+            ->and(session('spid_sessionId'))->toBe('ID_1');
+    });
+
+    it('logs the citizen out when a SpidAuthenticationSucceeded listener throws', function () {
+        Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new RuntimeException('observer'));
+
+        $response = spidAcs();
+
+        expect($response?->isRedirect())->toBeTrue()
+            ->and(session('spid_error'))->toBe(__('filament-spid::spid.acs_error'))
+            ->and(Auth::guard('web')->check())->toBeFalse()
+            ->and(User::count())->toBe(1);
+        expectSpidSessionCleared();
+    });
+
+    it('does not let a listener redirect around the failure path', function () {
+        // A redirect thrown by an observer is not a successful login.
+        Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new HttpResponseException(redirect('/elsewhere')));
+
+        $response = spidAcs();
+
+        expect($response?->headers->get('Location'))->not->toEndWith('/elsewhere')
+            ->and(session('spid_error'))->toBe(__('filament-spid::spid.acs_error'))
+            ->and(Auth::guard('web')->check())->toBeFalse();
+        expectSpidSessionCleared();
+    });
+
+    it('logs the citizen out when the guard fails half way through login()', function () {
+        // SessionGuard::login() stores the user before firing Login.
+        Event::listen(Login::class, fn () => throw new RuntimeException('login observer'));
+
+        spidAcs();
+
+        Auth::forgetGuards();
+
+        expect(Auth::guard('web')->check())->toBeFalse()
+            ->and(session('spid_error'))->toBe(__('filament-spid::spid.acs_error'));
+        expectSpidSessionCleared();
+    });
+
+    it('cleans up before a throwing SpidAuthenticationFailed listener, and reports the original failure once', function () {
+        Config::set('filament-spid.auto_create_users', false);
+        $dispatched = 0;
+        Event::listen(SpidAuthenticationFailed::class, function () use (&$dispatched) {
+            $dispatched++;
+
+            throw new RuntimeException('failure observer');
+        });
+
+        $response = spidAcs();
+
+        expect($response?->isRedirect())->toBeTrue()
+            ->and(session('spid_error'))->toBe(__('filament-spid::spid.authentication_failed'))
+            ->and($dispatched)->toBe(1)
+            ->and(Auth::guard('web')->check())->toBeFalse();
+        expectSpidSessionCleared();
+    });
+
+    it('lets the citizen retry after a failed login', function () {
+        Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new RuntimeException('observer'));
+        spidAcs();
+        Event::forget(SpidAuthenticationSucceeded::class);
+
+        expect(spidAcs())->toBeNull()
+            ->and(Auth::guard('web')->check())->toBeTrue();
+    });
+
+    it('leaves the session unauthenticated for the next request after a failure', function () {
+        Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new RuntimeException('observer'));
+        spidAcs();
+        Auth::forgetGuards();
+
+        $this->get('/admin')->assertRedirect();
+
+        expect(Auth::guard('web')->check())->toBeFalse();
+    });
+
+    it('logs a guard that is not a SessionGuard out through logout()', function (bool $throwOnLogout) {
+        $guard = new RecordingGuard;
+        $guard->throwOnLogout = $throwOnLogout;
+        Auth::extend('recording', fn () => $guard);
+        Config::set('auth.guards.web', ['driver' => 'recording']);
+        Log::spy();
+        Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new RuntimeException('observer'));
+
+        $response = spidAcs();
+
+        expect($guard->logouts)->toBe(1)
+            ->and($response?->isRedirect())->toBeTrue();
+        expectSpidSessionCleared();
+        if ($throwOnLogout) {
+            Log::shouldHaveReceived('error')->with('SPID login could not log the guard out: RuntimeException');
+        }
+    })->with(['logout succeeds' => [false], 'logout throws' => [true]]);
+
+    it('does not log out an account authenticated on another guard', function () {
+        Config::set('auth.guards.other', ['driver' => 'session', 'provider' => 'users']);
+        Config::set('auth.providers.users.model', User::class);
+        $other = User::create(['name' => 'Other', 'email' => 'other@example.com', 'password' => 'x', 'fiscal_code' => 'THRGRD80A01H501U']);
+        Auth::guard('other')->login($other);
+        Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new RuntimeException('observer'));
+
+        spidAcs();
+        Auth::forgetGuards();
+
+        expect(Auth::guard('web')->check())->toBeFalse()
+            ->and(Auth::guard('other')->id())->toBe($other->id);
     });
 });
