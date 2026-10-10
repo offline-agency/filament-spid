@@ -80,13 +80,18 @@ class SpidPlugin implements Plugin
 
     public static function make(): static
     {
-        return app(static::class);
+        // Through the container, so applications can bind a subclass.
+        $plugin = app(static::class);
+
+        return $plugin instanceof static
+            ? $plugin
+            : throw new \LogicException(sprintf('The container resolved %s to %s.', static::class, get_debug_type($plugin)));
     }
 
     public static function get(): static
     {
         /** @var static $plugin */
-        $plugin = filament(app(static::class)->getId());
+        $plugin = filament(static::make()->getId());
 
         return $plugin;
     }
@@ -100,7 +105,7 @@ class SpidPlugin implements Plugin
     public static function resolve(): ?static
     {
         try {
-            $plugin = filament(app(static::class)->getId());
+            $plugin = filament(static::make()->getId());
         } catch (\Throwable) {
             return null;
         }

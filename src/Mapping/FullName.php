@@ -10,7 +10,7 @@ namespace OfflineAgency\FilamentSpid\Mapping;
 final class FullName
 {
     /**
-     * @param  array<string, mixed>  $spidUser
+     * @param  array<string, string|null>  $spidUser
      */
     public function __invoke(array $spidUser): string
     {

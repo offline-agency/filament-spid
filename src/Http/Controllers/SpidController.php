@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Italia\SPIDAuth\Exceptions\SPIDLogoutException;
 use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\Listeners\ResolvesPanel;
+use OfflineAgency\FilamentSpid\Support\TypedConfig;
 
 class SpidController extends Controller
 {
@@ -34,8 +35,8 @@ class SpidController extends Controller
         // No cache: the list comes from config, which is already in memory.
         $providers = [];
 
-        foreach (config('spid-idps', []) as $key => $idp) {
-            if ($key !== 'empty' && ($idp['isActive'] ?? false)) {
+        foreach (TypedConfig::array('spid-idps') as $key => $idp) {
+            if ($key !== 'empty' && is_array($idp) && ($idp['isActive'] ?? false)) {
                 $providers[] = [
                     'provider' => $idp['provider'] ?? $key,
                     'title' => $idp['title'] ?? $key,

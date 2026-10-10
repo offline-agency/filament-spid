@@ -164,3 +164,17 @@ describe('SpidController - Metadata Endpoint', function () {
         expect($response->status())->toBeIn([200, 500]);
     });
 });
+
+it('skips spid-idps entries that are not provider arrays', function () {
+    Config::set('spid-idps', [
+        'broken' => 'not an array',
+        'posteid' => ['provider' => 'poste', 'isActive' => true],
+    ]);
+
+    $this->app['router']->get('/spid/providers', [SpidController::class, 'providers']);
+
+    $this->get('/spid/providers')
+        ->assertOk()
+        ->assertJsonPath('providers.0.provider', 'poste')
+        ->assertJsonCount(1, 'providers');
+});

@@ -55,16 +55,28 @@ class SpidUserData implements Arrayable, Jsonable
         }
 
         return new self(
-            fiscalNumber: $spidUser['fiscalNumber'] ?? throw new \InvalidArgumentException('fiscalNumber is required'),
-            name: $spidUser['name'] ?? '',
-            familyName: $spidUser['familyName'] ?? '',
-            email: $spidUser['email'] ?? null,
-            spidCode: $spidUser['spidCode'] ?? null,
-            placeOfBirth: $spidUser['placeOfBirth'] ?? null,
-            dateOfBirth: $spidUser['dateOfBirth'] ?? null,
-            gender: $spidUser['gender'] ?? null,
+            fiscalNumber: self::string($spidUser, 'fiscalNumber') ?? throw new \InvalidArgumentException('fiscalNumber is required'),
+            name: self::string($spidUser, 'name') ?? '',
+            familyName: self::string($spidUser, 'familyName') ?? '',
+            email: self::string($spidUser, 'email'),
+            spidCode: self::string($spidUser, 'spidCode'),
+            placeOfBirth: self::string($spidUser, 'placeOfBirth'),
+            dateOfBirth: self::string($spidUser, 'dateOfBirth'),
+            gender: self::string($spidUser, 'gender'),
             rawData: $spidUser,
         );
+    }
+
+    /**
+     * One attribute, or null when it is missing or not a string.
+     *
+     * @param  array<string, mixed>  $spidUser
+     */
+    protected static function string(array $spidUser, string $attribute): ?string
+    {
+        $value = $spidUser[$attribute] ?? null;
+
+        return is_string($value) ? $value : null;
     }
 
     /**

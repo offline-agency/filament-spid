@@ -100,13 +100,19 @@ First stable release: from here on the public API follows SemVer. See
 - `field_mapping` entries resolve in a fixed order: SPID attribute name, mapper
   class, then closure or array callable. A plain function name (`'strtoupper'`)
   is no longer called and maps to `null`. `SpidUserData::ATTRIBUTES` is public.
+- Config values of the wrong type are treated as missing instead of failing
+  deep inside a login: a `user_model` that is not an authenticatable Eloquent
+  model throws `InvalidArgumentException` naming the key, a
+  `create_user_callback` returning no user throws `UnexpectedValueException`,
+  non-callable callbacks and `field_mapping` entries without a column are
+  ignored, and SPID attributes that are not strings read as missing.
 - The login page no longer shows a "Login with credentials" link to
   `filament()->getLoginUrl()`, which is the SPID page itself. Name a real page
   with `SpidPlugin::credentialsLoginUrl()` to show the link.
 - `italia/spid-laravel` is required as `^2.1.0-beta`;
   `spatie/laravel-package-tools` needs `^1.93`.
 - CI runs on every pull request, checks style without committing, and runs
-  `composer audit`. PHPStan runs at level 8 without a baseline.
+  `composer audit`. PHPStan runs at the max level without a baseline.
 
 - The default `field_mapping` uses attribute names and invokable mappers
   (`Mapping\FullName`, `Mapping\EmailOrFallback`) instead of closures, so the

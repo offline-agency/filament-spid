@@ -6,6 +6,7 @@ use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Event;
 use Italia\SPIDAuth\Events\LoginEvent;
@@ -14,6 +15,7 @@ use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogout;
+use OfflineAgency\FilamentSpid\Support\TypedConfig;
 use OfflineAgency\FilamentSpid\Support\Warning;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -38,7 +40,7 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
         // italia/spid-laravel only binds the 'SPIDAuth' alias, so resolving the
         // class would build a second, unrelated instance. Point it at the
         // library singleton instead of registering one of our own.
-        $this->app->bind(SPIDAuth::class, fn ($app) => $app->make('SPIDAuth'));
+        $this->app->bind(SPIDAuth::class, fn (Application $app) => $app->make('SPIDAuth'));
     }
 
     public function packageBooted(): void
@@ -55,12 +57,12 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
             Warning::once(SpidLevel::minimum() === null
                 ? sprintf(
                     'filament-spid: filament-spid.minimum_level [%s] is not a SPID level URI; SPID logins will be refused.',
-                    config('filament-spid.minimum_level'),
+                    TypedConfig::string('filament-spid.minimum_level'),
                 )
                 : sprintf(
                     'filament-spid: spid-auth.sp_spid_level [%s] is below filament-spid.minimum_level [%s]; SPID logins will be refused.',
-                    config('spid-auth.sp_spid_level'),
-                    config('filament-spid.minimum_level'),
+                    TypedConfig::string('spid-auth.sp_spid_level'),
+                    TypedConfig::string('filament-spid.minimum_level'),
                 ));
         }
 

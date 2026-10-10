@@ -593,3 +593,64 @@ describe('spid_data minimisation', function () {
             ->spid_data->name->toBe('Mario');
     });
 });
+
+describe('configuration that is not what it should be', function () {
+    it('refuses a user model that is not an authenticatable Eloquent model', function (mixed $model) {
+        Config::set('filament-spid.user_model', $model);
+
+        expect(fn () => app(SpidUserService::class)->findOrCreateUser(
+            new SpidUserData(fiscalNumber: 'BDMDLX80A01H501U', name: 'Bad', familyName: 'Model'),
+        ))->toThrow(InvalidArgumentException::class, 'filament-spid.user_model');
+    })->with([
+        'a class that is not a model' => [SpidUserService::class],
+        'not a string' => [['not', 'a', 'class']],
+    ]);
+
+    it('refuses a create_user_callback that returns no user', function () {
+        Config::set('filament-spid.create_user_callback', fn () => 'not a user');
+
+        expect(fn () => app(SpidUserService::class)->findOrCreateUser(
+            new SpidUserData(fiscalNumber: 'NTSRCB80A01H501U', name: 'Not', familyName: 'User'),
+        ))->toThrow(UnexpectedValueException::class, 'create_user_callback');
+
+        expect(User::count())->toBe(0);
+    });
+
+    it('ignores field_mapping entries without a column name', function () {
+        Config::set('filament-spid.field_mapping', array_merge(
+            config('filament-spid.field_mapping'),
+            ['ignored-without-a-column'],
+        ));
+
+        $user = app(SpidUserService::class)->findOrCreateUser(
+            new SpidUserData(fiscalNumber: 'NKYMPP80A01H501U', name: 'No', familyName: 'Key'),
+        );
+
+        expect($user->fiscal_code)->toBe('NKYMPP80A01H501U');
+    });
+
+    it('ignores spid_data_attributes entries that are not names', function () {
+        Config::set('filament-spid.user_model', UserWithSpidDataCast::class);
+        Config::set('filament-spid.spid_data_attributes', ['name', 42, null]);
+
+        app(SpidUserService::class)->findOrCreateUser(
+            new SpidUserData(fiscalNumber: 'NTNMSS80A01H501U', name: 'Only', familyName: 'Name'),
+        );
+
+        expect(UserWithSpidDataCast::sole()->spid_data)->toBe(['name' => 'Only']);
+    });
+});
+
+it('falls back to App\Models\User when no user model is configured', function () {
+    require_once __DIR__.'/stubs/App/Models/User.php';
+    Config::set('filament-spid.user_model', null);
+    Config::set('spid-auth.user_model', null);
+    Config::set('filament-spid.update_user_data', false);
+    User::create(['name' => 'App', 'email' => 'app@example.com', 'password' => 'x', 'fiscal_code' => 'PPMDLS80A01H501U']);
+
+    $user = app(SpidUserService::class)->findOrCreateUser(
+        new SpidUserData(fiscalNumber: 'PPMDLS80A01H501U', name: 'App', familyName: 'Model'),
+    );
+
+    expect($user)->toBeInstanceOf(App\Models\User::class);
+});

@@ -272,3 +272,21 @@ it('rejects an object without a fiscal number', function () {
     expect(fn () => SpidUserData::fromSpidAuth($spidUser))
         ->toThrow(InvalidArgumentException::class);
 });
+
+it('reads attributes that are not strings as missing', function () {
+    $data = SpidUserData::fromSpidAuth([
+        'fiscalNumber' => 'RSSMRA80A01H501U',
+        'name' => ['Mario'],
+        'familyName' => 42,
+        'email' => ['mario@example.com'],
+    ]);
+
+    expect($data->name)->toBe('')
+        ->and($data->familyName)->toBe('')
+        ->and($data->email)->toBeNull();
+});
+
+it('requires a string fiscalNumber', function () {
+    expect(fn () => SpidUserData::fromSpidAuth(['fiscalNumber' => ['RSSMRA80A01H501U']]))
+        ->toThrow(InvalidArgumentException::class, 'fiscalNumber');
+});

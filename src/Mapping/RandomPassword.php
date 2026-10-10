@@ -19,7 +19,7 @@ use OfflineAgency\FilamentSpid\Mapping\Contracts\CreateOnly;
 final class RandomPassword implements CreateOnly
 {
     /**
-     * @param  array<string, mixed>  $spidUser
+     * @param  array<string, string|null>  $spidUser
      */
     public function __invoke(array $spidUser): string
     {

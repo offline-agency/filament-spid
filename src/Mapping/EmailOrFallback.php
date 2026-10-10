@@ -14,10 +14,10 @@ namespace OfflineAgency\FilamentSpid\Mapping;
 final class EmailOrFallback
 {
     /**
-     * @param  array<string, mixed>  $spidUser
+     * @param  array<string, string|null>  $spidUser
      */
     public function __invoke(array $spidUser): string
     {
-        return $spidUser['email'] ?? strtolower((string) $spidUser['fiscalNumber']).'@spid.invalid';
+        return $spidUser['email'] ?? strtolower($spidUser['fiscalNumber'] ?? '').'@spid.invalid';
     }
 }

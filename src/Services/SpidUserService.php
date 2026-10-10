@@ -16,6 +16,7 @@ use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Exceptions\SpidAccessDeniedException;
 use OfflineAgency\FilamentSpid\Mapping\Contracts\CreateOnly;
 use OfflineAgency\FilamentSpid\Mapping\FieldMapper;
+use OfflineAgency\FilamentSpid\Support\TypedConfig;
 
 class SpidUserService
 {
@@ -39,7 +40,7 @@ class SpidUserService
         $event = null;
 
         $user = DB::transaction(function () use ($userModel, $spidData, $authorize, &$event): ?Authenticatable {
-            $user = $userModel::where('fiscal_code', $spidData->fiscalNumber)->first();
+            $user = $userModel::query()->where('fiscal_code', $spidData->fiscalNumber)->first();
 
             if (! $user && config('filament-spid.auto_create_users', false)) {
                 $user = $this->createUser($spidData);
@@ -69,15 +70,20 @@ class SpidUserService
 
     protected function createUser(SpidUserData $spidData): Authenticatable
     {
-        if ($callback = config('filament-spid.create_user_callback')) {
-            return $callback($spidData);
+        $callback = config('filament-spid.create_user_callback');
+
+        if (is_callable($callback)) {
+            $user = $callback($spidData);
+
+            return $user instanceof Authenticatable
+                ? $user
+                : throw new \UnexpectedValueException('filament-spid.create_user_callback must return an Authenticatable user.');
         }
 
         $userModel = $this->resolveUserModel();
-        $mapping = config('filament-spid.field_mapping', []);
 
         $data = [];
-        foreach ($mapping as $field => $mapper) {
+        foreach ($this->fieldMapping() as $field => $mapper) {
             $data[$field] = FieldMapper::value($mapper, $spidData->toArray());
         }
 
@@ -93,16 +99,17 @@ class SpidUserService
      */
     protected function updateUser(Authenticatable $user, SpidUserData $spidData): void
     {
-        if ($callback = config('filament-spid.update_user_callback')) {
+        $callback = config('filament-spid.update_user_callback');
+
+        if (is_callable($callback)) {
             $callback($user, $spidData);
 
             return;
         }
 
-        $mapping = config('filament-spid.field_mapping', []);
         $data = [];
 
-        foreach ($mapping as $field => $mapper) {
+        foreach ($this->fieldMapping() as $field => $mapper) {
             if ($field !== 'fiscal_code' && ! $this->isCreateOnly($mapper)) {
                 $data[$field] = FieldMapper::value($mapper, $spidData->toArray());
             }
@@ -136,9 +143,26 @@ class SpidUserService
      */
     protected function resolveUserModel(): string
     {
-        return config('filament-spid.user_model')
+        $model = config('filament-spid.user_model')
             ?: config('spid-auth.user_model')
             ?: User::class;
+
+        if (is_string($model) && is_a($model, Model::class, true) && is_a($model, Authenticatable::class, true)) {
+            return $model;
+        }
+
+        throw new \InvalidArgumentException('filament-spid.user_model must name an Eloquent model implementing Authenticatable.');
+    }
+
+    /**
+     * filament-spid.field_mapping, keyed by column; entries without a column
+     * name are ignored.
+     *
+     * @return array<string, mixed>
+     */
+    protected function fieldMapping(): array
+    {
+        return array_filter(TypedConfig::array('filament-spid.field_mapping'), is_string(...), ARRAY_FILTER_USE_KEY);
     }
 
     /**
@@ -157,7 +181,7 @@ class SpidUserService
 
         $attributes = config('filament-spid.spid_data_attributes');
         if (is_array($attributes)) {
-            $payload = array_intersect_key($payload, array_flip($attributes));
+            $payload = array_intersect_key($payload, array_flip(array_filter($attributes, is_string(...))));
         }
 
         if ($user instanceof Model && $user->hasCast('spid_data')) {

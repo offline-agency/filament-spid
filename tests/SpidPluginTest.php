@@ -161,3 +161,9 @@ it('can set a credentials login url', function () {
 
     expect($plugin->getCredentialsLoginUrl())->toBe('/admin/password-login');
 });
+
+it('refuses a container binding that is not a SpidPlugin', function () {
+    app()->bind(SpidPlugin::class, fn () => new stdClass);
+
+    expect(fn () => SpidPlugin::make())->toThrow(LogicException::class, 'stdClass');
+});

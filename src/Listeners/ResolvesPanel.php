@@ -7,6 +7,7 @@ namespace OfflineAgency\FilamentSpid\Listeners;
 use Filament\Facades\Filament;
 use Filament\Panel;
 use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
+use OfflineAgency\FilamentSpid\Support\TypedConfig;
 
 trait ResolvesPanel
 {
@@ -23,7 +24,7 @@ trait ResolvesPanel
      */
     protected function panel(): ?Panel
     {
-        if ($id = config('filament-spid.panel')) {
+        if ($id = TypedConfig::string('filament-spid.panel')) {
             try {
                 // The facade docblock promises a Panel, but FilamentManager
                 // can return null (it does on Filament 5).
@@ -53,7 +54,7 @@ trait ResolvesPanel
 
     protected function guard(): string
     {
-        return $this->panel()?->getAuthGuard() ?? config('auth.defaults.guard');
+        return $this->panel()?->getAuthGuard() ?? TypedConfig::string('auth.defaults.guard') ?? 'web';
     }
 
     protected function loginUrl(): string

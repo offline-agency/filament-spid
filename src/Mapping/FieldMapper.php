@@ -22,7 +22,7 @@ use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 final class FieldMapper
 {
     /**
-     * @param  array<string, mixed>  $spidUser  SpidUserData::toArray()
+     * @param  array<string, string|null>  $spidUser  SpidUserData::toArray()
      */
     public static function value(mixed $mapper, array $spidUser): mixed
     {
@@ -31,7 +31,9 @@ final class FieldMapper
                 return $spidUser[$mapper] ?? null;
             }
 
-            return class_exists($mapper) ? app($mapper)($spidUser) : null;
+            $instance = class_exists($mapper) ? app($mapper) : null;
+
+            return is_callable($instance) ? $instance($spidUser) : null;
         }
 
         if ($mapper instanceof \Closure || (is_array($mapper) && is_callable($mapper))) {

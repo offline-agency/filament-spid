@@ -3,6 +3,7 @@
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Mapping\FieldMapper;
 use OfflineAgency\FilamentSpid\Mapping\FullName;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\NotInvokable;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\StaticMapper;
 
 $spidUser = ['name' => 'Mario', 'familyName' => 'Rossi', 'fiscalNumber' => 'RSSMRA80A01H501U'];
@@ -47,3 +48,7 @@ it('maps anything else to null', function (mixed $mapper) use ($spidUser) {
     'null' => [null],
     'a non-callable array' => [['not', 'callable']],
 ]);
+
+it('maps a class without __invoke to null', function () use ($spidUser) {
+    expect(FieldMapper::value(NotInvokable::class, $spidUser))->toBeNull();
+});

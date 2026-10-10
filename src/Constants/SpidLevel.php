@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Constants;
 
+use OfflineAgency\FilamentSpid\Support\TypedConfig;
+
 enum SpidLevel: string
 {
     case LEVEL_1 = 'https://www.spid.gov.it/SpidL1';
@@ -35,7 +37,7 @@ enum SpidLevel: string
      */
     public static function requestedMeetsMinimum(): bool
     {
-        $requested = self::tryFrom((string) config('spid-auth.sp_spid_level'));
+        $requested = self::tryFrom(TypedConfig::string('spid-auth.sp_spid_level') ?? '');
         $minimum = self::minimum();
 
         return $requested !== null && $minimum !== null && $requested->meets($minimum);
@@ -46,6 +48,6 @@ enum SpidLevel: string
      */
     public static function minimum(): ?self
     {
-        return self::tryFrom((string) config('filament-spid.minimum_level', self::LEVEL_2->value));
+        return self::tryFrom(TypedConfig::string('filament-spid.minimum_level', self::LEVEL_2->value) ?? '');
     }
 }
