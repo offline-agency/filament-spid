@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use OfflineAgency\FilamentSpid\Validation\ToolReport;
 
 const FAKE_SPID_SP_TEST = __DIR__.'/Fixtures/bin/fake-spid-sp-test';
 
@@ -229,7 +230,7 @@ it('looks the tool up on the PATH by name', function () {
 });
 
 it('ignores report entries that are not checks', function () {
-    $report = \OfflineAgency\FilamentSpid\Validation\ToolReport::parse('{"test": {"sp": {"metadata": {"Check": ["noise", {"test_id": "t", "test": "x", "result": "success"}]}}}}');
+    $report = ToolReport::parse('{"test": {"sp": {"metadata": {"Check": ["noise", {"test_id": "t", "test": "x", "result": "success"}]}}}}');
 
     expect($report?->summary())->toBe(['executed' => 1, 'passed' => 1, 'failed' => 0, 'warnings' => 0]);
 });

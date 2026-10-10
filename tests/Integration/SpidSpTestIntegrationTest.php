@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
+use Orchestra\Testbench\TestCase;
+use Symfony\Component\Process\ExecutableFinder;
 
 /*
  * Runs the real spid_sp_test (pinned in .github/spid-tools.env) on the
@@ -14,14 +16,14 @@ function spidSpTestBinary(): ?string
 {
     $binary = getenv('SPID_SP_TEST_BIN') ?: null;
 
-    return $binary !== null && is_executable($binary) && (new Symfony\Component\Process\ExecutableFinder)->find('xmlsec1') !== null ? $binary : null;
+    return $binary !== null && is_executable($binary) && (new ExecutableFinder)->find('xmlsec1') !== null ? $binary : null;
 }
 
 /**
  * Configure a synthetic public SP with a fresh 3072-bit key pair (valid from
  * now, so the test never expires) and return the metadata the app serves.
  */
-function servedMetadata(\Orchestra\Testbench\TestCase $test, ?string $publishedCertificate = null): string
+function servedMetadata(TestCase $test, ?string $publishedCertificate = null): string
 {
     $key = openssl_pkey_new(['private_key_bits' => 3072, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
     $dn = ['commonName' => 'sp.example.test', 'organizationName' => 'Comune di Esempio', 'countryName' => 'IT', 'localityName' => 'Roma'];
