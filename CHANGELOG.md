@@ -45,6 +45,23 @@ First stable release: from here on the public API follows SemVer. See
 
 ### Added
 
+- `php artisan filament-spid:install [--panel=] [--input=setup.json]
+  [--dry-run] [--migrate]`: installs and configures the plugin in one pass.
+  It validates every answer before the first write (paths to the key pair
+  only, never key material; IPA code for public SPs, VAT number for private
+  ones; HTTPS URLs; level at least SpidL2), shows the plan, and then:
+  publishes the missing config, migration and asset files without
+  overwriting existing ones; writes `config/spid-auth.php` (while it is the
+  library's copy or what the installer wrote, otherwise it prints the values
+  to set); sets `FILAMENT_SPID_*` variables in `.env`; registers the plugin
+  after `->login()` in a recognised panel provider and exempts only the ACS
+  from CSRF in `bootstrap/app.php`, both edited through PHP's tokenizer;
+  migrates only with `--migrate`. Anything it cannot do safely is listed as a
+  manual step, and the command then exits with 1. Running it again with the
+  same input changes nothing. Examples: `examples/setup.public.json`,
+  `examples/setup.private.json`.
+- `filament-spid.sp_profile` and `filament-spid.deployment`
+  (`FILAMENT_SPID_SP_PROFILE`, `FILAMENT_SPID_DEPLOYMENT`).
 - `php artisan filament-spid:doctor [--json] [--strict]`: read-only checks of
   dependencies and advisories floors, the SPID patch (judged by the metadata
   php-saml builds, not by PATCHES.txt), panel and guard, user model, gate and

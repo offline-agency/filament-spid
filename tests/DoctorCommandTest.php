@@ -3,6 +3,7 @@
 use Filament\Facades\Filament;
 use Filament\Panel;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -536,13 +537,13 @@ describe('doctor branches', function () {
 
 it('leaves the session and the authenticated user untouched', function () {
     $user = PanelUser::create(['name' => 'Session', 'email' => 'session@example.com', 'password' => 'x', 'fiscal_code' => 'SSSNNN80A01H501U']);
-    \Illuminate\Support\Facades\Auth::guard('web')->login($user);
+    Auth::guard('web')->login($user);
     session(['spid_sessionId' => 'ID_1']);
     $before = session()->all();
 
     runDoctor();
 
     expect(session()->all())->toBe($before)
-        ->and(\Illuminate\Support\Facades\Auth::guard('web')->id())->toBe($user->id)
+        ->and(Auth::guard('web')->id())->toBe($user->id)
         ->and(PanelUser::count())->toBe(1);
 });

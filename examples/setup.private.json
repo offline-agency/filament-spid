@@ -1,0 +1,27 @@
+{
+    "schema_version": 1,
+    "panel": "admin",
+    "deployment": "local",
+    "sp": {
+        "profile": "private",
+        "entity_id": "https://sp.example.test",
+        "base_url": "https://sp.example.test",
+        "service_name": "Example online service",
+        "organization": {
+            "name": "Esempio S.r.l. (synthetic)",
+            "display_name": "Esempio",
+            "url": "https://www.example.test"
+        },
+        "contact": {
+            "email": "spid@example.test",
+            "vat_number": "IT00000000000"
+        },
+        "attributes": ["fiscalNumber", "name", "familyName", "email"],
+        "level": "https://www.spid.gov.it/SpidL2",
+        "certificate_file": "/var/www/app/storage/app/private/spid/sp.crt",
+        "private_key_file": "/var/www/app/storage/app/private/spid/sp.key"
+    },
+    "provisioning": {
+        "auto_create_users": false
+    }
+}

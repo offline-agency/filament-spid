@@ -13,6 +13,7 @@ use Italia\SPIDAuth\Events\LoginEvent;
 use Italia\SPIDAuth\Events\LogoutEvent;
 use Italia\SPIDAuth\SPIDAuth;
 use OfflineAgency\FilamentSpid\Commands\DoctorCommand;
+use OfflineAgency\FilamentSpid\Commands\InstallCommand;
 use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogout;
@@ -34,7 +35,7 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
             ->hasViews()
             ->hasTranslations()
             ->hasMigration('add_spid_fields_to_users_table')
-            ->hasCommand(DoctorCommand::class);
+            ->hasCommands([DoctorCommand::class, InstallCommand::class]);
     }
 
     public function packageRegistered(): void

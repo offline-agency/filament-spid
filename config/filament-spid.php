@@ -94,6 +94,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | SP Profile and Deployment
+    |--------------------------------------------------------------------------
+    |
+    | Set by php artisan filament-spid:install. sp_profile (public|private)
+    | picks the spid_sp_test profile filament-spid:metadata:validate uses.
+    | deployment (local|acceptance|production) tells the doctor whether test
+    | or validator IdPs are expected: none in production, only the official
+    | AgID Validator during acceptance. null: unknown, judged by APP_ENV.
+    |
+    */
+    'sp_profile' => env('FILAMENT_SPID_SP_PROFILE'),
+
+    'deployment' => env('FILAMENT_SPID_DEPLOYMENT'),
+
+    /*
+    |--------------------------------------------------------------------------
     | SPID Data
     |--------------------------------------------------------------------------
     |
