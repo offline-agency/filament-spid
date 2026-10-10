@@ -547,3 +547,76 @@ it('leaves the session and the authenticated user untouched', function () {
         ->and(Auth::guard('web')->id())->toBe($user->id)
         ->and(PanelUser::count())->toBe(1);
 });
+
+describe('IdPs during the AgID acceptance test', function () {
+    beforeEach(function () {
+        Config::set('filament-spid.deployment', 'acceptance');
+        Config::set('spid-auth.test_idp', false);
+        Config::set('spid-auth.hide_real_idps', false);
+    });
+
+    $official = [
+        'entityId' => 'https://validator.spid.gov.it',
+        'sso_endpoint' => 'https://validator.spid.gov.it/samlsso',
+        'slo_endpoint' => 'https://validator.spid.gov.it/samlsso',
+        'x509cert' => 'MIIsynthetic',
+    ];
+
+    it('flags the official Validator as an acceptance window, never as a pass', function () use ($official) {
+        Config::set('spid-auth.validator_idp', $official);
+
+        [$exit, $report] = runDoctor(['--strict' => true]);
+        $check = doctorCheck($report, 'test_idps');
+
+        expect($check['status'])->toBe('warn')
+            ->and($check['message'])->toContain('acceptance')
+            ->and($check['remediation'])->toContain('validator_idp')
+            ->and($exit)->toBe(1);
+    });
+
+    it('fails on a validator that only looks official', function () use ($official) {
+        Config::set('spid-auth.validator_idp', array_merge($official, ['sso_endpoint' => 'https://spid-validator.local/samlsso']));
+
+        [, $report] = runDoctor();
+
+        expect(doctorCheck($report, 'test_idps')['status'])->toBe('fail');
+    });
+
+    it('fails on the test IdP', function () {
+        Config::set('spid-auth.test_idp', ['entityId' => 'spid-testenv']);
+        Config::set('spid-auth.validator_idp', false);
+
+        [, $report] = runDoctor();
+
+        expect(doctorCheck($report, 'test_idps')['status'])->toBe('fail');
+    });
+
+    it('warns when the Validator is not configured yet', function () {
+        Config::set('spid-auth.validator_idp', false);
+
+        [, $report] = runDoctor();
+
+        expect(doctorCheck($report, 'test_idps')['status'])->toBe('warn')
+            ->and(doctorCheck($report, 'test_idps')['remediation'])->toContain('https://validator.spid.gov.it/metadata.xml');
+    });
+
+    it('fails on the official Validator once back in production', function () use ($official) {
+        Config::set('filament-spid.deployment', 'production');
+        Config::set('spid-auth.validator_idp', $official);
+
+        [, $report] = runDoctor();
+
+        expect(doctorCheck($report, 'test_idps')['status'])->toBe('fail');
+    });
+});
+
+it('passes a production deployment that trusts no test IdP', function () {
+    Config::set('filament-spid.deployment', 'production');
+    Config::set('spid-auth.test_idp', false);
+    Config::set('spid-auth.validator_idp', false);
+    Config::set('spid-auth.hide_real_idps', false);
+
+    [, $report] = runDoctor();
+
+    expect(doctorCheck($report, 'test_idps')['status'])->toBe('pass');
+});
