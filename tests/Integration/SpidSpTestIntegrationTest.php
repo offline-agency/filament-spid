@@ -4,19 +4,21 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Orchestra\Testbench\TestCase;
-use Symfony\Component\Process\ExecutableFinder;
 
 /*
- * Runs the real spid_sp_test (pinned in .github/spid-tools.env) on the
- * metadata this package's stack emits. Skipped, never passed, when the tool or
- * xmlsec1 is not installed: CI installs both in the spid-validation workflow.
+ * Runs the real spid_sp_test (pinned in tools/spid/versions.env) on the
+ * metadata this package's stack emits. Skipped, never passed, when
+ * SPID_SP_TEST_BIN is not set: the spid-validation workflow sets it to
+ * tools/spid/bin/spid_sp_test, the pinned container.
  */
 
 function spidSpTestBinary(): ?string
 {
     $binary = getenv('SPID_SP_TEST_BIN') ?: null;
 
-    return $binary !== null && is_executable($binary) && (new ExecutableFinder)->find('xmlsec1') !== null ? $binary : null;
+    // A missing xmlsec1 is not a reason to skip: the adapter reports it as an
+    // error, so the tests fail.
+    return $binary !== null && is_executable($binary) ? $binary : null;
 }
 
 /**
@@ -63,7 +65,7 @@ function validateWithRealTool(string $metadata, string $dir): array
 
 beforeEach(function () {
     if (spidSpTestBinary() === null) {
-        $this->markTestSkipped('spid_sp_test (SPID_SP_TEST_BIN) or xmlsec1 is not installed.');
+        $this->markTestSkipped('SPID_SP_TEST_BIN is not set (see tools/spid).');
     }
     $this->dir = sys_get_temp_dir().'/filament-spid-integration-'.uniqid();
     File::ensureDirectoryExists($this->dir);

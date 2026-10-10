@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# spid_sp_test inside the pinned lab container (tools/spid/Dockerfile.spid-sp-test),
+# usable as SPID_SP_TEST_BIN. Directories of the absolute paths it is given are
+# mounted at the same path, so reports land where the caller expects them.
+set -euo pipefail
+image="${SPID_SP_TEST_IMAGE:-filament-spid/spid-sp-test:local}"
+mounts=()
+for arg in "$@"; do
+    case "$arg" in
+        file:///*) path="${arg#file://}" ;;
+        /*) path="$arg" ;;
+        *) continue ;;
+    esac
+    dir="$(dirname "$path")"
+    [ -d "$dir" ] && mounts+=(-v "$dir:$dir")
+done
+exec docker run --rm -i \
+    --network "${SPID_SP_TEST_NETWORK:-host}" \
+    --add-host host.docker.internal:host-gateway \
+    -u "$(id -u):$(id -g)" \
+    ${mounts[@]+"${mounts[@]}"} \
+    "$image" "$@"
