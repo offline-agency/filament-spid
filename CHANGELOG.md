@@ -45,6 +45,16 @@ First stable release: from here on the public API follows SemVer. See
 
 ### Added
 
+- `php artisan filament-spid:doctor [--json] [--strict]`: read-only checks of
+  dependencies and advisories floors, the SPID patch (judged by the metadata
+  php-saml builds, not by PATCHES.txt), panel and guard, user model, gate and
+  fillable columns, the SPID columns and unique index (read through the
+  model's connection), SP identity and level, published assets, HTTPS and the
+  session cookie, the SP key pair (readable, matching, expiry, not the example
+  pair italia/spid-laravel ships) and test IdPs in production. CSRF and CSP are
+  reported as `skip`: the CLI cannot observe them. JSON has a stable
+  `schema_version`; exit codes are 0, 1 (failure, or warning with `--strict`)
+  and 2 (internal error or invalid invocation). No writes, logins or network.
 - Laravel 13, PHP 8.5 and Filament 5 support. CI proves every combination of
   PHP 8.3–8.5, Laravel 12–13 and Filament 3–5.
 - `HandleSpidLogin` and `HandleSpidLogout` listeners provision the user,

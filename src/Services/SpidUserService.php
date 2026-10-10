@@ -141,7 +141,7 @@ class SpidUserService
      *
      * @return class-string<Model&Authenticatable>
      */
-    protected function resolveUserModel(): string
+    public function resolveUserModel(): string
     {
         $model = config('filament-spid.user_model')
             ?: config('spid-auth.user_model')
@@ -160,7 +160,7 @@ class SpidUserService
      *
      * @return array<string, mixed>
      */
-    protected function fieldMapping(): array
+    public function fieldMapping(): array
     {
         return array_filter(TypedConfig::array('filament-spid.field_mapping'), is_string(...), ARRAY_FILTER_USE_KEY);
     }
