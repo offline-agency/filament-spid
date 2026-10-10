@@ -1,6 +1,60 @@
 <?php
 
+use App\Models\User;
+use OfflineAgency\FilamentSpid\Constants\SpidLevel;
+use OfflineAgency\FilamentSpid\Mapping\EmailOrFallback;
+use OfflineAgency\FilamentSpid\Mapping\FullName;
+use OfflineAgency\FilamentSpid\Mapping\RandomPassword;
+
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | Enable SPID Login
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable SPID authentication. When disabled, the standard
+    | Filament login page will be used instead of the SPID login page.
+    |
+    */
+    'enabled' => env('FILAMENT_SPID_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Register Authentication Listeners
+    |--------------------------------------------------------------------------
+    |
+    | The package listens to the LoginEvent and LogoutEvent fired by
+    | italia/spid-laravel to provision the user, authenticate them on the panel
+    | guard and tear the session down on logout. Disable this to take over the
+    | flow with your own listeners.
+    |
+    */
+    'register_listeners' => env('FILAMENT_SPID_REGISTER_LISTENERS', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | SPID Panel
+    |--------------------------------------------------------------------------
+    |
+    | Id of the panel SPID users are authenticated against. The SAML callback
+    | runs on a library route, outside any panel, so multi-panel applications
+    | should name the panel here. Null falls back to the default panel.
+    |
+    */
+    'panel' => env('FILAMENT_SPID_PANEL'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Minimum SPID Level
+    |--------------------------------------------------------------------------
+    |
+    | Logins are refused unless spid-auth.sp_spid_level (the level the SP
+    | requests, which italia/spid-laravel enforces on every assertion) is at
+    | least this level. SpidL1 is password only: admin panels need SpidL2.
+    |
+    */
+    'minimum_level' => env('FILAMENT_SPID_MINIMUM_LEVEL', SpidLevel::LEVEL_2->value),
+
     /*
     |--------------------------------------------------------------------------
     | User Model
@@ -9,31 +63,24 @@ return [
     | The user model that will be used for SPID authentication.
     | Make sure this model has 'fiscal_code' and 'spid_data' fields.
     |
-    */
-    'user_model' => env('SPID_USER_MODEL', \App\Models\User::class),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Redirect After Login
-    |--------------------------------------------------------------------------
-    |
-    | The URL to redirect to after successful SPID authentication.
+    | In production Filament only lets users in whose model implements
+    | Filament\Models\Contracts\FilamentUser and returns true from
+    | canAccessPanel(): that method is the authorisation gate for SPID logins.
     |
     */
-    'redirect_after_login' => env('SPID_REDIRECT_AFTER_LOGIN', '/admin'),
-
-    // UI-only: default SPID level suggested in the UI (actual level enforcement comes from spid-auth config)
-    'spid_level' => env('SPID_LEVEL', 'https://www.spid.gov.it/SpidL2'),
+    'user_model' => env('SPID_USER_MODEL', User::class),
 
     /*
     |--------------------------------------------------------------------------
     | Auto Create Users
     |--------------------------------------------------------------------------
     |
-    | Automatically create a new user if the fiscal code doesn't exist.
+    | Create a user when no account matches the citizen's fiscal code. Off by
+    | default: with it on, anyone holding a SPID identity gets an account, so
+    | canAccessPanel() becomes the only thing between them and the panel.
     |
     */
-    'auto_create_users' => env('SPID_AUTO_CREATE_USERS', true),
+    'auto_create_users' => env('SPID_AUTO_CREATE_USERS', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -45,39 +92,44 @@ return [
     */
     'update_user_data' => env('SPID_UPDATE_USER_DATA', true),
 
-    // UI-only: optional allowlist for rendering provider logos; leave empty to defer entirely to spid-idps.php
-    'providers' => [],
-
     /*
     |--------------------------------------------------------------------------
-    | Cache Settings
+    | SPID Data
     |--------------------------------------------------------------------------
     |
-    | Control caching for provider lists and other computed data.
+    | Whether to store the SPID attributes in the spid_data column, and which
+    | ones. null stores all eight (fiscalNumber, name, familyName, email,
+    | spidCode, placeOfBirth, dateOfBirth, gender); store only what you need,
+    | for example ['fiscalNumber', 'name', 'familyName', 'email', 'spidCode']
+    | for an admin panel. With store_spid_data off the column is never written.
     |
     */
-    'cache' => [
-        'providers_ttl' => env('FILAMENT_SPID_PROVIDERS_TTL', 3600),
-    ],
+    'store_spid_data' => env('FILAMENT_SPID_STORE_SPID_DATA', true),
+
+    'spid_data_attributes' => null,
 
     /*
     |--------------------------------------------------------------------------
     | User Field Mapping
     |--------------------------------------------------------------------------
     |
-    | Map SPID attributes to user model fields.
+    | Map SPID attributes to user model columns. A value is, in this order, a
+    | SPID attribute name (fiscalNumber, name, familyName, email, spidCode,
+    | placeOfBirth, dateOfBirth, gender), the class name of an invokable mapper
+    | receiving the attributes array, or a closure / array callable. Closures
+    | stop `php artisan config:cache` (and `optimize`) from caching the config.
+    | Anything else, a plain function name included, maps to null.
     |
     */
     'field_mapping' => [
-        'name' => function ($spidUser) {
-            return $spidUser['name'].' '.$spidUser['familyName'];
-        },
-        'email' => function ($spidUser) {
-            return $spidUser['email'] ?? $spidUser['fiscalNumber'].'@spid.local';
-        },
-        'fiscal_code' => function ($spidUser) {
-            return $spidUser['fiscalNumber'];
-        },
+        'name' => FullName::class,
+        // The SPID email, or <fiscal code>@spid.invalid: unique, stable and
+        // never deliverable. Use 'email' instead if your column is nullable.
+        'email' => EmailOrFallback::class,
+        'fiscal_code' => 'fiscalNumber',
+        // A hash of a random password, set on creation only: the stock users
+        // table declares password NOT NULL. Drop it if yours has no password.
+        'password' => RandomPassword::class,
     ],
 
     /*

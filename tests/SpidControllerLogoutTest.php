@@ -1,62 +1,98 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
+use Italia\SPIDAuth\Exceptions\SPIDLogoutException;
+use Italia\SPIDAuth\SPIDAuth;
+use Italia\SPIDAuth\SPIDUser;
+use Mockery as m;
 use OfflineAgency\FilamentSpid\Http\Controllers\SpidController;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
 
-it('can instantiate SpidController with dependencies', function () {
-    $spid = $this->app[\Italia\SPIDAuth\SPIDAuth::class];
-    $userService = $this->app[\OfflineAgency\FilamentSpid\Services\SpidUserService::class];
+/**
+ * What italia/spid-laravel's acs() leaves in the session after a SPID login.
+ */
+function spidSession(): array
+{
+    return [
+        'spid_idp' => 'test',
+        'spid_idpEntityName' => 'Test IdP',
+        'spid_sessionId' => 'ID_1',
+        'spid_nameId' => 'NAME_1',
+        'spid_user' => new SPIDUser(['fiscalNumber' => ['TINIT-RSSMRA80A01H501U']]),
+    ];
+}
 
-    $controller = new SpidController($spid, $userService);
+function panelUser(): User
+{
+    return User::create([
+        'name' => 'Mario Rossi',
+        'email' => 'mario.rossi@example.com',
+        'password' => bcrypt('secret'),
+        'fiscal_code' => 'RSSMRA80A01H501U',
+    ]);
+}
 
-    expect($controller)->toBeInstanceOf(SpidController::class);
+beforeEach(function () {
+    Model::unguard();
+    $this->app['router']->middleware('web')->get('/spid-test/logout', [SpidController::class, 'logout']);
 });
 
-it('logout method exists and is callable', function () {
-    $spid = $this->app[\Italia\SPIDAuth\SPIDAuth::class];
-    $userService = $this->app[\OfflineAgency\FilamentSpid\Services\SpidUserService::class];
+it('hands a SPID session to the IdP for single logout', function () {
+    // php-saml sends the SLO redirect with header() and exit(), so the SAML
+    // round trip itself is the one thing mocked here.
+    $spid = m::mock(SPIDAuth::class);
+    $spid->shouldReceive('isAuthenticated')->andReturnTrue();
+    $spid->shouldReceive('logout')->once()->andReturn(redirect('https://spid-testenv/slo?SAMLRequest=abc'));
+    $this->app->instance(SPIDAuth::class, $spid);
 
-    $controller = new SpidController($spid, $userService);
+    $this->actingAs(panelUser())
+        ->withSession(spidSession())
+        ->get('/spid-test/logout')
+        ->assertRedirect('https://spid-testenv/slo?SAMLRequest=abc');
 
-    expect(method_exists($controller, 'logout'))->toBeTrue();
-    expect(is_callable([$controller, 'logout']))->toBeTrue();
+    // The panel session ends before the round trip: a citizen who closes the
+    // tab at the IdP, or an IdP that never redirects back, must not leave
+    // the panel logged in on a shared computer.
+    expect(Auth::guard('web')->check())->toBeFalse();
 });
 
-it('logout method handles session invalidation', function () {
-    $spid = $this->app[\Italia\SPIDAuth\SPIDAuth::class];
-    $userService = $this->app[\OfflineAgency\FilamentSpid\Services\SpidUserService::class];
+it('tears the panel session down through the library when only the SP logs out', function () {
+    config()->set('spid-auth.only_sp_logout', true);
+    config()->set('spid-auth.after_logout_url', '/goodbye');
 
-    $controller = new SpidController($spid, $userService);
+    $this->actingAs(panelUser())
+        ->withSession(spidSession())
+        ->get('/spid-test/logout')
+        ->assertRedirect('/goodbye');
 
-    // Start a session
-    $this->startSession();
-    $this->session(['test' => 'data']);
-
-    // Test that session has data before
-    expect($this->app['session']->has('test'))->toBeTrue();
-
-    // The logout method should handle session invalidation
-    // We can't easily test the full method without route setup,
-    // but we can verify the method exists and is callable
-    expect(method_exists($controller, 'logout'))->toBeTrue();
+    expect(Auth::guard('web')->check())->toBeFalse()
+        ->and(app('SPIDAuth')->isAuthenticated())->toBeFalse();
 });
 
-it('logout method handles authentication', function () {
-    $spid = $this->app[\Italia\SPIDAuth\SPIDAuth::class];
-    $userService = $this->app[\OfflineAgency\FilamentSpid\Services\SpidUserService::class];
+it('logs a session without SPID out of the panel guard', function () {
+    $this->actingAs(panelUser())
+        ->withSession(['marker' => 'present'])
+        ->get('/spid-test/logout')
+        ->assertRedirect(route('filament.admin.auth.login'));
 
-    $controller = new SpidController($spid, $userService);
+    expect(Auth::guard('web')->check())->toBeFalse()
+        ->and(session()->has('marker'))->toBeFalse();
+});
 
-    // Mock an authenticated user
-    $user = new \Illuminate\Foundation\Auth\User;
-    $user->id = 1;
-    Auth::login($user);
+it('still ends the local session when the IdP logout fails', function () {
+    // Real singleton: an IdP without a single logout endpoint makes php-saml
+    // throw before redirecting, which the library wraps in SPIDLogoutException.
+    config()->set('spid-auth.test_idp.slo_endpoint', '');
+    Log::spy();
 
-    expect(Auth::check())->toBeTrue();
+    $this->actingAs(panelUser())
+        ->withSession(spidSession())
+        ->get('/spid-test/logout')
+        ->assertRedirect(route('filament.admin.auth.login'));
 
-    // The logout method should handle user logout
-    // We can't easily test the full method without route setup,
-    // but we can verify the method exists and is callable
-    expect(method_exists($controller, 'logout'))->toBeTrue();
+    expect(Auth::guard('web')->check())->toBeFalse()
+        ->and(session()->has('spid_sessionId'))->toBeFalse();
+    Log::shouldHaveReceived('error')->withArgs(fn (string $message) => str_contains($message, SPIDLogoutException::class));
 });

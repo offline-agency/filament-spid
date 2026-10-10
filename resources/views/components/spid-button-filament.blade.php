@@ -1,27 +1,41 @@
 @props(['size' => 'l'])
 
-<div class="spid-button-wrapper" style="display: flex; justify-content: center; align-items: center; width: 100%;">
+@php
+    $plugin = \OfflineAgency\FilamentSpid\SpidPlugin::resolve();
+    $buttonLabel = $plugin?->getSpidButtonLabel() ?? __('filament-spid::spid.login_with_spid');
+    $buttonIcon = $plugin?->getSpidButtonIcon();
+    $allowedProviders = $plugin?->getProviders() ?? [];
+@endphp
+
+<div class="spid-button-wrapper">
     <!-- Official SPID Button Styles -->
     <link rel="stylesheet" href="{{ asset('/vendor/spid-auth/css/spid-sp-access-button.min.css') }}">
     
-    <form id="spid_idp_access" name="spid_idp_access" action="{{ route('spid-auth_do-login') }}" method="post" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <form id="spid_idp_access" name="spid_idp_access" action="{{ route('spid-auth_do-login') }}" method="post">
         @csrf
         <input id="spid_idp_access_provider" type="hidden" name="provider" value="" />
         
-        <a href="#" class="italia-it-button italia-it-button-size-{{ $size }} button-spid" spid-idp-button="#spid-idp-button-{{ $size }}-post" aria-haspopup="true" aria-expanded="false" style="margin: 0 auto; display: inline-block;">
+        <a href="#" class="italia-it-button italia-it-button-size-{{ $size }} button-spid" spid-idp-button="#spid-idp-button-{{ $size }}-post" aria-haspopup="true" aria-expanded="false">
             <span class="italia-it-button-icon">
-                <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}" 
-                     onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.png') }}'; this.onerror=null;" 
-                     alt="" />
+                @if ($buttonIcon)
+                    {{-- @svg comes from blade-icons, which every supported
+                         Filament version depends on, unlike the x-filament::icon
+                         component whose props changed between majors. --}}
+                    @svg($buttonIcon, 'h-6 w-6')
+                @else
+                    <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}"
+                         onerror="this.src='{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.png') }}'; this.onerror=null;"
+                         alt="" />
+                @endif
             </span>
-            <span class="italia-it-button-text">Entra con SPID</span>
+            <span class="italia-it-button-text">{{ $buttonLabel }}</span>
         </a>
         
         <div id="spid-idp-button-{{ $size }}-post" class="spid-idp-button spid-idp-button-tip spid-idp-button-relative">
             <ul id="spid-idp-list-{{ $size }}-root-post" class="spid-idp-button-menu">
                 @unless(config('spid-auth.hide_real_idps'))
                 @foreach (config('spid-idps') as $idp => $idpData)
-                @if ($idpData['real'] && $idpData['isActive'])
+                @if ($idpData['real'] && $idpData['isActive'] && (empty($allowedProviders) || in_array($idp, $allowedProviders, true)))
                 <li class="spid-idp-button-link" data-idp="{{ $idp }}">
                     <button class="idp-button-idp-logo" name="{{ $idpData['entityName'] }}" type="submit">
                         <span class="spid-sr-only">{{ $idpData['entityName'] }}</span>
@@ -59,46 +73,61 @@
                 @endif
                 
                 <li class="spid-idp-support-link" data-spidlink="info">
-                    <a href="https://www.spid.gov.it">Maggiori informazioni</a>
+                    <a href="https://www.spid.gov.it">{{ __('filament-spid::spid.more_info') }}</a>
                 </li>
                 <li class="spid-idp-support-link" data-spidlink="rich">
-                    <a href="https://www.spid.gov.it/richiedi-spid">Non hai SPID?</a>
+                    <a href="https://www.spid.gov.it/richiedi-spid">{{ __('filament-spid::spid.no_spid') }}</a>
                 </li>
                 <li class="spid-idp-support-link" data-spidlink="help">
-                    <a href="https://www.spid.gov.it/serve-aiuto">Serve aiuto?</a>
+                    <a href="https://www.spid.gov.it/serve-aiuto">{{ __('filament-spid::spid.need_help') }}</a>
                 </li>
             </ul>
         </div>
     </form>
     
-    <!-- Load jQuery if not already loaded -->
+    {{-- The AgID button script (spid-sp-access-button.min.js) needs jQuery at
+         the moment it runs: it starts with `jQuery&&...`. So the scripts are
+         chained: jQuery first, only when the page does not ship it (from the
+         package's Filament assets, php artisan filament:assets, not a CDN),
+         then the button script from its onload, then the bindings. Tags are
+         appended through the DOM: write() is blocked under a strict CSP. --}}
     <script>
-        if (typeof jQuery === 'undefined') {
-            document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>');
-        }
-    </script>
-    
-    <!-- Official SPID Button Scripts -->
-    <script src="{{ asset('/vendor/spid-auth/js/spid-sp-access-button.min.js') }}"></script>
-    <script type="text/javascript">
-        (function() {
-            // Wait for jQuery to be available
-            function initSpid() {
-                if (typeof jQuery === 'undefined') {
-                    setTimeout(initSpid, 100);
+        (function () {
+            var jquerySrc = @json(\Filament\Support\Facades\FilamentAsset::getScriptSrc('spid-jquery', 'offline-agency/filament-spid'));
+            var buttonSrc = @json(asset('vendor/spid-auth/js/spid-sp-access-button.min.js'));
+
+            // Load a script once per page, even with several buttons, and run
+            // the callback when it is available.
+            function load(id, src, callback) {
+                var script = document.getElementById(id);
+
+                if (script && script.dataset.loaded) {
+                    callback();
                     return;
                 }
-                
-                jQuery('.spid-idp-button-link').click(function(event) {
+
+                if (!script) {
+                    script = document.createElement('script');
+                    script.id = id;
+                    script.src = src;
+                    script.onload = function () { script.dataset.loaded = '1'; };
+                    document.head.appendChild(script);
+                }
+
+                script.addEventListener('load', callback);
+            }
+
+            function bind() {
+                jQuery('.spid-idp-button-link').click(function (event) {
                     jQuery('#spid_idp_access_provider').val(jQuery(event.currentTarget).data('idp'));
                 });
 
-                jQuery(document).ready(function(){
-                    var rootList = jQuery(".spid-idp-button-menu").first();
-                    var idpList = rootList.children(".spid-idp-button-link").get();
-                    var lnkList = rootList.children(".spid-idp-support-link");
-                    
-                    // Shuffle IdPs
+                jQuery(function () {
+                    var rootList = jQuery('.spid-idp-button-menu').first();
+                    var idpList = rootList.children('.spid-idp-button-link').get();
+                    var lnkList = rootList.children('.spid-idp-support-link');
+
+                    // Shuffle IdPs, as the AgID guidelines require.
                     for (var i = idpList.length - 1; i > 0; i--) {
                         var j = Math.floor(Math.random() * (i + 1));
                         rootList.append(idpList[j]);
@@ -106,8 +135,16 @@
                     rootList.append(lnkList);
                 });
             }
-            
-            initSpid();
+
+            function withButtonScript() {
+                load('spid-sp-access-button', buttonSrc, bind);
+            }
+
+            if (typeof jQuery === 'undefined') {
+                load('spid-jquery', jquerySrc, withButtonScript);
+            } else {
+                withButtonScript();
+            }
         })();
     </script>
 </div>

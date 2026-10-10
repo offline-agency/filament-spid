@@ -2,19 +2,31 @@ name: PHPStan
 
 on:
   push:
-    paths:
-      - '**.php'
-      - 'phpstan.neon.dist'
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: phpstan-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Composer works on a copy, so the published composer.json stays intact
+  # (see .github/scripts/use-spid-laravel-fork.sh).
+  COMPOSER: composer.ci.json
 
 jobs:
   phpstan:
     name: PHPStan PHP ${{ matrix.php }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        php: [8.4, 8.3, 8.2]
+        php: [8.5, 8.4, 8.3]
 
     steps:
       - name: Checkout code
@@ -25,6 +37,9 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+
+      - name: Use the patched italia/spid-laravel
+        run: bash .github/scripts/use-spid-laravel-fork.sh
 
       - name: Install composer dependencies
         run: composer update --prefer-stable --prefer-dist --no-interaction

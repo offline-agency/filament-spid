@@ -32,20 +32,34 @@ it('has text-center class for the main content sections', function () {
     expect($count)->toBeGreaterThanOrEqual(2);
 });
 
-it('has AGID logo with correct styling and centering', function () {
+it('centers the SPID button and shows the informational text', function () {
     $viewPath = __DIR__.'/../resources/views/login.blade.php';
     $content = File::get($viewPath);
 
-    // Check for the AGID logo image
-    expect($content)->toContain('<img');
-    expect($content)->toContain('alt="SPID AGID"');
-    expect($content)->toContain('class="max-w-full h-auto mx-auto"');
+    expect($content)->toContain('flex justify-center')
+        ->and($content)->toContain('filament-spid::components.spid-button-filament')
+        ->and($content)->toContain("__('filament-spid::spid.info_text')");
+});
 
-    // Check for proper centering classes
-    expect($content)->toContain('flex justify-center');
+it('serves the AGID logo from the package assets, not a third-party CDN', function () {
+    $viewPath = __DIR__.'/../resources/views/login.blade.php';
+    $content = File::get($viewPath);
 
-    // Check for image styling
-    expect($content)->toContain('style="max-width: 300px;"');
+    expect($content)->toContain("asset('vendor/filament-spid/images/spid-agid-logo.png')")
+        ->and($content)->toContain('alt="SPID AGID"')
+        ->and($content)->not->toContain('cdn.inpa.gov.it');
+});
+
+it('ships the AGID logo it references', function () {
+    expect(file_exists(__DIR__.'/../resources/images/spid-agid-logo.png'))->toBeTrue();
+});
+
+it('renders the SPID error flash message when present', function () {
+    $viewPath = __DIR__.'/../resources/views/login.blade.php';
+    $content = File::get($viewPath);
+
+    expect($content)->toContain("session('spid_error')")
+        ->and($content)->toContain('bg-danger-50');
 });
 
 it('AGID logo image URL returns 200 status code', function () {

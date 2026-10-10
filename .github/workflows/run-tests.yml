@@ -4,34 +4,49 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: run-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Composer works on a copy, so the published composer.json stays intact
+  # (see .github/scripts/use-spid-laravel-fork.sh).
+  COMPOSER: composer.ci.json
 
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        php: [8.4, 8.3, 8.2]
-        laravel: [12.*, 11.*]
+        os: [ubuntu-24.04]
+        # PHP 8.2 leaves security support on 2026-12-31 and is not supported.
+        php: [8.5, 8.4, 8.3]
+        # Laravel 11 is not tested: it is end of life and every 11.x release
+        # carries unpatched advisories, so Composer refuses to install it.
+        laravel: [13.*, 12.*]
+        # Filament 3 and 4 run on Livewire 3, Filament 5 on Livewire 4.
+        filament: [5.*, 4.*, 3.*]
         stability: [prefer-stable]
         include:
+          - laravel: 13.*
+            testbench: 11.*
+            carbon: ^3.0
           - laravel: 12.*
             testbench: 10.*
             carbon: ^3.0
-          - laravel: 11.*
-            testbench: 9.*
-            carbon: ^2.63
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - F${{ matrix.filament }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -46,61 +61,78 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
+      - name: Use the patched italia/spid-laravel
+        run: bash .github/scripts/use-spid-laravel-fork.sh
+
       - name: Install dependencies
+        env:
+          COMPOSER_EXIT_ON_PATCH_FAILURE: 1
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" --no-interaction --no-update
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "filament/filament:${{ matrix.filament }}" "nesbot/carbon:${{ matrix.carbon }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: List Installed Dependencies
         run: composer show -D
 
-      - name: Prepare Laravel Application
-        run: |
-          mkdir -p database
-          touch database/database.sqlite
+      - name: Check the SPID patch reached php-saml
+        run: test -f vendor/onelogin/php-saml/PATCHES.txt
+
+      - name: Audit dependencies
+        run: composer audit
 
       - name: Execute tests
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
         run: vendor/bin/pest
 
   coverage:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     name: Coverage
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.4
+          php-version: 8.5
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
           coverage: xdebug
           tools: composer:v2
 
+      - name: Use the patched italia/spid-laravel
+        run: bash .github/scripts/use-spid-laravel-fork.sh
+
       - name: Install dependencies
+        env:
+          COMPOSER_EXIT_ON_PATCH_FAILURE: 1
         run: composer update --prefer-stable --prefer-dist --no-interaction
 
-      - name: Prepare Laravel Application
-        run: |
-          mkdir -p database build/logs
-          touch database/database.sqlite
-
       - name: Execute tests with coverage
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-        run: vendor/bin/pest --coverage --coverage-clover=build/logs/coverage.xml
+        run: |
+          mkdir -p build/logs
+          vendor/bin/pest --coverage --min=100 --coverage-clover=build/logs/coverage.xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./build/logs/coverage.xml
           fail_ci_if_error: false
+
+  # One check for branch protection to require instead of every matrix leg.
+  tests-passed:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    name: tests-passed
+    needs: [test, coverage]
+    if: always()
+
+    steps:
+      - name: Require every test leg and the coverage job to pass
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+          COVERAGE_RESULT: ${{ needs.coverage.result }}
+        run: |
+          echo "test: $TEST_RESULT, coverage: $COVERAGE_RESULT"
+          [ "$TEST_RESULT" = success ] && [ "$COVERAGE_RESULT" = success ]

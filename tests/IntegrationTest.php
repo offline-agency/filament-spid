@@ -1,6 +1,7 @@
 <?php
 
 use Filament\Panel;
+use OfflineAgency\FilamentSpid\Mapping\FieldMapper;
 use OfflineAgency\FilamentSpid\SpidPlugin;
 
 describe('Plugin Integration', function () {
@@ -27,14 +28,6 @@ describe('Plugin Integration', function () {
 });
 
 describe('Configuration Integration', function () {
-    it('uses configured providers when set', function () {
-        config(['filament-spid.providers' => ['posteid', 'arubaid']]);
-
-        $providers = config('filament-spid.providers');
-
-        expect($providers)->toBe(['posteid', 'arubaid']);
-    });
-
     it('field mapping works with real spid data structure', function () {
         $mapping = config('filament-spid.field_mapping');
         $spidUser = [
@@ -45,9 +38,9 @@ describe('Configuration Integration', function () {
             'email' => 'mario.rossi@example.com',
         ];
 
-        $name = $mapping['name']($spidUser);
-        $email = $mapping['email']($spidUser);
-        $fiscalCode = $mapping['fiscal_code']($spidUser);
+        $name = FieldMapper::value($mapping['name'], $spidUser);
+        $email = FieldMapper::value($mapping['email'], $spidUser);
+        $fiscalCode = FieldMapper::value($mapping['fiscal_code'], $spidUser);
 
         expect($name)->toBe('Mario Rossi')
             ->and($email)->toBe('mario.rossi@example.com')
@@ -58,12 +51,12 @@ describe('Configuration Integration', function () {
         $config = config('filament-spid');
 
         expect($config)->toHaveKeys([
+            'enabled',
+            'register_listeners',
+            'panel',
             'user_model',
-            'redirect_after_login',
-            'spid_level',
             'auto_create_users',
             'update_user_data',
-            'providers',
             'field_mapping',
             'create_user_callback',
             'update_user_callback',
@@ -94,21 +87,13 @@ describe('Asset Integration', function () {
         expect(file_exists($cssPath))->toBeTrue();
     });
 
-    it('js file exists', function () {
-        $jsPath = __DIR__.'/../resources/dist/filament-spid.js';
-
-        expect(file_exists($jsPath))->toBeTrue();
-    });
-
     it('css file is readable', function () {
         $cssPath = __DIR__.'/../resources/dist/filament-spid.css';
 
         expect(is_readable($cssPath))->toBeTrue();
     });
 
-    it('js file is readable', function () {
-        $jsPath = __DIR__.'/../resources/dist/filament-spid.js';
-
-        expect(is_readable($jsPath))->toBeTrue();
+    it('ships no empty js bundle', function () {
+        expect(file_exists(__DIR__.'/../resources/dist/filament-spid.js'))->toBeFalse();
     });
 });

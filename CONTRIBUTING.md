@@ -2,19 +2,33 @@
 
 Contributions are **welcome** and will be fully **credited**.
 
-We accept contributions via Pull Requests on [Github](https://github.com/offline-agency/filament-spid).
+We accept contributions via Pull Requests on [GitHub](https://github.com/offline-agency/filament-spid).
 
 ## Pull Requests
 
-- **Document any change in behaviour** - Make sure the `README.md` and any other relevant documentation are kept up-to-date.
-
-- **Consider our release cycle** - We try to follow [SemVer v2.0.0](http://semver.org/). Randomly breaking public APIs is not an option.
-
-- **Create feature branches** - Don't ask us to pull from your master branch.
-
+- **Document any change in behaviour** - Keep `README.md` and `CHANGELOG.md` (under `## Unreleased`) up to date.
+- **Consider our release cycle** - We follow [SemVer v2.0.0](https://semver.org/). Breaking public APIs needs a `release:major` label.
+- **Create feature branches** - Don't ask us to pull from your `main` branch.
 - **One pull request per feature** - If you want to do more than one thing, send multiple pull requests.
+- **Send coherent history** - Use [conventional commits](https://www.conventionalcommits.org/) and make each commit meaningful.
+- **Pick a release label** - See [Releasing](#releasing).
 
-- **Send coherent history** - Make sure each individual commit in your pull request is meaningful. If you had to make multiple intermediate commits while developing, please [squash them](http://www.git-scm.com/book/en/v2/Git-Tools-Rewriting-History#Changing-Multiple-Commit-Messages) before submitting.
+## Local Setup
+
+Every published `italia/spid-laravel` pins `onelogin/php-saml` 4.1.0, which
+Composer refuses to install (CVE-2025-66475). Until
+[italia/spid-laravel#132](https://github.com/italia/spid-laravel/pull/132) is
+released, work on a copy of `composer.json` that uses the patched fork, exactly
+as CI does, so the published manifest stays untouched:
+
+```bash
+export COMPOSER=composer.ci.json
+bash .github/scripts/use-spid-laravel-fork.sh
+composer update
+```
+
+`composer.ci.json` and `composer.ci.lock` are git-ignored. The suite checks the
+published `composer.json`, so never commit the fork setup into it.
 
 ## Running Tests
 
@@ -28,9 +42,21 @@ To generate coverage you need a coverage driver (Xdebug or pcov), then:
 composer test-coverage
 ```
 
+The CI helper scripts have their own tests:
+
+```bash
+for t in .github/scripts/tests/*.test.sh; do bash "$t"; done
+```
+
+CI runs the suite on every PHP × Laravel × Filament combination plus a Coverage
+job that requires 100% line coverage. The `tests-passed` check aggregates them:
+it fails unless every matrix leg and Coverage succeeded, so branch protection
+requires that one check instead of each leg, and adding a leg to the matrix
+needs no settings change.
+
 ## Code Style
 
-We use Laravel Pint for code styling. Before submitting, please run:
+We use Laravel Pint. CI only checks (`vendor/bin/pint --test`); fix locally with:
 
 ```bash
 composer format
@@ -38,29 +64,39 @@ composer format
 
 ## Static Analysis
 
-We use PHPStan for static analysis. Please ensure your code passes:
-
 ```bash
 composer analyse
 ```
 
-## CSRF & ACS
-If your application applies CSRF protection globally, exclude the ACS endpoint path of your Filament panel from CSRF verification in your app’s `VerifyCsrfToken` middleware.
+## Releasing
 
-```php
-protected $except = [
-    'admin/spid/acs', // adjust prefix as needed
-];
-```
+Releases are cut automatically when a pull request is merged into `main`
+(`.github/workflows/release.yml`):
 
-## Upgrade Guide (SPID v2)
-- Ensure the provider class is `Italia\\SPIDAuth\\ServiceProvider`.
-- Providers are mapped from configuration (`config('spid-idps')`). This package surfaces them via `SpidController::providers()`.
-- Replace any legacy direct calls such as `getProviders()` with the new approach.
+| Label | Effect on merge |
+|---|---|
+| `release:major` | `1.0.0` → `2.0.0` |
+| `release:minor` | `1.0.0` → `1.1.0` |
+| `release:patch` | `1.0.0` → `1.0.1` |
+| `skip-release` | no tag, no release |
 
-## Troubleshooting
-- Metadata returns 500 → verify certificate/private key in `spid-auth` config.
-- Redirect loops → check `redirect_after_login` and session regeneration after login.
-- Providers not visible → ensure `isActive` is true in `spid-idps` and caching TTL not masking changes.
+- Every pull request into `main` needs exactly one of these labels;
+  `release-check.yml` fails otherwise. Dependabot PRs are exempt and never
+  release.
+- The version is computed from the latest `X.Y.Z` tag (pre-release tags are
+  ignored). Tags carry no `v` prefix (`1.0.0`). The tag goes on the PR's merge
+  commit, and the job refuses a commit that already has a release tag, so
+  re-running a release never bumps twice.
+- Releases run one at a time. If several PRs are merged in quick succession,
+  GitHub may skip a queued run: re-run it from the Actions tab.
+- The workflow creates an annotated tag as `github-actions[bot]` and a GitHub
+  release whose notes start with the matching `CHANGELOG.md` section
+  (`## <version>`, or `## Unreleased` when there is none), followed by the notes
+  GitHub generates since the previous tag.
+- To release `main` by hand, run the `release` workflow from the Actions tab and
+  pick the bump.
+
+Before merging a release, move `## Unreleased` in `CHANGELOG.md` to
+`## <version> - <date>`.
 
 **Happy coding**!

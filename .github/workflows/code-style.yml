@@ -1,0 +1,50 @@
+name: code-style
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: code-style-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Composer works on a copy, so the published composer.json stays intact
+  # (see .github/scripts/use-spid-laravel-fork.sh).
+  COMPOSER: composer.ci.json
+
+jobs:
+  pint:
+    name: Pint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          coverage: none
+
+      - name: Use the patched italia/spid-laravel
+        run: bash .github/scripts/use-spid-laravel-fork.sh
+
+      - name: Install composer dependencies
+        run: composer update --prefer-stable --prefer-dist --no-interaction
+
+      # Check only: style fixes are the author's to commit, so CI never
+      # pushes to a branch.
+      - name: Check code style
+        run: vendor/bin/pint --test
+
+      - name: Test the CI helper scripts
+        run: |
+          for t in .github/scripts/tests/*.test.sh; do bash "$t"; done
