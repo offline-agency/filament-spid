@@ -13,11 +13,12 @@ use Illuminate\Contracts\Support\Jsonable;
 class SpidUserData implements Arrayable, Jsonable
 {
     /**
-     * SPID attributes read from a SPIDUser object.
+     * The SPID attributes the package reads, from a SPIDUser object or a
+     * field_mapping entry.
      *
      * @var list<string>
      */
-    protected const ATTRIBUTES = [
+    public const ATTRIBUTES = [
         'fiscalNumber',
         'name',
         'familyName',

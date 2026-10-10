@@ -94,6 +94,9 @@ First stable release: from here on the public API follows SemVer. See
   back instead of created, and an existing account keeps its pre-login data.
 - `SpidUserCreated` and `SpidUserUpdated` are dispatched after the provisioning
   transaction commits, so a rolled-back creation or update never emits one.
+- `field_mapping` entries resolve in a fixed order: SPID attribute name, mapper
+  class, then closure or array callable. A plain function name (`'strtoupper'`)
+  is no longer called and maps to `null`. `SpidUserData::ATTRIBUTES` is public.
 - The login page no longer shows a "Login with credentials" link to
   `filament()->getLoginUrl()`, which is the SPID page itself. Name a real page
   with `SpidPlugin::credentialsLoginUrl()` to show the link.

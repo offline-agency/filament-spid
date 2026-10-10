@@ -277,8 +277,11 @@ has no `password` column, or it is nullable, remove the entry from
 
 Keep the config cacheable: `php artisan config:cache` (and `optimize`) cannot
 store closures. `field_mapping` accepts attribute names and invokable classes
-(`__invoke(array $spidUser)`) for that reason; closures still work there and in
-the two callbacks, but only if you do not cache the config.
+(`__invoke(array $spidUser)`) for that reason; closures and array callables
+(`[Mapper::class, 'method']`) still work there and in the two callbacks, but
+only if you do not cache the config. A string is read as a SPID attribute first,
+then as a mapper class; a plain function name such as `'strtoupper'` is never
+called and maps to `null`.
 
 The SAML side (entity id, certificates, level, IdPs, routes prefix, redirects
 after login and logout) lives in `config/spid-auth.php` and `config/spid-idps.php`,

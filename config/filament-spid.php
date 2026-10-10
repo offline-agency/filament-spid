@@ -113,11 +113,12 @@ return [
     | User Field Mapping
     |--------------------------------------------------------------------------
     |
-    | Map SPID attributes to user model columns. A value is a SPID attribute
-    | name (fiscalNumber, name, familyName, email, spidCode, placeOfBirth,
-    | dateOfBirth, gender) or the class name of an invokable mapper receiving
-    | the attributes array. Closures work too, but stop
-    | `php artisan config:cache` (and `optimize`) from caching the config.
+    | Map SPID attributes to user model columns. A value is, in this order, a
+    | SPID attribute name (fiscalNumber, name, familyName, email, spidCode,
+    | placeOfBirth, dateOfBirth, gender), the class name of an invokable mapper
+    | receiving the attributes array, or a closure / array callable. Closures
+    | stop `php artisan config:cache` (and `optimize`) from caching the config.
+    | Anything else, a plain function name included, maps to null.
     |
     */
     'field_mapping' => [
