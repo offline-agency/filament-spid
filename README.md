@@ -238,9 +238,10 @@ has no `password` column, or it is nullable, remove the entry from
 3. `HandleSpidLogin` checks the [SPID level](#spid-levels), finds the user by
    `fiscal_code` (creating or updating it as configured), refuses users whose
    `canAccessPanel()` returns false, logs them in on the panel guard without a
-   remember-me cookie and regenerates the session. With `auto_create_users` on,
-   a refused citizen's account is still created; `canAccessPanel()` decides who
-   gets in.
+   remember-me cookie and regenerates the session. `canAccessPanel()` runs inside
+   the provisioning transaction: a refused citizen gets no account, and an
+   existing one keeps the data it had before the login. `SpidUserCreated` and
+   `SpidUserUpdated` fire only after the transaction commits.
 4. If anything fails, the SPID session is cleared, so the citizen can retry,
    and they land on the panel login page with a translated `spid_error` message.
    The log carries the exception class only, never SPID attributes.

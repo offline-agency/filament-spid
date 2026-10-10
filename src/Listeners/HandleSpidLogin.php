@@ -14,6 +14,7 @@ use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
+use OfflineAgency\FilamentSpid\Exceptions\SpidAccessDeniedException;
 use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
 
@@ -46,19 +47,25 @@ class HandleSpidLogin
 
             $spidData = SpidUserData::fromSpidAuth($event->getSPIDUser());
 
-            $user = $this->userService->findOrCreateUser($spidData);
+            // Filament's own gate, checked before logging in: otherwise the
+            // citizen lands on a 403 with a live SPID session, and outside
+            // production Filament does not check at all. It runs inside the
+            // provisioning transaction, so a refused citizen gets no account
+            // and an existing one keeps its data.
+            $panel = $this->panel();
+
+            try {
+                $user = $this->userService->findOrCreateUser(
+                    $spidData,
+                    fn ($user): bool => ! ($user instanceof FilamentUser && $panel && ! $user->canAccessPanel($panel)),
+                );
+            } catch (SpidAccessDeniedException) {
+                $this->fail('the user may not access the panel', $event, 'access_denied');
+            }
 
             if (! $user) {
                 // auto_create_users is off and no account matches this fiscal code.
                 $this->fail('no user matches the SPID fiscal code', $event, 'authentication_failed');
-            }
-
-            // Filament's own gate, checked before logging in: otherwise the
-            // citizen lands on a 403 with a live SPID session, and outside
-            // production Filament does not check at all.
-            $panel = $this->panel();
-            if ($user instanceof FilamentUser && $panel && ! $user->canAccessPanel($panel)) {
-                $this->fail('the user may not access the panel', $event, 'access_denied');
             }
 
             // No remember token: a SPID session must not outlive the browser one.

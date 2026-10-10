@@ -5,34 +5,60 @@ declare(strict_types=1);
 namespace OfflineAgency\FilamentSpid\Services;
 
 use App\Models\User;
+use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
+use OfflineAgency\FilamentSpid\Exceptions\SpidAccessDeniedException;
 use OfflineAgency\FilamentSpid\Mapping\Contracts\CreateOnly;
 use OfflineAgency\FilamentSpid\Mapping\FieldMapper;
 
 class SpidUserService
 {
-    public function findOrCreateUser(SpidUserData $spidData): ?Authenticatable
+    /**
+     * Find the citizen's account by fiscal code, creating or updating it as
+     * configured.
+     *
+     * $authorize runs on the provisioned user inside the transaction: when it
+     * returns false, SpidAccessDeniedException rolls the creation or update
+     * back. The user events fire only once the transaction has committed.
+     *
+     * @param  (Closure(Authenticatable): bool)|null  $authorize
+     *
+     * @throws SpidAccessDeniedException
+     */
+    public function findOrCreateUser(SpidUserData $spidData, ?Closure $authorize = null): ?Authenticatable
     {
         $userModel = $this->resolveUserModel();
 
-        return DB::transaction(function () use ($userModel, $spidData): ?Authenticatable {
+        $event = null;
+
+        $user = DB::transaction(function () use ($userModel, $spidData, $authorize, &$event): ?Authenticatable {
             $user = $userModel::where('fiscal_code', $spidData->fiscalNumber)->first();
 
             if (! $user && config('filament-spid.auto_create_users', false)) {
                 $user = $this->createUser($spidData);
-                event(new SpidUserCreated($user, $spidData));
+                $event = new SpidUserCreated($user, $spidData);
             } elseif ($user && config('filament-spid.update_user_data', true)) {
                 $this->updateUser($user, $spidData);
-                event(new SpidUserUpdated($user, $spidData));
+                $event = new SpidUserUpdated($user, $spidData);
+            }
+
+            if ($user && $authorize && ! $authorize($user)) {
+                throw SpidAccessDeniedException::make();
             }
 
             return $user;
         });
+
+        if ($event) {
+            event($event);
+        }
+
+        return $user;
     }
 
     protected function createUser(SpidUserData $spidData): Authenticatable

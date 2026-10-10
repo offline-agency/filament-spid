@@ -10,6 +10,8 @@ use Italia\SPIDAuth\Events\LoginEvent;
 use Italia\SPIDAuth\SPIDUser;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
+use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
+use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\PanelUser;
@@ -255,4 +257,54 @@ it('clears the SPID session when the configured panel is unknown', function () {
 
     expect(app('SPIDAuth')->isAuthenticated())->toBeFalse()
         ->and(session()->only(['spid_idp', 'spid_idpEntityName', 'spid_sessionId', 'spid_nameId', 'spid_user']))->toBe([]);
+});
+
+/**
+ * Run the listener, swallowing the redirect a refused login throws.
+ */
+function attemptSpidLogin(): void
+{
+    try {
+        app(HandleSpidLogin::class)->handle(loginEvent());
+    } catch (HttpResponseException) {
+    }
+}
+
+describe('a citizen the panel refuses', function () {
+    beforeEach(function () {
+        Config::set('filament-spid.user_model', PanelUser::class);
+        PanelUser::$canAccessPanel = false;
+    });
+
+    afterEach(function () {
+        PanelUser::$canAccessPanel = true;
+    });
+
+    it('gets no account and fires no SpidUserCreated', function () {
+        Event::fake([SpidUserCreated::class]);
+
+        attemptSpidLogin();
+
+        expect(User::count())->toBe(0)
+            ->and(session()->get('spid_error'))->toBe(__('filament-spid::spid.access_denied'));
+        Event::assertNotDispatched(SpidUserCreated::class);
+    });
+
+    it('keeps the existing account as it was and fires no SpidUserUpdated', function () {
+        User::create([
+            'name' => 'Before Login',
+            'email' => 'before@example.com',
+            'password' => 'x',
+            'fiscal_code' => 'RSSMRA80A01H501U',
+        ]);
+        Event::fake([SpidUserUpdated::class]);
+
+        attemptSpidLogin();
+
+        expect(User::sole())
+            ->name->toBe('Before Login')
+            ->email->toBe('before@example.com')
+            ->spid_data->toBeNull();
+        Event::assertNotDispatched(SpidUserUpdated::class);
+    });
 });

@@ -2,10 +2,12 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
+use OfflineAgency\FilamentSpid\Exceptions\SpidAccessDeniedException;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\UserWithSpidDataCast;
@@ -429,4 +431,84 @@ it('dispatches SpidUserUpdated event when updating user', function () {
     $service->findOrCreateUser($spidData);
 
     Event::assertDispatched(SpidUserUpdated::class);
+});
+
+describe('authorisation inside the provisioning transaction', function () {
+    it('rolls the new account back when the authorize callback refuses it', function () {
+        Event::fake([SpidUserCreated::class]);
+
+        expect(fn () => app(SpidUserService::class)->findOrCreateUser(
+            new SpidUserData(fiscalNumber: 'RFSDNY80A01H501U', name: 'Refused', familyName: 'User'),
+            fn () => false,
+        ))->toThrow(SpidAccessDeniedException::class);
+
+        expect(User::count())->toBe(0);
+        Event::assertNotDispatched(SpidUserCreated::class);
+    });
+
+    it('rolls a refused update back', function () {
+        $service = app(SpidUserService::class);
+        $service->findOrCreateUser(new SpidUserData(fiscalNumber: 'RFSDNY80A01H501U', name: 'Old', familyName: 'Name'));
+        Event::fake([SpidUserUpdated::class]);
+
+        expect(fn () => $service->findOrCreateUser(
+            new SpidUserData(fiscalNumber: 'RFSDNY80A01H501U', name: 'New', familyName: 'Name'),
+            fn () => false,
+        ))->toThrow(SpidAccessDeniedException::class);
+
+        expect(User::sole()->name)->toBe('Old Name');
+        Event::assertNotDispatched(SpidUserUpdated::class);
+    });
+
+    it('hands the provisioned user to the authorize callback', function () {
+        $seen = null;
+
+        $user = app(SpidUserService::class)->findOrCreateUser(
+            new SpidUserData(fiscalNumber: 'ALLWED80A01H501U', name: 'Allowed', familyName: 'User'),
+            function ($candidate) use (&$seen) {
+                $seen = $candidate;
+
+                return true;
+            },
+        );
+
+        expect($seen)->toBe($user)
+            ->and(User::count())->toBe(1);
+    });
+
+    it('fires the user events once the transaction has committed', function (bool $existing, string $eventClass) {
+        $service = app(SpidUserService::class);
+        $spidData = new SpidUserData(fiscalNumber: 'CMMTTD80A01H501U', name: 'Committed', familyName: 'User');
+        if ($existing) {
+            $service->findOrCreateUser($spidData);
+        }
+
+        $levels = [];
+        Event::listen($eventClass, function () use (&$levels) {
+            $levels[] = DB::transactionLevel();
+        });
+
+        $service->findOrCreateUser($spidData);
+
+        expect($levels)->toBe([0]);
+    })->with([
+        'created' => [false, SpidUserCreated::class],
+        'updated' => [true, SpidUserUpdated::class],
+    ]);
+
+    it('authorizes users made by create_user_callback too', function () {
+        Config::set('filament-spid.create_user_callback', fn (SpidUserData $data) => User::create([
+            'name' => 'Callback',
+            'email' => 'callback@example.com',
+            'password' => 'x',
+            'fiscal_code' => $data->fiscalNumber,
+        ]));
+
+        expect(fn () => app(SpidUserService::class)->findOrCreateUser(
+            new SpidUserData(fiscalNumber: 'CLLBCK80A01H501U', name: 'Callback', familyName: 'User'),
+            fn () => false,
+        ))->toThrow(SpidAccessDeniedException::class);
+
+        expect(User::count())->toBe(0);
+    });
 });

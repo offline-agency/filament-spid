@@ -85,6 +85,12 @@ First stable release: from here on the public API follows SemVer. See
   coming from `code.jquery.com`; run `php artisan filament:assets` after
   upgrading. Pages that already load jQuery keep using theirs.
 - The AGID logo is served from the package assets instead of a third-party CDN.
+- `canAccessPanel()` is checked inside the provisioning transaction
+  (`SpidUserService::findOrCreateUser()` takes an `$authorize` callback and
+  throws `SpidAccessDeniedException`): a refused citizen's account is rolled
+  back instead of created, and an existing account keeps its pre-login data.
+- `SpidUserCreated` and `SpidUserUpdated` are dispatched after the provisioning
+  transaction commits, so a rolled-back creation or update never emits one.
 - The login page no longer shows a "Login with credentials" link to
   `filament()->getLoginUrl()`, which is the SPID page itself. Name a real page
   with `SpidPlugin::credentialsLoginUrl()` to show the link.
