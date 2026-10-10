@@ -125,6 +125,9 @@ First stable release: from here on the public API follows SemVer. See
   `robrichards/xmlseclibs` ^3.1.5 through the patched `italia/spid-laravel`
   ([italia/spid-laravel#132](https://github.com/italia/spid-laravel/pull/132)),
   with the SPID patch actually applied.
+- `composer.json` conflicts with `onelogin/php-saml <4.3.1`, so resolution
+  fails on any Composer version instead of installing php-saml 4.1.0 silently
+  on Composer < 2.9.
 - Minimum SPID level enforcement (SpidL2 by default) and no automatic account
   creation by default.
 - SPID failure logs carry the exception class only, never personal data.

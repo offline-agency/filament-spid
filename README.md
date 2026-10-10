@@ -444,8 +444,11 @@ when the column is cast and JSON otherwise; re-save affected rows (a login with
 `update_user_data` on does it).
 
 **Composer refuses `onelogin/php-saml` 4.1.0** ("affected by security
-advisories"). The fork from [Installation](#1-prepare-composerjson) is missing;
-do not silence the advisory.
+advisories", or a conflict with `onelogin/php-saml <4.3.1` declared by
+`offline-agency/filament-spid`). The fork from
+[Installation](#1-prepare-composerjson) is missing; do not silence the advisory.
+The conflict rule makes resolution fail on every Composer version, including
+those before 2.9 that do not block advisories.
 
 **IdPs reject the AuthnRequest.** Check that `vendor/onelogin/php-saml/PATCHES.txt`
 exists. If not, `extra.enable-patching` or the `cweagans/composer-patches`

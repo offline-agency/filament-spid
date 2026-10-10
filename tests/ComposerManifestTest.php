@@ -47,3 +47,9 @@ it('allows the dev tooling of every supported Laravel major', function (string $
 it('accepts any italia/spid-laravel 2.x from 2.1.0-beta', function () {
     expect(composerManifest()['require']['italia/spid-laravel'])->toBe('^2.1.0-beta');
 });
+
+it('refuses the php-saml releases affected by CVE-2025-66475', function () {
+    // Composer < 2.9 does not block advisories, so without this rule it would
+    // install php-saml 4.1.0 silently.
+    expect(composerManifest()['conflict'] ?? [])->toBe(['onelogin/php-saml' => '<4.3.1']);
+});
