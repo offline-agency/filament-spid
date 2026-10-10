@@ -48,6 +48,12 @@ The CI helper scripts have their own tests:
 for t in .github/scripts/tests/*.test.sh; do bash "$t"; done
 ```
 
+CI runs the suite on every PHP × Laravel × Filament combination plus a Coverage
+job that requires 100% line coverage. The `tests-passed` check aggregates them:
+it fails unless every matrix leg and Coverage succeeded, so branch protection
+requires that one check instead of each leg, and adding a leg to the matrix
+needs no settings change.
+
 ## Code Style
 
 We use Laravel Pint. CI only checks (`vendor/bin/pint --test`); fix locally with:

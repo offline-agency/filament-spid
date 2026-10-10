@@ -14,7 +14,7 @@ permissions:
 jobs:
   label:
     name: Release label
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     if: github.event.pull_request.user.login != 'dependabot[bot]'
 
@@ -31,7 +31,7 @@ jobs:
 
   scripts:
     name: Release scripts
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
 
     steps:
