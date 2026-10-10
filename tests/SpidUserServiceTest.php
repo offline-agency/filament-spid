@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
+use OfflineAgency\FilamentSpid\Events\SpidUserProvisioning;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Exceptions\SpidAccessDeniedException;
 use OfflineAgency\FilamentSpid\Services\SpidUserService;
@@ -495,6 +496,27 @@ describe('authorisation inside the provisioning transaction', function () {
         'created' => [false, SpidUserCreated::class],
         'updated' => [true, SpidUserUpdated::class],
     ]);
+
+    it('fires SpidUserProvisioning inside the transaction, before the gate', function (bool $existing) {
+        $service = app(SpidUserService::class);
+        $spidData = new SpidUserData(fiscalNumber: 'PRVSNG80A01H501U', name: 'Provisioning', familyName: 'User');
+        if ($existing) {
+            $service->findOrCreateUser($spidData);
+        }
+
+        $seen = [];
+        Event::listen(SpidUserProvisioning::class, function (SpidUserProvisioning $event) use (&$seen) {
+            $seen[] = ['level' => DB::transactionLevel(), 'created' => $event->created];
+        });
+
+        $service->findOrCreateUser($spidData, function () use (&$seen) {
+            $seen[] = 'gate';
+
+            return true;
+        });
+
+        expect($seen)->toBe([['level' => 1, 'created' => ! $existing], 'gate']);
+    })->with(['created' => [false], 'updated' => [true]]);
 
     it('authorizes users made by create_user_callback too', function () {
         Config::set('filament-spid.create_user_callback', fn (SpidUserData $data) => User::create([

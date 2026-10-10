@@ -240,8 +240,10 @@ has no `password` column, or it is nullable, remove the entry from
    `canAccessPanel()` returns false, logs them in on the panel guard without a
    remember-me cookie and regenerates the session. `canAccessPanel()` runs inside
    the provisioning transaction: a refused citizen gets no account, and an
-   existing one keeps the data it had before the login. `SpidUserCreated` and
-   `SpidUserUpdated` fire only after the transaction commits.
+   existing one keeps the data it had before the login. `SpidUserProvisioning`
+   fires inside the transaction, before the gate: give new accounts their roles
+   there (or in `create_user_callback`), not in a `SpidUserCreated` listener.
+   `SpidUserCreated` and `SpidUserUpdated` fire only after the transaction.
 4. If anything fails, the SPID session is cleared, so the citizen can retry,
    and they land on the panel login page with a translated `spid_error` message.
    The log carries the exception class only, never SPID attributes.
@@ -354,8 +356,9 @@ From this package (`OfflineAgency\FilamentSpid\Events`):
 
 | Event | Payload | When |
 |---|---|---|
-| `SpidUserCreated` | `$user`, `$spidData` | a user was provisioned |
-| `SpidUserUpdated` | `$user`, `$spidData` | a user's data was refreshed |
+| `SpidUserProvisioning` | `$user`, `$spidData`, `$created` | inside the provisioning transaction, before `canAccessPanel()`; changes roll back if the login is refused |
+| `SpidUserCreated` | `$user`, `$spidData` | a user was provisioned (after the transaction) |
+| `SpidUserUpdated` | `$user`, `$spidData` | a user's data was refreshed (after the transaction) |
 | `SpidAuthenticationSucceeded` | `$user`, `$spidData` | the user is logged in on the panel |
 | `SpidAuthenticationFailed` | `$reason` | the login was refused; the reason holds no personal data |
 

@@ -11,6 +11,7 @@ use Italia\SPIDAuth\SPIDUser;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
 use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
+use OfflineAgency\FilamentSpid\Events\SpidUserProvisioning;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
@@ -278,6 +279,20 @@ describe('a citizen the panel refuses', function () {
 
     afterEach(function () {
         PanelUser::$canAccessPanel = true;
+    });
+
+    it('lets a SpidUserProvisioning listener prepare the user before the gate', function () {
+        // The role-on-create pattern: a listener grants access to new accounts.
+        Event::listen(SpidUserProvisioning::class, function (SpidUserProvisioning $event) {
+            if ($event->created) {
+                PanelUser::$canAccessPanel = true;
+            }
+        });
+
+        app(HandleSpidLogin::class)->handle(loginEvent());
+
+        expect(Auth::guard('web')->check())->toBeTrue()
+            ->and(User::count())->toBe(1);
     });
 
     it('gets no account and fires no SpidUserCreated', function () {

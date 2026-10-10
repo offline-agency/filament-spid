@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
+use OfflineAgency\FilamentSpid\Events\SpidUserProvisioning;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
 use OfflineAgency\FilamentSpid\Exceptions\SpidAccessDeniedException;
 use OfflineAgency\FilamentSpid\Mapping\Contracts\CreateOnly;
@@ -22,9 +23,10 @@ class SpidUserService
      * Find the citizen's account by fiscal code, creating or updating it as
      * configured.
      *
-     * $authorize runs on the provisioned user inside the transaction: when it
-     * returns false, SpidAccessDeniedException rolls the creation or update
-     * back. The user events fire only once the transaction has committed.
+     * SpidUserProvisioning fires inside the transaction, then $authorize runs on
+     * the provisioned user: when it returns false, SpidAccessDeniedException
+     * rolls the creation or update back, listener changes included.
+     * SpidUserCreated / SpidUserUpdated fire after the transaction.
      *
      * @param  (Closure(Authenticatable): bool)|null  $authorize
      *
@@ -45,6 +47,10 @@ class SpidUserService
             } elseif ($user && config('filament-spid.update_user_data', true)) {
                 $this->updateUser($user, $spidData);
                 $event = new SpidUserUpdated($user, $spidData);
+            }
+
+            if ($user) {
+                event(new SpidUserProvisioning($user, $spidData, $event instanceof SpidUserCreated));
             }
 
             if ($user && $authorize && ! $authorize($user)) {
