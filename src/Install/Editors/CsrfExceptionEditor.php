@@ -22,7 +22,8 @@ final class CsrfExceptionEditor
      */
     public static function method(): string
     {
-        return method_exists(Middleware::class, 'preventRequestForgery') ? 'preventRequestForgery' : 'validateCsrfTokens';
+        // Laravel 13 has preventRequestForgery(); 12 only validateCsrfTokens().
+        return in_array('preventRequestForgery', get_class_methods(Middleware::class), true) ? 'preventRequestForgery' : 'validateCsrfTokens';
     }
 
     public static function snippet(string $acs, ?string $method = null): string
