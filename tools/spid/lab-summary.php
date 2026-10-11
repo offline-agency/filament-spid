@@ -38,8 +38,10 @@ $gate = $count("{$dir}/sentinel-gate.json");
 
 $metadataPassed = ($metadata['evidence'][0] ?? null) === 'LOCAL_METADATA_CHECK_PASSED';
 $samlPassed = (int) $authnExit === 0 && (int) $responsesExit === 0 && $authn['executed'] > 0 && $responses['executed'] > 0 && $authn['failed'] === 0 && $responses['failed'] === 0;
-// The positive Response for a citizen the panel refuses must fail.
-$gateSentinel = (int) $gateExit !== 0 && $gate['failed'] > 0;
+// The positive Response for a citizen the panel refuses must fail; that only
+// means something when the same Response passes for an admitted citizen.
+$positivePasses = ! in_array(true, array_map(fn (string $failure) => str_contains($failure, 'Test [1] '), $responses['failures']), true) && $responses['executed'] > 0;
+$gateSentinel = $positivePasses ? ((int) $gateExit !== 0 && $gate['failed'] > 0) : null;
 
 echo json_encode([
     'schema_version' => 1,
@@ -54,6 +56,10 @@ echo json_encode([
     'metadata' => $metadata['summary'] ?? null,
     'authn_request' => $authn,
     'responses' => $responses,
-    'gate_sentinel' => ['refused_citizen_rejected' => $gateSentinel, 'exit_code' => (int) $gateExit],
-    'gate' => $metadataPassed && $samlPassed && $gateSentinel ? 'pass' : 'fail',
+    'gate_sentinel' => [
+        'refused_citizen_rejected' => $gateSentinel,
+        'note' => $gateSentinel === null ? 'not meaningful: the positive Response (test 1) fails for an admitted citizen too' : null,
+        'exit_code' => (int) $gateExit,
+    ],
+    'gate' => $metadataPassed && $samlPassed && $gateSentinel === true ? 'pass' : 'fail',
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n";
