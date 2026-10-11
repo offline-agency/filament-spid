@@ -17,7 +17,9 @@
    the [SPID level](configuration.md#spid-levels), then provisions in one
    transaction: finds the account by `fiscal_code`, creates or updates it as
    configured, fires `SpidUserProvisioning`, and asks the panel gate
-   (`canAccessPanel()`). A refusal rolls the transaction back.
+   (`canAccessPanel()`). As Filament does, a user model without
+   `FilamentUser` is admitted only when `APP_ENV` is `local`, and no
+   resolvable panel means no login. A refusal rolls the transaction back.
 4. It logs the citizen in on the panel guard (no remember-me cookie),
    regenerates the session id and fires `SpidAuthenticationSucceeded`.
 5. When every `SpidAuthenticationSucceeded` listener has returned, the login
@@ -37,8 +39,9 @@ Anything that throws before the success boundary fails the login closed:
   throws is logged and cannot hide the original failure or re-enter it,
 - the citizen lands on the panel login page with a translated message.
 
-A redirect thrown by an observer or callback (`HttpResponseException`) is a
-failure too, not a way around it. The cleanup is idempotent. Other guards are
+A redirect thrown by an observer or callback (`HttpResponseException`,
+including a `SpidLoginAborted` built by application code) is a failure too,
+not a way around it. The cleanup is idempotent. Other guards are
 never touched.
 
 | Situation | Outcome |

@@ -1,5 +1,6 @@
 <?php
 
+use Filament\Panel;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -14,8 +15,10 @@ use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
 use OfflineAgency\FilamentSpid\Events\SpidUserCreated;
 use OfflineAgency\FilamentSpid\Events\SpidUserProvisioning;
 use OfflineAgency\FilamentSpid\Events\SpidUserUpdated;
+use OfflineAgency\FilamentSpid\Exceptions\SpidLoginAborted;
 use OfflineAgency\FilamentSpid\Exceptions\SpidPanelNotFoundException;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
+use OfflineAgency\FilamentSpid\Services\SpidUserService;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\PanelUser;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\RecordingGuard;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
@@ -429,6 +432,17 @@ describe('fail-closed authentication', function () {
         expectSpidSessionCleared();
     });
 
+    it('does not let a listener throw the listener\'s own abort type around the cleanup', function () {
+        Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new SpidLoginAborted(redirect('/elsewhere')));
+
+        $response = spidAcs();
+
+        expect($response?->headers->get('Location'))->not->toEndWith('/elsewhere')
+            ->and(session('spid_error'))->toBe(__('filament-spid::spid.acs_error'))
+            ->and(Auth::guard('web')->check())->toBeFalse();
+        expectSpidSessionCleared();
+    });
+
     it('lets the citizen retry after a failed login', function () {
         Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new RuntimeException('observer'));
         spidAcs();
@@ -479,4 +493,44 @@ describe('fail-closed authentication', function () {
         expect(Auth::guard('web')->check())->toBeFalse()
             ->and(Auth::guard('other')->id())->toBe($other->id);
     });
+});
+
+describe('a user model without a panel gate', function () {
+    beforeEach(function () {
+        Config::set('filament-spid.user_model', User::class);
+    });
+
+    it('is refused outside the local environment, as Filament refuses it', function () {
+        Config::set('app.env', 'production');
+
+        $response = spidAcs();
+
+        expect($response?->isRedirect())->toBeTrue()
+            ->and(session('spid_error'))->toBe(__('filament-spid::spid.access_denied'))
+            ->and(Auth::guard('web')->check())->toBeFalse()
+            ->and(User::count())->toBe(0);
+    });
+
+    it('is admitted in the local environment, as Filament admits it', function () {
+        Config::set('app.env', 'local');
+
+        expect(spidAcs())->toBeNull()
+            ->and(Auth::guard('web')->check())->toBeTrue();
+    });
+});
+
+it('refuses the login when no panel can be resolved', function () {
+    app()->bind(HandleSpidLogin::class, fn () => new class(app(SpidUserService::class)) extends HandleSpidLogin
+    {
+        protected function panel(): ?Panel
+        {
+            return null;
+        }
+    });
+
+    $response = spidAcs();
+
+    expect(session('spid_error'))->toBe(__('filament-spid::spid.access_denied'))
+        ->and(Auth::guard('web')->check())->toBeFalse()
+        ->and($response?->isRedirect())->toBeTrue();
 });

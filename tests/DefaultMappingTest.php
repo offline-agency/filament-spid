@@ -8,6 +8,7 @@ use Italia\SPIDAuth\SPIDUser;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Mapping\Contracts\CreateOnly;
 use OfflineAgency\FilamentSpid\Mapping\RandomPassword;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\PanelUser;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\UserWithHashedPassword;
 
@@ -69,7 +70,7 @@ it('hashes the random password once, with or without a hashed cast', function (s
 
     expect(Hash::check('known-secret', User::sole()->password))->toBeTrue();
 })->with([
-    'without a cast' => [User::class],
+    'without a cast' => [PanelUser::class],
     'with a hashed cast' => [UserWithHashedPassword::class],
 ]);
 

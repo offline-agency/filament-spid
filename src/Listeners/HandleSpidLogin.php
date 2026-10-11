@@ -38,6 +38,12 @@ class HandleSpidLogin
      */
     protected ?string $attemptedGuard = null;
 
+    /**
+     * The redirect fail() threw: the only abort let through as-is. Any other
+     * SpidLoginAborted (an observer can construct one) is a failure.
+     */
+    protected ?SpidLoginAborted $abort = null;
+
     public function __construct(protected SpidUserService $userService) {}
 
     public function handle(LoginEvent $event): void
@@ -60,16 +66,19 @@ class HandleSpidLogin
             $spidData = SpidUserData::fromSpidAuth($event->getSPIDUser());
 
             // Filament's own gate, checked before logging in: otherwise the
-            // citizen lands on a 403 with a live SPID session, and outside
-            // production Filament does not check at all. It runs inside the
-            // provisioning transaction, so a refused citizen gets no account
-            // and an existing one keeps its data.
+            // citizen lands on Filament's 403 with a live session on the
+            // guard. As Filament does, a model without FilamentUser is
+            // admitted only in the local environment, and no panel means no
+            // gate, so no login. It runs inside the provisioning transaction:
+            // a refused citizen gets no account, an existing one keeps its data.
             $panel = $this->panel();
 
             try {
                 $user = $this->userService->findOrCreateUser(
                     $spidData,
-                    fn ($user): bool => ! ($user instanceof FilamentUser && $panel && ! $user->canAccessPanel($panel)),
+                    fn ($user): bool => $panel !== null && ($user instanceof FilamentUser
+                        ? $user->canAccessPanel($panel)
+                        : config('app.env') === 'local'),
                 );
             } catch (SpidAccessDeniedException) {
                 $this->fail('the user may not access the panel', $event, 'access_denied');
@@ -90,9 +99,11 @@ class HandleSpidLogin
             event(new SpidAuthenticationSucceeded($user, $spidData));
 
             $this->attemptedGuard = null;
-        } catch (SpidLoginAborted $e) {
-            throw $e;
         } catch (\Throwable $e) {
+            if ($e === $this->abort) {
+                throw $e;
+            }
+
             // Only the exception class reaches the log: messages routinely carry
             // personal data (a failed insert quotes the values it tried to write).
             $this->fail($e::class.' (code '.$e->getCode().')', $event, 'acs_error');
@@ -120,7 +131,7 @@ class HandleSpidLogin
             Log::error('SPID login failure listener threw '.$e::class.' (code '.$e->getCode().')');
         }
 
-        throw new SpidLoginAborted(
+        throw $this->abort = new SpidLoginAborted(
             redirect()->to($this->loginUrl())
                 ->with('spid_error', __("filament-spid::spid.{$translationKey}"))
         );

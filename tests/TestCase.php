@@ -20,6 +20,7 @@ use Livewire\LivewireServiceProvider;
 use OfflineAgency\FilamentSpid\FilamentSpidServiceProvider;
 use OfflineAgency\FilamentSpid\Pages\SpidLogin;
 use OfflineAgency\FilamentSpid\SpidPlugin;
+use OfflineAgency\FilamentSpid\Tests\Fixtures\PanelUser;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\TestPanelProvider;
 use OfflineAgency\FilamentSpid\Tests\Fixtures\User;
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -71,7 +72,9 @@ class TestCase extends Orchestra
         // The library defaults to SpidL1; admin panels need at least SpidL2.
         config()->set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL2');
         config()->set('spid-auth.user_model', User::class);
-        config()->set('filament-spid.user_model', User::class);
+        // A model with Filament's gate: without one, logins are refused outside
+        // the local environment, as Filament refuses them.
+        config()->set('filament-spid.user_model', PanelUser::class);
 
         // Create users table first
         $app['db']->connection()->getSchemaBuilder()->create('users', function ($table) {

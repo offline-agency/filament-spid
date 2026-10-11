@@ -179,6 +179,10 @@ First stable release: from here on the public API follows SemVer. See
 
 ### Fixed
 
+- A user model without `FilamentUser` is admitted only when `APP_ENV` is
+  `local`, as Filament admits it, and a login with no resolvable panel is
+  refused: before, such logins skipped the gate and left a session on the
+  guard.
 - The login page styles itself with its own `fi-spid-*` classes in the
   plugin stylesheet: Filament 4 and 5 compile only the Tailwind utilities their
   own views use, so the information text and the AgID logo were left-aligned
