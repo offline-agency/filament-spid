@@ -1,5 +1,10 @@
 <?php
 
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+
 /*
  * Lab only: configure the throwaway application built by install-check.sh to
  * trust spid_sp_test's test IdP, and give it one synthetic citizen the panel
@@ -16,7 +21,7 @@ if (! is_string($idpMetadata) || ! is_string($baseUrl)) {
 
 require getcwd().'/vendor/autoload.php';
 $app = require getcwd().'/bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 // The IdP, derived from its metadata: entityID, SSO/SLO endpoints, signing certificate.
 $xml = new DOMDocument;
@@ -44,6 +49,16 @@ $config['test_idp'] = $idp;
 $config['sp_base_url'] = rtrim($baseUrl, '/');
 file_put_contents(config_path('spid-auth.php'), "<?php\n\n// Lab configuration (tools/spid/lab-configure.php).\n\nreturn ".var_export($config, true).";\n");
 
+// Behind the lab's TLS proxy: php-saml compares the Response Destination
+// with the URL it was received at, so it must read X-Forwarded-*; Laravel
+// generates https:// URLs. Only the proxy can reach the app in the lab.
+$provider = app_path('Providers/AppServiceProvider.php');
+$source = (string) file_get_contents($provider);
+if (! str_contains($source, 'setProxyVars')) {
+    $source = preg_replace('/public function boot\(\): void\s*\{/', "public function boot(): void\n    {\n        // Lab TLS proxy (tools/spid/lab-configure.php).\n        \\OneLogin\\Saml2\\Utils::setProxyVars(true);\n        \\Illuminate\\Support\\Facades\\URL::forceScheme('https');\n", $source, 1);
+    file_put_contents($provider, $source);
+}
+
 // An explicit gate for the lab citizen.
 $model = app_path('Models/User.php');
 $source = (string) file_get_contents($model);
@@ -53,15 +68,15 @@ if (! str_contains($source, 'spid_lab_allowed')) {
     file_put_contents($model, $source);
 }
 
-$schema = Illuminate\Support\Facades\Schema::getFacadeRoot();
+$schema = Schema::getFacadeRoot();
 if (! $schema->hasColumn('users', 'spid_lab_allowed')) {
     $schema->table('users', fn ($table) => $table->boolean('spid_lab_allowed')->default(true));
 }
 
 // spid_sp_test's default user (synthetic AgID test identity, see spid_sp_test -pas).
-Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
+DB::table('users')->updateOrInsert(
     ['fiscal_code' => 'GDASDV00A01H501J'],
-    ['name' => 'SpidValidator AgID', 'email' => 'lab-citizen@example.test', 'password' => Illuminate\Support\Facades\Hash::make(bin2hex(random_bytes(16))), 'spid_lab_allowed' => true, 'created_at' => now(), 'updated_at' => now()],
+    ['name' => 'SpidValidator AgID', 'email' => 'lab-citizen@example.test', 'password' => Hash::make(bin2hex(random_bytes(16))), 'spid_lab_allowed' => true, 'created_at' => now(), 'updated_at' => now()],
 );
 
 echo "lab: trusting test IdP {$idp['entityId']}, SP base URL {$config['sp_base_url']}\n";

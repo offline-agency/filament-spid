@@ -1,6 +1,7 @@
 <?php
 
 use Filament\Panel;
+use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\File;
 use OfflineAgency\FilamentSpid\Install\Editors\CsrfExceptionEditor;
 use OfflineAgency\FilamentSpid\Install\Editors\PanelProviderEditor;
@@ -134,7 +135,7 @@ describe('the plan', function () {
 
         [$exit, $output] = runInstall(['--input' => writeInstallInput(installInput())]);
 
-        expect($exit)->toBe(1)->and($output)->toContain("validateCsrfTokens(except: ['spid/acs'])");
+        expect($exit)->toBe(1)->and($output)->toContain(CsrfExceptionEditor::method()."(except: ['spid/acs'])");
     });
 
     it('flags a private key other users can read', function () {
@@ -219,3 +220,25 @@ it('ships examples that only need real key pair paths', function (string $exampl
 
     expect(InstallInput::fromArray($data))->toBeInstanceOf(InstallInput::class);
 })->with(['setup.public.json', 'setup.private.json']);
+
+describe('the CSRF API of the installed Laravel', function () {
+    it('uses preventRequestForgery() where it exists, validateCsrfTokens() otherwise', function () {
+        $expected = method_exists(Middleware::class, 'preventRequestForgery') ? 'preventRequestForgery' : 'validateCsrfTokens';
+
+        expect(CsrfExceptionEditor::method())->toBe($expected);
+    });
+
+    it('writes the call it is told to', function (string $method) {
+        $source = File::get(__DIR__.'/stubs/bootstrap-app.php');
+
+        expect((new CsrfExceptionEditor)->edit($source, 'spid/acs', $method)->source)->toContain("\$middleware->{$method}(except: ['spid/acs']);");
+    })->with(['preventRequestForgery', 'validateCsrfTokens']);
+
+    it('recognises an exemption made with either call', function (string $method) {
+        $source = str_replace('        //', "        \$middleware->{$method}(except: ['spid/acs']);", File::get(__DIR__.'/stubs/bootstrap-app.php'));
+
+        $edit = (new CsrfExceptionEditor)->edit($source, 'spid/acs', 'preventRequestForgery');
+
+        expect($edit->recognised)->toBeTrue()->and($edit->source)->toBe($source);
+    })->with(['preventRequestForgery', 'validateCsrfTokens']);
+});

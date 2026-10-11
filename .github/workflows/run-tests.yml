@@ -120,6 +120,44 @@ jobs:
           files: ./build/logs/coverage.xml
           fail_ci_if_error: false
 
+  # The distributable archive (composer archive: .gitattributes applies)
+  # installed into a fresh Laravel app by the published quickstart. One leg per
+  # integration path: Livewire 3 on Filament 3 and 4, Livewire 4 on Filament 5,
+  # Laravel 12 and 13. The 18-leg matrix above covers the rest.
+  install:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { php: 8.3, laravel: 12, filament: 3 }
+          - { php: 8.4, laravel: 13, filament: 4 }
+          - { php: 8.5, laravel: 13, filament: 5 }
+    name: Install P${{ matrix.php }} - L${{ matrix.laravel }} - F${{ matrix.filament }}
+    env:
+      # The archive and the fresh app use their own composer.json.
+      COMPOSER: composer.json
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite, intl, fileinfo, openssl
+          coverage: none
+          tools: composer:v2
+
+      - name: Install the archive by the quickstart
+        env:
+          LARAVEL: ${{ matrix.laravel }}
+          FILAMENT: ${{ matrix.filament }}
+          COMPOSER_EXIT_ON_PATCH_FAILURE: 1
+        run: bash .github/scripts/install-check.sh "$RUNNER_TEMP/install"
+
   # The SPID button script: dependency-free, tested with Node's own runner.
   button-script:
     runs-on: ubuntu-24.04
@@ -143,7 +181,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     name: tests-passed
-    needs: [test, coverage, button-script]
+    needs: [test, coverage, button-script, install]
     if: always()
 
     steps:
@@ -152,6 +190,7 @@ jobs:
           TEST_RESULT: ${{ needs.test.result }}
           COVERAGE_RESULT: ${{ needs.coverage.result }}
           BUTTON_RESULT: ${{ needs.button-script.result }}
+          INSTALL_RESULT: ${{ needs.install.result }}
         run: |
-          echo "test: $TEST_RESULT, coverage: $COVERAGE_RESULT, button script: $BUTTON_RESULT"
-          [ "$TEST_RESULT" = success ] && [ "$COVERAGE_RESULT" = success ] && [ "$BUTTON_RESULT" = success ]
+          echo "test: $TEST_RESULT, coverage: $COVERAGE_RESULT, button script: $BUTTON_RESULT, install: $INSTALL_RESULT"
+          [ "$TEST_RESULT" = success ] && [ "$COVERAGE_RESULT" = success ] && [ "$BUTTON_RESULT" = success ] && [ "$INSTALL_RESULT" = success ]

@@ -4,25 +4,41 @@ declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Install\Editors;
 
+use Illuminate\Foundation\Configuration\Middleware;
+
 /**
  * Exempts exactly the ACS path from CSRF verification in a Laravel 11+
- * bootstrap/app.php: `$middleware->validateCsrfTokens(except: ['<acs>'])` as
- * the first statement of the withMiddleware() closure. An existing
- * validateCsrfTokens() call is never merged automatically.
+ * bootstrap/app.php: `$middleware->preventRequestForgery(except: ['<acs>'])`
+ * (validateCsrfTokens() on Laravel 12, deprecated on 13) as the first
+ * statement of the withMiddleware() closure. An existing exemption call is
+ * never merged automatically.
  */
 final class CsrfExceptionEditor
 {
-    public static function snippet(string $acs): string
+    public const CALLS = ['preventRequestForgery', 'validateCsrfTokens'];
+
+    /**
+     * The CSRF exemption call of the installed Laravel.
+     */
+    public static function method(): string
     {
-        return "\$middleware->validateCsrfTokens(except: ['{$acs}']);";
+        return method_exists(Middleware::class, 'preventRequestForgery') ? 'preventRequestForgery' : 'validateCsrfTokens';
     }
 
-    public function edit(string $source, string $acs): Edit
+    public static function snippet(string $acs, ?string $method = null): string
     {
+        $method ??= self::method();
+
+        return "\$middleware->{$method}(except: ['{$acs}']);";
+    }
+
+    public function edit(string $source, string $acs, ?string $method = null): Edit
+    {
+        $method ??= self::method();
         $tokens = Tokens::of($source);
         $literal = var_export($acs, true);
 
-        $existing = Tokens::calls($tokens, 'validateCsrfTokens');
+        $existing = array_merge(...array_map(fn (string $call) => Tokens::calls($tokens, $call), self::CALLS));
         if ($existing !== []) {
             foreach ($tokens as $token) {
                 if ($token->is(T_CONSTANT_ENCAPSED_STRING) && $token->text === $literal) {
@@ -30,7 +46,7 @@ final class CsrfExceptionEditor
                 }
             }
 
-            return Edit::unrecognised($source, 'validateCsrfTokens() is already called; add the ACS path to its except list');
+            return Edit::unrecognised($source, 'a CSRF exemption is already configured; add the ACS path to its except list');
         }
 
         $calls = Tokens::calls($tokens, 'withMiddleware');
@@ -72,7 +88,7 @@ final class CsrfExceptionEditor
             $indentation .= '    ';
         }
 
-        $statement = "\n{$indentation}{$variable}->validateCsrfTokens(except: [{$literal}]);";
+        $statement = "\n{$indentation}{$variable}->{$method}(except: [{$literal}]);";
         $edited = Tokens::join(array_slice($tokens, 0, $body + 1)).$statement.Tokens::join(array_slice($tokens, $body + 1));
 
         return Tokens::parses($edited) ? new Edit($edited, true) : Edit::unrecognised($source, 'the edit would not parse');

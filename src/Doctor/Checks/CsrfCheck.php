@@ -6,6 +6,7 @@ namespace OfflineAgency\FilamentSpid\Doctor\Checks;
 
 use OfflineAgency\FilamentSpid\Doctor\Check;
 use OfflineAgency\FilamentSpid\Doctor\Result;
+use OfflineAgency\FilamentSpid\Install\Editors\CsrfExceptionEditor;
 use OfflineAgency\FilamentSpid\Support\TypedConfig;
 
 /**
@@ -18,6 +19,6 @@ class CsrfCheck implements Check
     {
         $acs = trim(TypedConfig::string('spid-auth.routes_prefix', 'spid') ?? 'spid', '/').'/acs';
 
-        return Result::skip('csrf', "Not verifiable from the CLI: whether only {$acs} is exempt from CSRF verification.", "Exclude exactly {$acs} (validateCsrfTokens(except: ['{$acs}'])), then check that a POST to {$acs} is not answered 419 and that other POST routes still are.");
+        return Result::skip('csrf', "Not verifiable from the CLI: whether only {$acs} is exempt from CSRF verification.", 'Exclude exactly '.$acs.' in bootstrap/app.php ('.CsrfExceptionEditor::snippet($acs).'), then check that a POST to '.$acs.' is not answered 419 and that other POST routes still are.');
     }
 }

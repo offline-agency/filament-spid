@@ -4,6 +4,7 @@ use Filament\Panel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
+use OfflineAgency\FilamentSpid\Install\Editors\CsrfExceptionEditor;
 use OfflineAgency\FilamentSpid\Install\PanelLocator;
 
 it('refuses to run without a registered panel and points at the Filament installer', function () {
@@ -29,7 +30,7 @@ it('writes nothing with --dry-run and prints the plan', function () {
         ->and($output)->toContain('Dry run')
         ->and($output)->toContain('config/spid-auth.php')
         ->and($output)->toContain('->plugin(SpidPlugin::make())')
-        ->and($output)->toContain("validateCsrfTokens(except: ['spid/acs'])");
+        ->and($output)->toContain(CsrfExceptionEditor::method()."(except: ['spid/acs'])");
 });
 
 it('installs and configures from an input file', function () {
@@ -61,7 +62,7 @@ it('installs and configures from an input file', function () {
 
     expect(panelProvider())->toContain("->login()\n            ->plugin(SpidPlugin::make())")
         ->and(panelProvider())->toContain('use OfflineAgency\FilamentSpid\SpidPlugin;')
-        ->and(File::get(base_path('bootstrap/app.php')))->toContain("\$middleware->validateCsrfTokens(except: ['spid/acs']);");
+        ->and(File::get(base_path('bootstrap/app.php')))->toContain(CsrfExceptionEditor::snippet('spid/acs'));
 
     expect($output)->toContain('Metadata: https://sp.example.test/spid/metadata')
         ->and($output)->toContain('ACS:      https://sp.example.test/spid/acs')
@@ -82,7 +83,7 @@ it('changes nothing when run again with the same input', function () {
         ->and(applicationFiles())->toBe($after)
         ->and(substr_count(panelProvider(), 'SpidPlugin::make()'))->toBe(1)
         ->and(substr_count(File::get(base_path('.env')), 'FILAMENT_SPID_PANEL='))->toBe(1)
-        ->and(substr_count(File::get(base_path('bootstrap/app.php')), 'validateCsrfTokens'))->toBe(1)
+        ->and(substr_count(File::get(base_path('bootstrap/app.php')), '(except:'))->toBe(1)
         ->and(File::glob(database_path('migrations/*_add_spid_fields_to_users_table.php')))->toHaveCount(1)
         ->and(hash_file('sha256', storage_path('app/private/spid/sp.key')))->toBe($keyHash)
         ->and($output)->toContain('unchanged');
@@ -129,7 +130,7 @@ it('exempts the ACS under a custom routes prefix only', function () {
 
     runInstall(['--input' => writeInstallInput(installInput()), '--dry-run' => false]);
 
-    expect(File::get(base_path('bootstrap/app.php')))->toContain("validateCsrfTokens(except: ['auth/spid/acs'])")
+    expect(File::get(base_path('bootstrap/app.php')))->toContain(CsrfExceptionEditor::method()."(except: ['auth/spid/acs'])")
         ->and(File::get(base_path('bootstrap/app.php')))->not->toContain("'spid/*'");
 });
 

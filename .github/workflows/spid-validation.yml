@@ -1,0 +1,80 @@
+name: spid-validation
+
+# The SPID gate: the distributable archive installed by the quickstart, its
+# metadata checked by spid_sp_test, the AuthnRequest from the real Filament
+# form and 111 SAML Responses (positive and negative) against its ACS, plus
+# sentinels that must fail. All local and pinned (tools/spid/versions.env):
+# the hosted AgID Validator is never contacted, so its availability cannot
+# make this flaky. Evidence is synthetic (no real organisation, no real key).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: spid-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    name: SPID lab
+    env:
+      COMPOSER: composer.ci.json
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite, intl, fileinfo, openssl
+          coverage: none
+          tools: composer:v2
+
+      - name: Use the patched italia/spid-laravel
+        run: bash .github/scripts/use-spid-laravel-fork.sh
+
+      - name: Install dependencies
+        env:
+          COMPOSER_EXIT_ON_PATCH_FAILURE: 1
+        run: composer update --prefer-stable --prefer-dist --no-interaction
+
+      - name: Build the pinned spid_sp_test container
+        run: |
+          set -a; . tools/spid/versions.env; set +a
+          docker build -f tools/spid/Dockerfile.spid-sp-test \
+            --build-arg PYTHON_IMAGE="$PYTHON_IMAGE" --build-arg SPID_SP_TEST_VERSION="$SPID_SP_TEST_VERSION" \
+            -t filament-spid/spid-sp-test:local tools/spid
+          [ "$(tools/spid/bin/spid_sp_test --version)" = "$SPID_SP_TEST_VERSION" ]
+
+      - name: Real-tool integration tests (metadata and sentinels)
+        env:
+          SPID_SP_TEST_BIN: ${{ github.workspace }}/tools/spid/bin/spid_sp_test
+        run: vendor/bin/pest tests/Integration
+
+      - name: Lab (install, metadata, AuthnRequest, Responses, sentinels)
+        env:
+          COMPOSER: composer.json
+          COMPOSER_EXIT_ON_PATCH_FAILURE: 1
+        run: bash tools/spid/validate.sh "$RUNNER_TEMP/lab"
+
+      - name: Upload the synthetic evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: spid-lab-evidence
+          # Reports and logs only: the synthetic key pair stays in the app dir.
+          path: |
+            ${{ runner.temp }}/lab/evidence/*.json
+            ${{ runner.temp }}/lab/evidence/*.log
+            ${{ runner.temp }}/lab/metadata-report.json
+          if-no-files-found: warn
