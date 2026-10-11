@@ -38,6 +38,10 @@ fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 
 set -a; . "$LAB/versions.env"; set +a
 
+# The network every lab container joins, created first: the tool wrapper
+# runs its containers on it from the first call.
+docker network inspect "$LAB_NETWORK" >/dev/null 2>&1 || docker network create "$LAB_NETWORK" >/dev/null
+
 step "spid_sp_test $SPID_SP_TEST_VERSION container"
 docker build -q -f "$LAB/Dockerfile.spid-sp-test" \
     --build-arg PYTHON_IMAGE="$PYTHON_IMAGE" --build-arg SPID_SP_TEST_VERSION="$SPID_SP_TEST_VERSION" \
@@ -56,7 +60,6 @@ php "$LAB/lab-configure.php" "$WORK/test-idp.xml" "$LAB_BASE"
 php artisan config:clear >/dev/null
 
 step "HTTPS front for $LAB_BASE (Caddy, development CA)"
-docker network inspect "$LAB_NETWORK" >/dev/null 2>&1 || docker network create "$LAB_NETWORK" >/dev/null
 cat > "$WORK/Caddyfile" <<CADDY
 {
 	local_certs
@@ -75,7 +78,7 @@ docker run -d --name spid-lab-proxy --network "$LAB_NETWORK" --network-alias sp.
 
 php artisan serve --host=0.0.0.0 --port="$PORT" >"$WORK/lab-serve.log" 2>&1 &
 SERVER=$!
-trap 'kill $SERVER 2>/dev/null || true; docker rm -f spid-lab-proxy >/dev/null 2>&1 || true' EXIT
+trap 'kill $SERVER 2>/dev/null || true; docker rm -f spid-lab-proxy >/dev/null 2>&1 || true; docker network rm "$LAB_NETWORK" >/dev/null 2>&1 || true' EXIT
 for _ in $(seq 1 50); do curl -s -o /dev/null "http://127.0.0.1:$PORT/up" && break; sleep 0.2; done
 for _ in $(seq 1 50); do
     docker run --rm --network "$LAB_NETWORK" --entrypoint python filament-spid/spid-sp-test:local \

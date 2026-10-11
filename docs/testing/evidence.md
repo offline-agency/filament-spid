@@ -17,6 +17,7 @@ citizen, key or assertion.
 | Sentinels | metadata altered after signing: fail; public SP without IPA code: fail; HTML page and empty file: error; valid copy: pass | [sentinels](evidence/sentinels-2026-10-11.txt) |
 | Gate sentinel (positive Response for a refused citizen) | not meaningful while test 1 fails for an admitted citizen too | lab summary |
 | Browser check of the login page and the SPID button | pass, after fixing what it found | [Browser](#browser) |
+| Laravel Boost discovery | laravel/boost 2.10.3 (`ThirdPartyPackage::guidelineDirectories()` / `skillDirectories()`) finds the package's `resources/boost/guidelines` and `skills` in an application where the archive is a direct dependency; the interactive `boost:install` itself was not run | 2026-10-11 |
 | Self-hosted Validator (`spid-saml-check`) | not run (interactive, no automation API) | |
 | `HOSTED_VALIDATOR_NOT_RUN` | the hosted AgID Validator was not used | no public HTTPS deployment or portal access in this work |
 | `FORMAL_AGID_ACCEPTANCE_NOT_OBTAINED` | no acceptance requested | out of scope; AgID's procedure |
