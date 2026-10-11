@@ -9,8 +9,9 @@ namespace OfflineAgency\FilamentSpid\Install\Editors;
  * ->id('<panel>') when the panel has no ->login()), so a ->login() chained
  * later cannot put the default login page back.
  *
- * Only a file with exactly one ->id('<panel>') and at most one ->login() is
- * edited; anything else is reported for a manual edit.
+ * Only a class extending a PanelProvider, with exactly one ->id('<panel>')
+ * and at most one ->login(), is edited, and the result must compile;
+ * anything else is reported for a manual edit.
  */
 final class PanelProviderEditor
 {
@@ -25,6 +26,10 @@ final class PanelProviderEditor
             if ($token->text === 'SpidPlugin' && $next !== null && $tokens[$next]->is(T_DOUBLE_COLON)) {
                 return new Edit($source, true);
             }
+        }
+
+        if (! $this->extendsPanelProvider($tokens)) {
+            return Edit::unrecognised($source, 'not a class extending PanelProvider');
         }
 
         $ids = array_values(array_filter(Tokens::calls($tokens, 'id'), fn (int $i) => Tokens::stringArgument($tokens, $i) === $panel));
@@ -50,8 +55,12 @@ final class PanelProviderEditor
         $edited = Tokens::join(array_slice($tokens, 0, $close + 1)).$insertion.Tokens::join(array_slice($tokens, $close + 1));
         $edited = $this->import($edited);
 
-        if ($edited === null || ! Tokens::parses($edited)) {
+        if ($edited === null) {
             return Edit::unrecognised($source, 'no namespace to import SpidPlugin into');
+        }
+
+        if (! Tokens::compiles($edited)) {
+            return Edit::unrecognised($source, 'the edit would not compile');
         }
 
         return new Edit($edited, true);
@@ -61,10 +70,32 @@ final class PanelProviderEditor
      * Add `use OfflineAgency\FilamentSpid\SpidPlugin;` after the last import,
      * or after the namespace declaration.
      */
+    /**
+     * @param  list<\PhpToken>  $tokens
+     */
+    protected function extendsPanelProvider(array $tokens): bool
+    {
+        foreach ($tokens as $i => $token) {
+            $parent = $token->is(T_EXTENDS) ? Tokens::next($tokens, $i + 1) : null;
+            if ($parent !== null && str_ends_with(ltrim($tokens[$parent]->text, '\\'), 'PanelProvider')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected function import(string $source): ?string
     {
         $tokens = Tokens::of($source);
         $after = null;
+
+        foreach ($tokens as $i => $token) {
+            $name = $token->is(T_USE) ? Tokens::next($tokens, $i + 1) : null;
+            if ($name !== null && ltrim($tokens[$name]->text, '\\') === 'OfflineAgency\\FilamentSpid\\SpidPlugin') {
+                return $source;
+            }
+        }
 
         foreach ($tokens as $i => $token) {
             if ($token->is([T_CLASS, T_FUNCTION])) {

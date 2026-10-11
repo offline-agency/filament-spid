@@ -11,6 +11,12 @@ use OfflineAgency\FilamentSpid\Install\InstallInput;
 use OfflineAgency\FilamentSpid\Install\InvalidInstallInput;
 
 describe('PanelProviderEditor', function () {
+    /** A panel provider class around a chain. */
+    function providerSource(string $chain, string $namespace = "namespace A;\n"): string
+    {
+        return "<?php\n{$namespace}class P extends PanelProvider\n{\n    public function panel(\$panel) { return \$panel{$chain}; }\n}\n";
+    }
+
     it('leaves a provider it cannot read safely alone', function (string $source, string $reason) {
         $edit = (new PanelProviderEditor)->edit($source, 'admin');
 
@@ -18,19 +24,26 @@ describe('PanelProviderEditor', function () {
             ->and($edit->source)->toBe($source)
             ->and($edit->reason)->toContain($reason);
     })->with([
-        'two ->login() calls' => ["<?php\nnamespace A;\nreturn \$panel->id('admin')->login()->login();", 'more than one'],
-        'an unclosed call' => ["<?php\nnamespace A;\nreturn \$panel->id('admin')->login(", 'unbalanced'],
-        'no namespace' => ["<?php\nreturn \$panel->id('admin')->login();", 'namespace'],
-        'an id that is not a literal' => ["<?php\nnamespace A;\nreturn \$panel->id(\$id)->login();", "->id('admin')"],
+        'two ->login() calls' => [providerSource("->id('admin')->login()->login()"), 'more than one'],
+        'an unclosed call' => ["<?php\nnamespace A;\nclass P extends PanelProvider { function panel(\$panel) { return \$panel->id('admin')->login(", 'unbalanced'],
+        'no namespace' => [providerSource("->id('admin')->login()", ''), 'namespace'],
+        'an id that is not a literal' => [providerSource('->id($id)->login()'), "->id('admin')"],
     ]);
 
     it('keeps a one-line chain valid', function () {
-        $edit = (new PanelProviderEditor)->edit("<?php\nnamespace A;\nreturn \$panel->id('admin')->login();", 'admin');
+        $edit = (new PanelProviderEditor)->edit(providerSource("->id('admin')->login()"), 'admin');
 
         expect($edit->recognised)->toBeTrue()
-            ->and(Tokens::parses($edit->source))->toBeTrue()
+            ->and(Tokens::compiles($edit->source))->toBeTrue()
             ->and($edit->source)->toContain("->login()\n->plugin(SpidPlugin::make())")
             ->and($edit->source)->toContain("namespace A;\nuse OfflineAgency\\FilamentSpid\\SpidPlugin;");
+    });
+
+    it('refuses an edit that would not compile', function () {
+        // A class named like the import: `use ...\SpidPlugin` would clash.
+        $source = "<?php\nnamespace A;\nclass SpidPlugin {}\nclass P extends PanelProvider\n{\n    public function panel(\$panel) { return \$panel->id('admin')->login(); }\n}\n";
+
+        expect((new PanelProviderEditor)->edit($source, 'admin')->reason)->toContain('compile');
     });
 });
 
@@ -48,7 +61,8 @@ describe('CsrfExceptionEditor', function () {
 
 describe('Tokens', function () {
     it('tells source that does not parse', function () {
-        expect(Tokens::parses('<?php if ('))->toBeFalse();
+        expect(Tokens::parses('<?php if ('))->toBeFalse()
+            ->and(Tokens::compiles('<?php if ('))->toBeFalse();
     });
 });
 
@@ -241,4 +255,37 @@ describe('the CSRF API of the installed Laravel', function () {
 
         expect($edit->recognised)->toBeTrue()->and($edit->source)->toBe($source);
     })->with(['preventRequestForgery', 'validateCsrfTokens']);
+});
+
+describe('review findings on the installer', function () {
+    it('does not import SpidPlugin twice', function () {
+        $source = "<?php\nnamespace App\\Providers\\Filament;\n\nuse Filament\\PanelProvider;\nuse OfflineAgency\\FilamentSpid\\SpidPlugin;\n\nclass AdminPanelProvider extends PanelProvider\n{\n    public function panel(\$panel) { return \$panel->id('admin')->login(); }\n}\n";
+
+        $edit = (new PanelProviderEditor)->edit($source, 'admin');
+        $file = sys_get_temp_dir().'/edited-'.uniqid().'.php';
+        File::put($file, $edit->source);
+        exec(escapeshellarg(PHP_BINARY).' -l '.escapeshellarg($file).' 2>&1', $output, $lint);
+        File::delete($file);
+
+        expect(substr_count($edit->source, 'use OfflineAgency\\FilamentSpid\\SpidPlugin;'))->toBe(1)
+            ->and($edit->source)->toContain('->plugin(SpidPlugin::make())')
+            ->and($lint)->toBe(0);
+    });
+
+    it('edits only classes that extend a PanelProvider', function () {
+        $page = "<?php\nnamespace App\\Filament\\Pages;\n\n// A settings page of the Panel.\nclass Settings\n{\n    public function form(\$form) { return Section::make()->id('admin'); }\n}\n";
+
+        expect((new PanelProviderEditor)->edit($page, 'admin')->recognised)->toBeFalse();
+    });
+
+    it('leaves a lookalike file alone and edits the real panel provider', function () {
+        File::ensureDirectoryExists(app_path('Filament/Pages'));
+        File::put(app_path('Filament/Pages/Settings.php'), "<?php\nnamespace App\\Filament\\Pages;\n\n// A settings page of the Panel.\nclass Settings\n{\n    public function form(\$form) { return Section::make()->id('admin'); }\n}\n");
+        $page = File::get(app_path('Filament/Pages/Settings.php'));
+
+        runInstall(['--input' => writeInstallInput(installInput())]);
+
+        expect(File::get(app_path('Filament/Pages/Settings.php')))->toBe($page)
+            ->and(panelProvider())->toContain('->plugin(SpidPlugin::make())');
+    });
 });

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OfflineAgency\FilamentSpid\Install\Editors;
 
 use PhpToken;
+use Symfony\Component\Process\Process;
 
 /**
  * Small helpers over PHP's own tokenizer: edits are made at token positions,
@@ -117,6 +118,25 @@ final class Tokens
         } catch (\ParseError) {
             return false;
         }
+    }
+
+    /**
+     * Whether the source compiles (`php -l`): parsing alone misses errors such
+     * as an import whose name is already in use.
+     */
+    public static function compiles(string $source): bool
+    {
+        if (! self::parses($source)) {
+            return false;
+        }
+
+        $file = sys_get_temp_dir().'/filament-spid-lint-'.bin2hex(random_bytes(8)).'.php';
+        file_put_contents($file, $source);
+        $process = new Process([PHP_BINARY, '-l', $file]);
+        $process->run();
+        unlink($file);
+
+        return $process->isSuccessful();
     }
 
     /**
