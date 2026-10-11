@@ -139,6 +139,8 @@ class MetadataValidateCommand extends Command
             $parsed === null => ['unparseable', 'spid_sp_test wrote no report this adapter can read.'],
             $parsed->checks === [] => ['no_checks', 'spid_sp_test ran no check.'],
             $parsed->dependencyMissing => ['dependency_missing', 'spid_sp_test could not run some checks: a system dependency is missing (xmlsec1).'],
+            // Exit 1 means a failure: a report without one hides it.
+            $result->exitCode === 1 && $parsed->summary()['failed'] === 0 => ['inconsistent', 'spid_sp_test exited with 1 but its report lists no failed check.'],
             default => ['ok', ''],
         };
         $run->toolStatus = $status;

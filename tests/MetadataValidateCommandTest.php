@@ -234,3 +234,11 @@ it('ignores report entries that are not checks', function () {
 
     expect($report?->summary())->toBe(['executed' => 1, 'passed' => 1, 'failed' => 0, 'warnings' => 0]);
 });
+
+it('reports an error when the tool exits with a failure its report does not show', function () {
+    [$exit, $report] = runMetadataValidate(['--file' => $this->metadata], 'exit1clean');
+
+    expect($exit)->toBe(2)
+        ->and($report['overall_status'])->toBe('error')
+        ->and($report['tool']['status'])->toBe('inconsistent');
+});

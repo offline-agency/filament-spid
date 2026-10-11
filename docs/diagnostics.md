@@ -29,7 +29,7 @@ connection).
 | `https_session` | `app.url` HTTPS and `session.secure` |
 | `csp` | **skip**: a Content-Security-Policy is set outside the application's configuration |
 | `sp_certificate` | the key pair readable and matching, expiry (warning within 30 days), not the example pair `italia/spid-laravel` ships (compared by content, never printed) |
-| `test_idps` | test and validator IdPs against `filament-spid.deployment`: none in production; during `acceptance` only the official AgID Validator, reported as a warning (an acceptance window, never a production state) |
+| `test_idps` | test and validator IdPs against `filament-spid.deployment`: none in production; during `acceptance` only the official AgID Validator, reported as a warning (an acceptance window, never a production state). `APP_ENV=production` declared `local` fails; undeclared, only `local` and `testing` environments count as local |
 
 `skip` means "not observable here", never "passed".
 

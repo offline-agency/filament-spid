@@ -24,7 +24,16 @@ class TestIdpsCheck implements Check
 
     public function run(): Result
     {
-        $deployment = TypedConfig::string('filament-spid.deployment') ?? (app()->isProduction() ? 'production' : 'local');
+        $declared = TypedConfig::string('filament-spid.deployment');
+
+        // A production APP_ENV is production whatever is declared, except
+        // during the AgID acceptance test; undeclared, only local and
+        // testing environments count as local.
+        if ($declared === 'local' && app()->isProduction()) {
+            return Result::fail('test_idps', 'APP_ENV is production but FILAMENT_SPID_DEPLOYMENT is local.', 'Set FILAMENT_SPID_DEPLOYMENT=production (or acceptance during the AgID acceptance test only).');
+        }
+
+        $deployment = $declared ?? (app()->environment('local', 'testing') ? 'local' : 'production');
 
         $testIdp = (bool) config('spid-auth.test_idp');
         $hideReal = (bool) config('spid-auth.hide_real_idps');

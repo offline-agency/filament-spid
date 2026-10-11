@@ -620,3 +620,28 @@ it('passes a production deployment that trusts no test IdP', function () {
 
     expect(doctorCheck($report, 'test_idps')['status'])->toBe('pass');
 });
+
+describe('the declared deployment against APP_ENV', function () {
+    beforeEach(function () {
+        Config::set('spid-auth.test_idp', ['entityId' => 'spid-testenv']);
+    });
+
+    it('fails a production environment declared local', function () {
+        app()->detectEnvironment(fn () => 'production');
+        Config::set('filament-spid.deployment', 'local');
+
+        [, $report] = runDoctor();
+
+        expect(doctorCheck($report, 'test_idps')['status'])->toBe('fail')
+            ->and(doctorCheck($report, 'test_idps')['message'])->toContain('APP_ENV');
+    });
+
+    it('judges an undeclared non-local environment as production', function () {
+        app()->detectEnvironment(fn () => 'staging');
+        Config::set('filament-spid.deployment', null);
+
+        [, $report] = runDoctor();
+
+        expect(doctorCheck($report, 'test_idps')['status'])->toBe('fail');
+    });
+});

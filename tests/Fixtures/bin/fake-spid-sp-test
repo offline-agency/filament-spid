@@ -26,6 +26,8 @@ case "$mode" in
     fail)
         printf '{"test": {"sp": {"metadata_extra": {"SpidSpMetadataCheckExtra": [%s, %s]}}}}' "$(entry test_EntityDescriptor 'the entityID MUST be present' '' success)" "$(entry test_Signature 'the metadata signature MUST be valid' 'invalid signature' failure)" > "$report"
         echo "Spid QA: executed 2 tests, 1 failed. 0 warnings."; exit 1 ;;
+    exit1clean)
+        printf '{"test": {"sp": {"metadata_extra": {"SpidSpMetadataCheckExtra": [%s]}}}}' "$(entry test_EntityDescriptor 'the entityID MUST be present' '' success)" > "$report"; exit 1 ;;
     lying)
         printf '{"test": {"sp": {"metadata": {"SpidSpMetadataCheck": [%s]}}}}' "$(entry test_Signature 'the metadata signature MUST be valid' 'invalid' failure)" > "$report"; exit 0 ;;
     dependency)
