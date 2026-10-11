@@ -417,6 +417,18 @@ describe('fail-closed authentication', function () {
         expectSpidSessionCleared();
     });
 
+    it('fails closed when a SpidUserCreated listener throws, keeping the committed account', function () {
+        Event::listen(SpidUserCreated::class, fn () => throw new RuntimeException('welcome mail'));
+
+        $response = spidAcs();
+
+        expect($response?->isRedirect())->toBeTrue()
+            ->and(session('spid_error'))->toBe(__('filament-spid::spid.acs_error'))
+            ->and(Auth::guard('web')->check())->toBeFalse()
+            ->and(User::count())->toBe(1);
+        expectSpidSessionCleared();
+    });
+
     it('lets the citizen retry after a failed login', function () {
         Event::listen(SpidAuthenticationSucceeded::class, fn () => throw new RuntimeException('observer'));
         spidAcs();

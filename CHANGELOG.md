@@ -168,6 +168,11 @@ First stable release: from here on the public API follows SemVer. See
 
 ### Fixed
 
+- The login page styles itself with its own `fi-spid-*` classes in the
+  plugin stylesheet: Filament 4 and 5 compile only the Tailwind utilities their
+  own views use, so the information text and the AgID logo were left-aligned
+  and the error box unstyled. The AgID logo sits on a light plate in dark mode
+  instead of being nearly invisible.
 - The SPID button shuffles the IdPs with Fisher–Yates: the previous loop
   produced only 4 of the 6 orders of three providers, unevenly. Each button
   has its own ids and scopes its script to itself, so several buttons on a page

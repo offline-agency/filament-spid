@@ -26,7 +26,7 @@
                     {{-- @svg comes from blade-icons, which every supported
                          Filament version depends on, unlike the x-filament::icon
                          component whose props changed between majors. --}}
-                    @svg($buttonIcon, 'h-6 w-6')
+                    @svg($buttonIcon, 'fi-spid-icon')
                 @else
                     <img src="{{ asset('/vendor/spid-auth/img/spid-ico-circle-bb.svg') }}" alt="" />
                 @endif
@@ -86,7 +86,7 @@
         </div>
     </form>
     
-    <p class="text-sm text-danger-600 dark:text-danger-400" data-spid-load-error hidden>
+    <p class="fi-spid-load-error" data-spid-load-error hidden>
         {{ __('filament-spid::spid.button_unavailable') }}
     </p>
 

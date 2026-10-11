@@ -30,10 +30,11 @@ it('is the framework CSRF middleware that guards the web group', function () {
 
 it('documents the ACS path the identity provider actually posts to', function () {
     // A 419 can never be asserted here: ValidateCsrfToken short-circuits under
-    // runningUnitTests(). What can be pinned is that the path the README tells
+    // runningUnitTests() (install-check.sh asserts the 419 over real HTTP).
+    // What can be pinned is that the path the installation guide tells
     // applications to exclude is the one the library route resolves to.
     $acsPath = ltrim(parse_url(route('spid-auth_acs'), PHP_URL_PATH), '/');
 
     expect($acsPath)->toBe(trim(config('spid-auth.routes_prefix'), '/').'/acs')
-        ->and(file_get_contents(__DIR__.'/../README.md'))->toContain("except: ['{$acsPath}']");
+        ->and(file_get_contents(__DIR__.'/../docs/installation.md'))->toContain("except: ['{$acsPath}']");
 });

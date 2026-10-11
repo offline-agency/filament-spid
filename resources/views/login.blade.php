@@ -1,6 +1,8 @@
+{{-- Styled by resources/dist/filament-spid.css (fi-spid-* classes): Filament 4
+     and 5 compile only the Tailwind utilities their own views use. --}}
 <x-filament-panels::page.simple>
     <x-slot name="heading">
-        <div class="text-center">
+        <div class="fi-spid-heading">
             {{ __('filament-spid::spid.login_with_spid') }}
         </div>
     </x-slot>
@@ -10,44 +12,38 @@
     </x-slot>
 
     @if (session('spid_error'))
-        <div class="rounded-md bg-danger-50 p-4 mb-4 border border-danger-200 dark:bg-danger-950 dark:border-danger-800">
-            <p class="text-sm font-medium text-danger-800 dark:text-danger-200">
+        <div class="fi-spid-error" role="alert">
+            <p class="fi-spid-error-text">
                 {{ session('spid_error') }}
             </p>
         </div>
     @endif
 
-    <div class="space-y-8">
-        <!-- Filament-compatible SPID Button -->
+    <div class="fi-spid-login">
         @if (\OfflineAgency\FilamentSpid\SpidPlugin::resolve()?->getShowSpidButton() ?? true)
-        <div class="flex justify-center items-center w-full">
-            <div class="mx-auto">
-                @include('filament-spid::components.spid-button-filament', ['size' => 'l'])
-            </div>
+        <div class="fi-spid-button">
+            @include('filament-spid::components.spid-button-filament', ['size' => 'l'])
         </div>
         @endif
 
-        <!-- SPID Information -->
-        <div class="text-center w-full">
-            <p class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fi-spid-info">
+            <p class="fi-spid-info-text">
                 {{ __('filament-spid::spid.info_text') }}
             </p>
         </div>
 
-        <!-- SPID-AGID Logo, served from the published package assets -->
-        <div class="spid-agid-logo flex justify-center">
+        {{-- The SPID AgID logo, served from the published package assets. --}}
+        <div class="fi-spid-logo">
             <img
                 alt="SPID AGID"
-                class="max-w-full h-auto mx-auto"
                 src="{{ asset('vendor/filament-spid/images/spid-agid-logo.png') }}"
             >
         </div>
 
-        <!-- Login with other credentials, when the plugin names a page for it -->
+        {{-- Login with other credentials, when the plugin names a page for it. --}}
         @if ($credentialsLoginUrl = \OfflineAgency\FilamentSpid\SpidPlugin::resolve()?->getCredentialsLoginUrl())
-            <div class="text-center">
-                <a href="{{ $credentialsLoginUrl }}"
-                   class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <div class="fi-spid-info">
+                <a href="{{ $credentialsLoginUrl }}" class="fi-spid-credentials-link">
                     {{ __('filament-spid::spid.standard_login') }}
                 </a>
             </div>
