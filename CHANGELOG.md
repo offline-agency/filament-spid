@@ -70,6 +70,17 @@ First stable release: from here on the public API follows SemVer. See
   The report records the SHA-256 of the document, the plugin and tool
   versions, the profile and the time, and states `HOSTED_VALIDATOR_NOT_RUN`
   and `FORMAL_AGID_ACCEPTANCE_NOT_OBTAINED`. Nothing is uploaded anywhere.
+- Laravel Boost resources: `resources/boost/guidelines/core.blade.php` and the
+  `spid-integration` skill, installed by `php artisan boost:install` when the
+  package is a direct dependency. Boost is not required at runtime.
+- Documentation in `docs/` (installation, configuration, login flow,
+  diagnostics, AgID testing, evidence, production checklist, troubleshooting,
+  FAQ, upgrading) and an Italian guide; the README keeps one quickstart,
+  `docs/snippets/quickstart.sh`, which CI runs on a fresh application.
+- A local SPID lab (`tools/spid`, `spid-validation` workflow): the
+  distributable archive installed by the quickstart, its metadata, the
+  AuthnRequest from the real Filament form and 111 SAML Responses checked with
+  the pinned `spid_sp_test`, plus sentinels that must fail.
 - `filament-spid.sp_profile` and `filament-spid.deployment`
   (`FILAMENT_SPID_SP_PROFILE`, `FILAMENT_SPID_DEPLOYMENT`).
 - `php artisan filament-spid:doctor [--json] [--strict]`: read-only checks of

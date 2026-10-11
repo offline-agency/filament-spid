@@ -5,14 +5,21 @@ security reports as a priority.
 
 ## Supported Versions
 
-| Version | Supported |
+| Version | Supported by this project |
 |---|---|
-| 1.x | Yes |
-| < 1.0 | No |
+| 1.x | Yes, the latest 1.x release |
+| 0.1.x | No: no fixes, and no reason to stay on it |
 
-Only the latest 1.x release receives security fixes. Versions before 1.0.0
-install `italia/spid-laravel` releases that pin `onelogin/php-saml` 4.1.0
-(CVE-2025-66475); upgrade.
+Versions before 1.0.0 resolve `italia/spid-laravel` releases that pin
+`onelogin/php-saml` 4.1.0 (CVE-2025-66475): upgrade (see
+[upgrading](docs/upgrading.md)); do not stay on 0.1.x to get around the
+dependency setup.
+
+This project's support is separate from the support cycles of what it runs
+on: 1.x supports PHP 8.3–8.5 and Laravel 12–13 while those receive security
+fixes from their own projects ([PHP](https://www.php.net/supported-versions.php),
+[Laravel](https://laravel.com/docs/13.x/releases#support-policy)). When one of
+them reaches its end of life, a later 1.x release may drop it.
 
 ## Reporting a Vulnerability
 
@@ -45,11 +52,16 @@ If you are unsure where an issue belongs, report it to us and we will route it.
 
 ## Hardening Checklist
 
-The defaults are secure, but your configuration decides the outcome:
+The defaults are secure, but your configuration decides the outcome. The
+[production checklist](docs/production-checklist.md) has the full list; in
+short:
 
 - Request at least SpidL2 (`spid-auth.sp_spid_level`); the plugin refuses logins
   below `filament-spid.minimum_level`.
 - Keep `auto_create_users` off unless every SPID citizen may hold an account.
-- Implement `FilamentUser::canAccessPanel()` on your user model.
+- Implement `FilamentUser::canAccessPanel()` with an explicit rule.
 - Exclude only the library's ACS path from CSRF verification.
-- Run `composer audit` in your pipeline.
+- Use your own SP key pair, never the example one; keep the key out of
+  `public/` and Git.
+- Run `composer audit` and `php artisan filament-spid:doctor --strict` in your
+  pipeline.

@@ -16,7 +16,7 @@ citizen, key or assertion.
 | `LOCAL_SAML_TESTS_PASSED` | **not obtained** (`LOCAL_SAML_TESTS_FAILED`) | the lab gate is red |
 | Sentinels | metadata altered after signing: fail; public SP without IPA code: fail; HTML page and empty file: error; valid copy: pass | [sentinels](evidence/sentinels-2026-10-11.txt) |
 | Gate sentinel (positive Response for a refused citizen) | not meaningful while test 1 fails for an admitted citizen too | lab summary |
-| Browser check of the login page and the SPID button | see [Browser](#browser) | |
+| Browser check of the login page and the SPID button | pass, after fixing what it found | [Browser](#browser) |
 | Self-hosted Validator (`spid-saml-check`) | not run (interactive, no automation API) | |
 | `HOSTED_VALIDATOR_NOT_RUN` | the hosted AgID Validator was not used | no public HTTPS deployment or portal access in this work |
 | `FORMAL_AGID_ACCEPTANCE_NOT_OBTAINED` | no acceptance requested | out of scope; AgID's procedure |
@@ -73,4 +73,26 @@ Also observed: the IdP certificate bundled in `spid_sp_test` 1.2.18
 
 ## Browser
 
-See the section added with the screenshots (`docs/images/`).
+Chrome (DevTools protocol) on 2026-10-11, against `/admin/login` of a Laravel
+13 + Filament 5 application installed from the distributable archive, test
+IdPs disabled, synthetic data. The Claude in Chrome extension was not
+connected; the checks used Chrome DevTools.
+
+| Check | Result |
+|---|---|
+| Script initialised once, no inline script in the component | yes |
+| Trigger `role="button"`, `aria-haspopup`, `aria-controls`; `aria-expanded` follows the menu | yes |
+| Click opens, focus moves to the first IdP; Escape closes, focus returns to the trigger; Space opens | yes |
+| Choosing an IdP posts `provider` with the CSRF token from that button's own form | yes (submit intercepted: no IdP contacted) |
+| Second button on the page + `livewire:navigated`: distinct ids, first button not re-shuffled, each button sets only its own input | yes |
+| IdP order random, information links last | yes |
+| Console errors or warnings | none |
+| Mobile 390×844: no horizontal overflow, menu within the viewport | yes |
+| Light and dark mode | **found**: on Filament 5 the information text and logo were left-aligned and the error box unstyled (Tailwind utilities not compiled), the AgID logo nearly invisible in dark mode, the stylesheet still targeted a removed form id. **Fixed** with the plugin's own `fi-spid-*` classes and re-checked. |
+
+Screenshots (real, synthetic data): [light](../images/login-light.png),
+[dark](../images/login-dark.png), [mobile](../images/login-mobile.png).
+
+Not checked in a browser: Filament 3 and 4 rendering (covered by the CI
+matrix and the install check, not visually), screen readers, a real
+Content-Security-Policy header.

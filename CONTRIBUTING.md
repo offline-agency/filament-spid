@@ -30,6 +30,19 @@ composer update
 `composer.ci.json` and `composer.ci.lock` are git-ignored. The suite checks the
 published `composer.json`, so never commit the fork setup into it.
 
+## Install and SPID checks
+
+- `bash .github/scripts/install-check.sh /tmp/install` installs the
+  distributable archive of `HEAD` (`composer archive`, so `.gitattributes`
+  applies; commit first) into a fresh Laravel app by the published quickstart
+  (`docs/snippets/quickstart.sh`, embedded verbatim in the README) and checks it
+  over HTTP. `LARAVEL=12 FILAMENT=3` picks the versions.
+- `bash tools/spid/validate.sh /tmp/spid-lab` adds the SPID lab on top
+  (Docker): metadata, AuthnRequest and Responses with the pinned
+  `spid_sp_test`. See [docs/testing/agid.md](docs/testing/agid.md).
+- `SPID_SP_TEST_BIN=$PWD/tools/spid/bin/spid_sp_test vendor/bin/pest tests/Integration`
+  runs the real-tool integration tests (skipped without the variable).
+
 ## Running Tests
 
 ```bash
@@ -48,11 +61,12 @@ The CI helper scripts have their own tests:
 for t in .github/scripts/tests/*.test.sh; do bash "$t"; done
 ```
 
-CI runs the suite on every PHP × Laravel × Filament combination plus a Coverage
-job that requires 100% line coverage. The `tests-passed` check aggregates them:
-it fails unless every matrix leg and Coverage succeeded, so branch protection
-requires that one check instead of each leg, and adding a leg to the matrix
-needs no settings change.
+CI runs the suite on every PHP × Laravel × Filament combination, a Coverage
+job that requires 100% line coverage, the Node tests of the button script and
+the install of the distributable archive on one leg per integration path. The
+`tests-passed` check aggregates them: it fails unless every one succeeded, so
+branch protection requires that one check instead of each leg. The SPID lab
+runs in its own `spid-validation` workflow.
 
 ## Code Style
 
