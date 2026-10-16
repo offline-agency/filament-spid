@@ -1,0 +1,2010 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-16",
+  "recorded_at": "2026-10-16T12:14:12.454685+00:00",
+  "repository": "offline-agency/filament-spid",
+  "pr": 15,
+  "pr_head_refreshed": "ed960e4d0a7472825b74127f353bf9866bf41f1c",
+  "base_refreshed": "78ef886227950f74d300e849c32e1ada206c5125",
+  "remote_baseline": {
+    "run": "https://github.com/offline-agency/filament-spid/actions/runs/38098866015",
+    "attempt": 1,
+    "job": 114350413142,
+    "gate": "fail",
+    "metadata": "104/104",
+    "authn_request": "151/151",
+    "responses": "240/246"
+  },
+  "verified_code_commit": "ad957031b80cd80dc269782e24324bb1b62dd9d6",
+  "source_note": "The sole untracked file during the committed verification was this pending evidence record; tracked production and tooling files were clean. The subsequent evidence commit changes only documentation JSON.",
+  "platform": {
+    "host": "macOS arm64",
+    "php": "Herd 8.3/8.4/8.5 native runtimes",
+    "docker": "Docker Desktop 4.53.0; Engine 29.0.1 linux/arm64",
+    "difference_from_ci": "Local host checks are not Ubuntu GitHub Actions runs; lab images use unchanged digest pins."
+  },
+  "python_environment": {
+    "python": "3.11.17 (main, Oct  6 2026, 02:08:19) [GCC 12.2.0]",
+    "distributions": {
+      "spid-sp-test": {
+        "version": "1.2.18",
+        "requires": [
+          "pysaml2>=6.5.1",
+          "xmlschema>=1.7.1",
+          "requests>=2.25.1",
+          "lxml>=4.6.2",
+          "Jinja2>=2.11.3",
+          "spid_compliant_certificates>=0.5.3"
+        ]
+      },
+      "spid-compliant-certificates": {
+        "version": "0.5.5",
+        "requires": [
+          "cryptography >=35.0.0",
+          "iso3166 ==2.0.2",
+          "packaging ==21.2",
+          "requests >=2.26.0",
+          "ruamel.yaml ==0.17.19"
+        ]
+      },
+      "wheel": {
+        "version": "0.45.1",
+        "requires": [
+          "pytest >= 6.0.0 ; extra == \"test\"",
+          "setuptools >= 65 ; extra == \"test\""
+        ]
+      },
+      "packaging": {
+        "version": "21.2",
+        "requires": [
+          "pyparsing (<3,>=2.0.2)"
+        ]
+      },
+      "pysaml2": {
+        "version": "7.5.5",
+        "requires": [
+          "cryptography (>=46.0.5)",
+          "defusedxml",
+          "paste ; extra == \"s2repoze\"",
+          "pyopenssl (>=26.0.0)",
+          "python-dateutil",
+          "repoze.who ; extra == \"s2repoze\"",
+          "requests (>=2.0.0,<3.0.0)",
+          "xmlschema (>=2.0.0,<3.0.0)",
+          "zope.interface ; extra == \"s2repoze\""
+        ]
+      },
+      "cryptography": {
+        "version": "50.0.2",
+        "requires": [
+          "cffi>=2.0.0 ; platform_python_implementation != 'PyPy'",
+          "typing-extensions>=4.13.2 ; python_full_version < '3.11'",
+          "bcrypt>=3.1.5 ; extra == 'ssh'"
+        ]
+      },
+      "lxml": {
+        "version": "6.1.3",
+        "requires": [
+          "cssselect>=0.7; extra == \"cssselect\"",
+          "html5lib; extra == \"html5\"",
+          "BeautifulSoup4; extra == \"htmlsoup\"",
+          "lxml_html_clean; extra == \"html-clean\""
+        ]
+      }
+    }
+  },
+  "upstream": {
+    "latest_release": "v1.2.18",
+    "release_source": "32ac4e7ee819d140bca69e91d8626d6f7d98d364",
+    "main": "cf172c5d17cc7ef7d2364d5f1417d7e9dda1ebc8",
+    "files_changed_since_release": [
+      ".github/workflows/pypi.yml",
+      ".github/workflows/python-package.yml"
+    ],
+    "source_sha256_verified_against_github": "612a03221884386d4a67667de070b8c64eab4e7db7df6e0adf4cb0dd9c1f56eb",
+    "patch": {
+      "upstream_version": "1.2.18",
+      "upstream_sha": "32ac4e7ee819d140bca69e91d8626d6f7d98d364",
+      "patch": "keyinfo-certificate-v1",
+      "patch_sha256": "3e70a852644de65743010bdf88b15f9707b70fb28387f3218b41dd06084a9dc8",
+      "original_source_sha256": "612a03221884386d4a67667de070b8c64eab4e7db7df6e0adf4cb0dd9c1f56eb",
+      "patched_source_sha256": "8e94ffac6c2794bc1c680c474924978c7f8c514cd81295ceea6c97c82252c3b5"
+    },
+    "license": "EUPL-1.2",
+    "removal": "Remove when a released upstream signer includes matching certificates and passes the complete original lab; see tools/spid/patches/README.md."
+  },
+  "fixture_inspection": {
+    "original": {
+      "variant": "original",
+      "signatures": 2,
+      "empty_certificates": 2,
+      "certificate_not_after": "2025-03-08T10:02:08+00:00",
+      "default_key_matches_certificate": true
+    },
+    "patched": {
+      "variant": "patched",
+      "signatures": 2,
+      "empty_certificates": 0,
+      "certificate_not_after": "2025-03-08T10:02:08+00:00",
+      "default_key_matches_certificate": true
+    },
+    "lifetime": "Configured public-key verification in php-saml/xmlseclibs does not enforce this certificate lifetime; real positive logins pass without changing clocks or validity checks."
+  },
+  "baseline": {
+    "gate": "fail",
+    "metadata": {
+      "executed": 104,
+      "passed": 104,
+      "failed": 0,
+      "warnings": 0
+    },
+    "authn_request": {
+      "executed": 151,
+      "passed": 151,
+      "failed": 0,
+      "warnings": 0,
+      "failures": []
+    },
+    "responses": {
+      "executed": 246,
+      "passed": 240,
+      "failed": 6,
+      "warnings": 0,
+      "failures": [
+        "response: Test [1] Response corretta. Risultato atteso: Ok",
+        "response: Test [31] L'attributo Format di Issuer della Response deve essere omesso o assumere valore urn:oasis:names:tc:SAML:2.0:nameid-format:entity. In questo test il valore è omesso. Risultato atteso: Ok",
+        "response: Test [95] Elemento AuthContextClassRef impostato su https://www.spid.gov.it/SpidL2. Il SP ha accettato un ACR non compatibile con Comparison e non superiore.",
+        "response: Test [96] Elemento AuthContextClassRef impostato su https://www.spid.gov.it/SpidL3. Il SP ha accettato un ACR non compatibile con Comparison e non superiore.",
+        "response: Test [109] Response corretta. Risultato atteso: Ok",
+        "response: Test [110] Attributo IssueInstant specificato con millisecondi. Risultato atteso: Ok"
+      ]
+    },
+    "empty_keyinfo_repro": {
+      "command": "php tools/spid/repro/empty-keyinfo-certificate.php",
+      "exit": 0,
+      "meaning": "incompatibility reproduced, not login success",
+      "populated_certificate": "valid",
+      "empty_certificate": "Exception: Unable to extract public key",
+      "php_saml": "4.3.2",
+      "xmlseclibs": "3.1.5",
+      "php": "8.5.10"
+    },
+    "response_scenarios_stopping_at_empty_certificate": [
+      "1",
+      "4",
+      "14",
+      "20",
+      "28",
+      "30",
+      "31",
+      "35",
+      "39",
+      "40",
+      "43",
+      "44",
+      "45",
+      "46",
+      "47",
+      "48",
+      "49",
+      "57",
+      "58",
+      "61",
+      "64",
+      "70",
+      "71",
+      "72",
+      "73",
+      "76",
+      "85",
+      "92",
+      "94",
+      "95",
+      "96",
+      "97",
+      "99",
+      "100",
+      "103",
+      "109",
+      "110"
+    ],
+    "non_positive_ids_stopping_at_empty_certificate": [
+      "4",
+      "14",
+      "20",
+      "28",
+      "30",
+      "35",
+      "39",
+      "40",
+      "43",
+      "44",
+      "45",
+      "46",
+      "47",
+      "48",
+      "49",
+      "57",
+      "58",
+      "61",
+      "64",
+      "70",
+      "71",
+      "72",
+      "73",
+      "76",
+      "85",
+      "92",
+      "94",
+      "97",
+      "99",
+      "100",
+      "103"
+    ],
+    "classification_correction": "37 Response occurrences = six positives plus 31 other scenarios (including flexible 103); refused-citizen sentinel adds one more. Historical six-plus-32 classification not independently confirmed."
+  },
+  "positive_before_after": [
+    {
+      "scenario": "1",
+      "before": {
+        "tool_exit": 1,
+        "acs_http": 500,
+        "result": "failure"
+      },
+      "after": {
+        "result": "success",
+        "acs_status": 302,
+        "panel_status": 200,
+        "panel_login_redirect": false,
+        "authenticated": true,
+        "spid_session": true,
+        "error": null,
+        "isolated": true,
+        "scenario": "1"
+      }
+    },
+    {
+      "scenario": "31",
+      "before": {
+        "tool_exit": 1,
+        "acs_http": 500,
+        "result": "failure"
+      },
+      "after": {
+        "result": "success",
+        "acs_status": 302,
+        "panel_status": 200,
+        "panel_login_redirect": false,
+        "authenticated": true,
+        "spid_session": true,
+        "error": null,
+        "isolated": true,
+        "scenario": "31"
+      }
+    },
+    {
+      "scenario": "95",
+      "before": {
+        "tool_exit": 1,
+        "acs_http": 500,
+        "result": "failure"
+      },
+      "after": {
+        "result": "success",
+        "acs_status": 302,
+        "panel_status": 200,
+        "panel_login_redirect": false,
+        "authenticated": true,
+        "spid_session": true,
+        "error": null,
+        "isolated": true,
+        "scenario": "95"
+      }
+    },
+    {
+      "scenario": "96",
+      "before": {
+        "tool_exit": 1,
+        "acs_http": 500,
+        "result": "failure"
+      },
+      "after": {
+        "result": "success",
+        "acs_status": 302,
+        "panel_status": 200,
+        "panel_login_redirect": false,
+        "authenticated": true,
+        "spid_session": true,
+        "error": null,
+        "isolated": true,
+        "scenario": "96"
+      }
+    },
+    {
+      "scenario": "109",
+      "before": {
+        "tool_exit": 1,
+        "acs_http": 500,
+        "result": "failure"
+      },
+      "after": {
+        "result": "success",
+        "acs_status": 302,
+        "panel_status": 200,
+        "panel_login_redirect": false,
+        "authenticated": true,
+        "spid_session": true,
+        "error": null,
+        "isolated": true,
+        "scenario": "109"
+      }
+    },
+    {
+      "scenario": "110",
+      "before": {
+        "tool_exit": 1,
+        "acs_http": 500,
+        "result": "failure"
+      },
+      "after": {
+        "result": "success",
+        "acs_status": 302,
+        "panel_status": 200,
+        "panel_login_redirect": false,
+        "authenticated": true,
+        "spid_session": true,
+        "error": null,
+        "isolated": true,
+        "scenario": "110"
+      }
+    }
+  ],
+  "after": {
+    "metadata": "104/104",
+    "authn_request": "151/151",
+    "responses": "246/246",
+    "original_scenarios": 111,
+    "strict_negative_refusals": 104,
+    "upstream_flexible_scenario_103": {
+      "acs_status": 302,
+      "panel_status": 200,
+      "panel_login_redirect": false,
+      "authenticated": true,
+      "spid_session": true,
+      "error": null,
+      "isolated": true,
+      "scenario": "103"
+    },
+    "empty_certificate_exceptions": 0,
+    "all_sessions_initially_guest": true,
+    "gate": "pass",
+    "summary": "lab-summary-2026-10-16.json",
+    "scenario_diagnostics": "response-diagnostics-2026-10-16.json",
+    "denial_sentinel": [
+      {
+        "acs_status": 302,
+        "panel_status": 302,
+        "panel_login_redirect": true,
+        "authenticated": false,
+        "spid_session": false,
+        "error": "the user may not access the panel",
+        "isolated": true,
+        "scenario": "1"
+      }
+    ]
+  },
+  "newly_exposed_production_defects": [
+    {
+      "scenario": "64",
+      "before": "Authenticated without SubjectConfirmationData@NotOnOrAfter after signing precondition was fixed",
+      "regression": "missing and empty expiry accepted before fix; explicit SPIDLoginException after fix",
+      "after": {
+        "acs_status": 500,
+        "panel_status": 302,
+        "panel_login_redirect": true,
+        "authenticated": false,
+        "spid_session": false,
+        "error": "SAML response validation error: empty or missing SubjectConfirmationData NotOnOrAfter attribute",
+        "isolated": true,
+        "scenario": "64"
+      }
+    },
+    {
+      "scenario": "28",
+      "before": "missing Response Issuer caused null dereference after signing precondition was fixed",
+      "regression": "Expected validation exception, got Call to a member function getAttribute() on null; passes after fix",
+      "after": {
+        "acs_status": 500,
+        "panel_status": 302,
+        "panel_login_redirect": true,
+        "authenticated": false,
+        "spid_session": false,
+        "error": "SAML response validation error: missing Response Issuer element",
+        "isolated": true,
+        "scenario": "28"
+      }
+    }
+  ],
+  "ci_installed_saml_dependencies": {
+    "italia/spid-laravel": {
+      "version": "2.1.0-beta",
+      "reference": "b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe"
+    },
+    "onelogin/php-saml": {
+      "version": "4.3.2",
+      "reference": "26b3a47349415e5b7aa300ba4ab7fc316c65f19e"
+    },
+    "robrichards/xmlseclibs": {
+      "version": "3.1.5",
+      "reference": "03062be78178cbb5e8f605cd255dc32a14981f92"
+    }
+  },
+  "archive_application_dependencies": {
+    "italia/spid-laravel": {
+      "version": "dev-feat/laravel-13",
+      "reference": "b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe"
+    },
+    "onelogin/php-saml": {
+      "version": "4.3.2",
+      "reference": "26b3a47349415e5b7aa300ba4ab7fc316c65f19e"
+    },
+    "robrichards/xmlseclibs": {
+      "version": "3.1.5",
+      "reference": "03062be78178cbb5e8f605cd255dc32a14981f92"
+    },
+    "laravel/framework": {
+      "version": "v13.37.0",
+      "reference": "685f8d6c2ab4547287500bc80ccdf2ca12635109"
+    },
+    "filament/filament": {
+      "version": "v5.10.2",
+      "reference": "aaa2a4fc6c03e5dc2eaeac098d026b776291951a"
+    }
+  },
+  "checks": [
+    {
+      "command": "COMPOSER=composer.ci.json bash .github/scripts/use-spid-laravel-fork.sh; COMPOSER_EXIT_ON_PATCH_FAILURE=1 composer update --prefer-stable --prefer-dist --no-interaction",
+      "exit": 0,
+      "note": "immutable CI-only package repository; source b8dd1a4, same as quickstart"
+    },
+    {
+      "command": "COMPOSER=composer.ci.json composer validate --strict",
+      "exit": 0
+    },
+    {
+      "command": "COMPOSER=composer.ci.json composer audit",
+      "exit": 0,
+      "advisories": 0
+    },
+    {
+      "command": "COMPOSER=composer.ci.json composer analyse",
+      "exit": 0,
+      "level": "max",
+      "php": "8.5.10"
+    },
+    {
+      "command": "vendor/bin/pint --test",
+      "exit": 0
+    },
+    {
+      "command": "vendor/bin/pest",
+      "exit": 0,
+      "passed": 602,
+      "assertions": 1518,
+      "existing_real_tool_tests_skipped": 4
+    },
+    {
+      "command": "XDEBUG_MODE=coverage php -d zend_extension=/Applications/Herd.app/Contents/Resources/xdebug/xdebug-85-arm64.so vendor/bin/pest --coverage --min=100",
+      "exit": 0,
+      "passed": 602,
+      "assertions": 1518,
+      "line_coverage_percent": 100,
+      "existing_real_tool_tests_skipped": 4
+    },
+    {
+      "command": "SPID_SP_TEST_BIN=\"$PWD/tools/spid/bin/spid_sp_test\" vendor/bin/pest tests/Integration",
+      "exit": 0,
+      "passed": 4,
+      "assertions": 18
+    },
+    {
+      "command": "node --test 'tests/js/*.test.mjs'",
+      "exit": 0,
+      "passed": 5
+    },
+    {
+      "command": "bash .github/scripts/tests/release-scripts.test.sh",
+      "exit": 0,
+      "passed": 18,
+      "publishing": false
+    },
+    {
+      "command": "bash .github/scripts/tests/use-spid-laravel-fork.test.sh",
+      "exit": 0,
+      "note": "idempotence, published manifest unchanged, immutable source/dist, patch opt-in, strict validation"
+    },
+    {
+      "command": "python3 tools/spid/tests/test_summary.py",
+      "exit": 0,
+      "passed": 12
+    },
+    {
+      "command": "python /opt/lab/tests/test_signing.py (mandatory Docker build step)",
+      "exit": 0,
+      "passed": 2,
+      "note": "real scenario runner, both signatures/digests, wrong-key rejection, reapplication refused"
+    },
+    {
+      "command": "python -m pip check (Docker build and executing lab interpreter)",
+      "exit": 0,
+      "output": "No broken requirements found."
+    },
+    {
+      "command": "COMPOSER=composer.json COMPOSER_EXIT_ON_PATCH_FAILURE=1 bash tools/spid/validate.sh /private/tmp/filament-spid-pr15-header-lab",
+      "exit": 0,
+      "source_sha": "ad957031b80cd80dc269782e24324bb1b62dd9d6",
+      "note": "complete fresh-app archive install; work directory reused to verify stale-report cleanup"
+    }
+  ],
+  "matrix": [
+    {
+      "leg": "P8.3-L12-F3",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:3.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.3-L12-F4",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:4.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.3-L12-F5",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:5.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.3-L13-F3",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:3.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.3-L13-F4",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:4.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.3-L13-F5",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:5.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.4-L12-F3",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:3.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.4-L12-F4",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:4.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.4-L12-F5",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:5.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.4-L13-F3",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:3.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.4-L13-F4",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:4.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.4-L13-F5",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:5.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.5-L12-F3",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:3.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.5-L12-F4",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:4.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.5-L12-F5",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:12.*",
+            "orchestra/testbench:10.*",
+            "filament/filament:5.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.5-L13-F3",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:3.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.5-L13-F4",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:4.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "leg": "P8.5-L13-F5",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "init",
+            "-q"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "install",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "php",
+            "vendor/bin/pest"
+          ],
+          "exit": 0
+        }
+      ],
+      "test_counts": [
+        "4 skipped, 602 passed (1515 assertions)"
+      ],
+      "pass": true,
+      "resolution_commands": [
+        {
+          "command": [
+            "php",
+            "-v"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "bash",
+            ".github/scripts/use-spid-laravel-fork.sh"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "require",
+            "laravel/framework:13.*",
+            "orchestra/testbench:11.*",
+            "filament/filament:5.*",
+            "nesbot/carbon:^3.0",
+            "--no-interaction",
+            "--no-update"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "update",
+            "--prefer-stable",
+            "--prefer-dist",
+            "--no-interaction"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "composer",
+            "audit"
+          ],
+          "exit": 0
+        }
+      ]
+    }
+  ],
+  "matrix_note": "All 18 resolutions/audits succeeded. Initial disposable copies lacked Git metadata, failing four DocumentationTest git check-attr cases. After git init, all 18 locked installs passed 602 tests / 1515 assertions. Matrix used the same b8dd1a4 source through a dev commit-ref; final CI-only package-repository metadata and final application suite/helper were verified separately.",
+  "archive_installs": [
+    {
+      "php": "8.3",
+      "laravel": 12,
+      "filament": 3,
+      "command": "LARAVEL=12 FILAMENT=3 PORT=8133 bash .github/scripts/install-check.sh /private/tmp/pr15-install-83-l12-f3",
+      "exit": 0
+    },
+    {
+      "php": "8.4",
+      "laravel": 13,
+      "filament": 4,
+      "command": "LARAVEL=13 FILAMENT=4 PORT=8134 bash .github/scripts/install-check.sh /private/tmp/pr15-install-84-l13-f4",
+      "exit": 0
+    },
+    {
+      "php": "8.5",
+      "laravel": 13,
+      "filament": 5,
+      "command": "archive-install leg inside the committed complete lab",
+      "exit": 0
+    }
+  ],
+  "interrupted_runs": "Local Docker Desktop host-gateway TCP dial timeouts produced 502s and left gate=fail, including when all 246 Response assertions had passed but a panel probe failed. No transport error was counted as a validation refusal. Guard observability now uses existing response headers; Caddy dial timeout is 30s with no SAML POST retries.",
+  "metadata_sentinels": {
+    "tampered-after-signing": "fail",
+    "public-without-ipa-code": "fail",
+    "html-page": "error",
+    "empty-file": "error",
+    "valid": "pass"
+  },
+  "remote_repair_ci_observed": false,
+  "remaining_verification": "No repaired SHA was pushed or run on GitHub Actions. Ubuntu workflow runs for the final commit (including PHPStan 8.3/8.4/8.5 and all matrix jobs) remain unobserved.",
+  "hosted_validator": "HOSTED_VALIDATOR_NOT_RUN",
+  "formal_acceptance": "FORMAL_AGID_ACCEPTANCE_NOT_OBTAINED",
+  "external_mutations": []
+}
