@@ -1,0 +1,105 @@
+name: release
+
+# Tags and releases the merge commit of a pull request merged into main.
+#
+# The bump comes from the PR labels release:major / release:minor /
+# release:patch (patch when none is set); skip-release and Dependabot PRs
+# produce no release. release-check.yml makes sure every PR carries one of
+# those labels. workflow_dispatch releases the head of main by hand.
+#
+# pull_request_target, not pull_request: a PR from a fork would otherwise get
+# a read-only token and could not push the tag. It is safe here because the
+# job only checks out the merge commit, which is already on main, and never
+# runs code from the PR branch.
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+# One release at a time, never cancelled. GitHub keeps a single pending run
+# per group: if three merges land within one release run, re-run the skipped
+# one; release-plan.sh refuses commits that are already tagged.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Tag and release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       github.event.pull_request.user.login != 'dependabot[bot]' &&
+       !contains(github.event.pull_request.labels.*.name, 'skip-release'))
+
+    steps:
+      - name: Checkout the merged commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || 'main' }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Determine the bump
+        id: bump
+        env:
+          DISPATCH_BUMP: ${{ inputs.bump }}
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          if [ -n "$DISPATCH_BUMP" ]; then
+            bump="$DISPATCH_BUMP"
+          elif jq -e 'index("release:major")' <<<"$LABELS" >/dev/null; then
+            bump="major"
+          elif jq -e 'index("release:minor")' <<<"$LABELS" >/dev/null; then
+            bump="minor"
+          else
+            bump="patch"
+          fi
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+          echo "Bump: $bump"
+
+      - name: Plan the version
+        id: version
+        env:
+          BUMP: ${{ steps.bump.outputs.bump }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          # Fails when this commit already carries a release tag (re-runs).
+          bash .github/scripts/release-plan.sh "$sha" "$BUMP" | tee -a "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Create the tag
+        env:
+          NEXT: ${{ steps.version.outputs.next }}
+          SHA: ${{ steps.version.outputs.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$NEXT" -m "Release $NEXT" "$SHA"
+          git push origin "refs/tags/$NEXT"
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEXT: ${{ steps.version.outputs.next }}
+          LATEST: ${{ steps.version.outputs.latest }}
+        run: |
+          bash .github/scripts/release-notes.sh CHANGELOG.md "$NEXT" > notes.md
+          args=(--title "$NEXT" --generate-notes --notes-file notes.md --verify-tag)
+          if [ -n "$LATEST" ]; then
+            args+=(--notes-start-tag "$LATEST")
+          fi
+          gh release create "$NEXT" "${args[@]}"

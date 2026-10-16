@@ -4,31 +4,27 @@ declare(strict_types=1);
 
 namespace OfflineAgency\FilamentSpid\Http\Controllers;
 
-use Filament\Facades\Filament;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Italia\SPIDAuth\Exceptions\SPIDLogoutException;
 use Italia\SPIDAuth\SPIDAuth;
-use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
-use OfflineAgency\FilamentSpid\Events\SpidAuthenticationFailed;
-use OfflineAgency\FilamentSpid\Events\SpidAuthenticationSucceeded;
-use OfflineAgency\FilamentSpid\Http\Requests\SpidLoginRequest;
-use OfflineAgency\FilamentSpid\Services\SpidUserService;
+use OfflineAgency\FilamentSpid\Listeners\ResolvesPanel;
+use OfflineAgency\FilamentSpid\Support\TypedConfig;
 
 class SpidController extends Controller
 {
+    use ResolvesPanel;
+
     protected SPIDAuth $spid;
 
-    protected SpidUserService $userService;
-
-    public function __construct(SPIDAuth $spid, SpidUserService $userService)
+    public function __construct(SPIDAuth $spid)
     {
         $this->spid = $spid;
-        $this->userService = $userService;
     }
 
     /**
@@ -36,122 +32,76 @@ class SpidController extends Controller
      */
     public function providers(): JsonResponse
     {
-        $ttl = (int) config('filament-spid.cache.providers_ttl', 3600);
-        $providers = Cache::remember('filament_spid_providers', $ttl, function () {
-            $idps = config('spid-idps', []);
-            $list = [];
-            foreach ($idps as $key => $idp) {
-                if ($key !== 'empty' && isset($idp['isActive']) && $idp['isActive']) {
-                    $list[] = [
-                        'provider' => $idp['provider'] ?? $key,
-                        'title' => $idp['title'] ?? $key,
-                        'entityName' => $idp['entityName'] ?? null,
-                        'logo' => $idp['logo'] ?? null,
-                    ];
-                }
-            }
+        // No cache: the list comes from config, which is already in memory.
+        $providers = [];
 
-            return $list;
-        });
+        foreach (TypedConfig::array('spid-idps') as $key => $idp) {
+            if ($key !== 'empty' && is_array($idp) && ($idp['isActive'] ?? false)) {
+                $providers[] = [
+                    'provider' => $idp['provider'] ?? $key,
+                    'title' => $idp['title'] ?? $key,
+                    'entityName' => $idp['entityName'] ?? null,
+                    'logo' => $idp['logo'] ?? null,
+                ];
+            }
+        }
 
         return response()->json(['providers' => $providers]);
     }
 
     /**
      * Initiate SPID login
+     *
+     * Redirects to the Filament login page where the user can select a SPID provider.
+     * The actual SAML handshake is triggered by the provider button form posting to
+     * the `spid-auth_do-login` route provided by italia/spid-laravel.
      */
-    public function login(SpidLoginRequest $request): Response|RedirectResponse
+    public function login(): RedirectResponse
     {
-        $provider = $request->validated('provider');
-        $level = $request->input('level', config('filament-spid.spid_level', 'https://www.spid.gov.it/SpidL2'));
-
-        if (! $provider) {
-            return redirect()->back()->with('error', __('filament-spid::spid.provider_required'));
-        }
-
-        try {
-            return $this->spid->login(
-                $provider,
-                $level,
-                route('spid.acs')
-            );
-        } catch (\Exception $e) {
-            \Log::error('SPID Login Error: '.$e->getMessage());
-
-            return redirect()->back()->with('error', __('filament-spid::spid.login_error'));
-        }
+        return redirect()->to($this->loginUrl());
     }
 
     /**
-     * Handle SPID ACS (Assertion Consumer Service) callback
-     */
-    public function acs(Request $request): RedirectResponse
-    {
-        try {
-            $this->spid->acs();
-
-            if (! $this->spid->isAuthenticated()) {
-                event(new SpidAuthenticationFailed('Not authenticated after ACS'));
-
-                return redirect()
-                    ->route('filament.admin.auth.login')
-                    ->with('error', __('filament-spid::spid.authentication_failed'));
-            }
-
-            $spidUser = $this->spid->getSPIDUser();
-            $spidData = SpidUserData::fromSpidAuth($spidUser);
-
-            $user = $this->userService->findOrCreateUser($spidData);
-
-            $guard = optional(Filament::getCurrentPanel())->getAuthGuard() ?? config('auth.defaults.guard');
-            Auth::guard($guard)->login($user);
-            $request->session()->regenerate();
-
-            event(new SpidAuthenticationSucceeded($user, $spidData));
-
-            return redirect()->intended(config('filament-spid.redirect_after_login', '/admin'));
-        } catch (\Exception $e) {
-            \Log::error('SPID ACS Error: '.$e->getMessage());
-            event(new SpidAuthenticationFailed($e->getMessage()));
-
-            return redirect()
-                ->route('filament.admin.auth.login')
-                ->with('error', __('filament-spid::spid.acs_error'));
-        }
-    }
-
-    /**
-     * Handle SPID logout
+     * Log the citizen out.
+     *
+     * A SPID session is handed to italia/spid-laravel, which starts the IdP
+     * single logout (or, with only_sp_logout, ends it right away); either way
+     * it fires LogoutEvent and HandleSpidLogout tears the panel session down.
+     * Without a SPID session there is nothing to tell the IdP, so the panel
+     * guard is logged out here.
      */
     public function logout(Request $request): RedirectResponse
     {
-        try {
-            $this->spid->logout();
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        if ($this->spid->isAuthenticated()) {
+            // End the panel session before the round trip: the citizen may
+            // never come back from the IdP. The library saves the session
+            // before redirecting, so this sticks.
+            Auth::guard($this->guard())->logout();
 
-            return redirect()->route('filament.admin.auth.login');
-        } catch (\Exception $e) {
-            \Log::error('SPID Logout Error: '.$e->getMessage());
-
-            return redirect()->route('filament.admin.auth.login');
+            try {
+                return $this->spid->logout();
+            } catch (SPIDLogoutException $e) {
+                // The IdP could not be reached: end the local session anyway.
+                Log::error('SPID logout failed: '.$e::class.' (code '.$e->getCode().')');
+            }
         }
+
+        Auth::guard($this->guard())->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->to($this->loginUrl());
     }
 
     /**
-     * Return SPID metadata
+     * Return the signed SP metadata.
+     *
+     * The library answers 404 when spid-auth.expose_sp_metadata is off and
+     * throws SPIDMetadataException on a broken SP configuration, which should
+     * surface rather than be masked.
      */
     public function metadata(): Response
     {
-        try {
-            $metadata = $this->spid->getSPMetadata();
-
-            return response($metadata)->header('Content-Type', 'application/xml');
-        } catch (\Exception $e) {
-            \Log::error('SPID Metadata Error: '.$e->getMessage());
-
-            return response('Error generating metadata', 500);
-        }
+        return $this->spid->metadata();
     }
 }

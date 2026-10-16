@@ -1,0 +1,42 @@
+name: release-check
+
+# Every pull request into main must say what its merge releases, so a merge
+# never produces an unintended version bump (see release.yml).
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  label:
+    name: Release label
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+
+    steps:
+      - name: Require exactly one release label
+        env:
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          count=$(jq '[.[] | select(. == "release:major" or . == "release:minor" or . == "release:patch" or . == "skip-release")] | length' <<<"$LABELS")
+          if [ "$count" -ne 1 ]; then
+            echo "::error::Add exactly one of release:major, release:minor, release:patch or skip-release (found $count)."
+            exit 1
+          fi
+
+  scripts:
+    name: Release scripts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Test the release scripts
+        run: bash .github/scripts/tests/release-scripts.test.sh

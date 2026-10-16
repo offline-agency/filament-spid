@@ -1,0 +1,5 @@
+sentinel-empty-file: error (not_run)
+sentinel-html-page: error (not_run)
+sentinel-public-without-ipa-code: fail (ok)
+sentinel-tampered-after-signing: fail (ok)
+sentinel-valid: pass (ok)

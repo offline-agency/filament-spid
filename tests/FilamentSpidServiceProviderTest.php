@@ -1,5 +1,16 @@
 <?php
 
+use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\ServiceProvider;
+use Italia\SPIDAuth\Events\LoginEvent;
+use Italia\SPIDAuth\Events\LogoutEvent;
+use Italia\SPIDAuth\SPIDUser;
 use OfflineAgency\FilamentSpid\FilamentSpidServiceProvider;
 
 describe('FilamentSpidServiceProvider', function () {
@@ -46,9 +57,117 @@ describe('FilamentSpidServiceProvider - Assets', function () {
         expect(file_exists($cssPath))->toBeTrue();
     });
 
-    it('registers js asset', function () {
-        $jsPath = __DIR__.'/../resources/dist/filament-spid.js';
+    it('ships styles in the registered css asset', function () {
+        $css = file_get_contents(__DIR__.'/../resources/dist/filament-spid.css');
 
-        expect(file_exists($jsPath))->toBeTrue();
+        expect(trim($css))->not->toBe('')
+            ->and($css)->toContain('.spid-button-wrapper');
+    });
+
+    it('registers no js asset', function () {
+        // The bundle was empty and loaded on every Filament page; the button
+        // ships its own Blade-rendered script instead.
+        expect(file_exists(__DIR__.'/../resources/dist/filament-spid.js'))->toBeFalse();
+    });
+
+    it('registers jQuery as a script loaded only on request', function () {
+        $scripts = collect(FilamentAsset::getScripts(['offline-agency/filament-spid'], withCore: false))
+            ->keyBy(fn ($asset) => $asset->getId());
+
+        expect($scripts)->toHaveKey('spid-jquery')
+            ->and($scripts['spid-jquery']->isLoadedOnRequest())->toBeTrue();
+    });
+
+    it('ships the official jQuery 3.7.1 build', function () {
+        // Same SRI hash code.jquery.com publishes for jquery-3.7.1.min.js.
+        $hash = base64_encode(hash_file('sha256', __DIR__.'/../resources/dist/jquery.min.js', true));
+
+        expect($hash)->toBe('/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=');
+    });
+});
+
+describe('FilamentSpidServiceProvider - Publishing', function () {
+    it('publishes images to the path the views reference', function () {
+        $paths = ServiceProvider::pathsToPublish(FilamentSpidServiceProvider::class, 'filament-spid-images');
+
+        expect(array_values($paths))->toContain(public_path('vendor/filament-spid/images'))
+            ->and(array_values($paths))->not->toContain(public_path('images'));
+    });
+
+    it('publishes the spid-laravel config files', function () {
+        $paths = ServiceProvider::pathsToPublish(FilamentSpidServiceProvider::class, 'filament-spid-config');
+
+        expect(array_values($paths))->toContain(config_path().'/spid-auth.php')
+            ->and(array_values($paths))->toContain(config_path().'/spid-idps.php');
+    });
+});
+
+describe('FilamentSpidServiceProvider - Listeners', function () {
+    it('listens to the SPID login and logout events', function () {
+        expect(Event::hasListeners(LoginEvent::class))->toBeTrue()
+            ->and(Event::hasListeners(LogoutEvent::class))->toBeTrue();
+    });
+
+    it('warns at boot when the requested SPID level is below the minimum', function () {
+        Config::set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldHaveReceived('warning')->withArgs(
+            fn (string $message) => str_contains($message, 'SpidL1') && str_contains($message, 'filament-spid.minimum_level')
+        );
+    });
+
+    it('logs a misconfiguration warning once, not on every request', function () {
+        Config::set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldHaveReceived('warning')->once();
+    });
+
+    it('still warns when the cache is unavailable', function () {
+        Config::set('spid-auth.sp_spid_level', 'https://www.spid.gov.it/SpidL1');
+        Cache::shouldReceive('add')->andThrow(new RuntimeException('cache down'));
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldHaveReceived('warning')->once();
+    });
+
+    it('warns at boot when the minimum level is not a SPID level', function () {
+        Config::set('filament-spid.minimum_level', 'SpidL3');
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldHaveReceived('warning')->withArgs(
+            fn (string $message) => str_contains($message, '[SpidL3]') && str_contains($message, 'not a SPID level')
+        );
+    });
+
+    it('stays quiet at boot when the requested SPID level meets the minimum', function () {
+        Log::spy();
+
+        $this->app->getProvider(FilamentSpidServiceProvider::class)->packageBooted();
+
+        Log::shouldNotHaveReceived('warning');
+    });
+
+    it('provisions the user when the library fires its LoginEvent', function () {
+        Model::unguard();
+        Config::set('filament-spid.auto_create_users', true);
+
+        event(new LoginEvent(new SPIDUser([
+            'fiscalNumber' => ['TINIT-RSSMRA80A01H501U'],
+            'name' => ['Mario'],
+            'familyName' => ['Rossi'],
+        ]), 'Poste ID'));
+
+        expect(Auth::guard('web')->check())->toBeTrue();
     });
 });

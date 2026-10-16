@@ -1,25 +1,19 @@
-includes:
-    - phpstan-baseline.neon
-
 parameters:
-    level: 4
+    level: max
     paths:
         - src
         - config
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
-    checkModelProperties: true
-    bootstrapFiles:
-        - tests/TestCase.php
-    excludePaths:
-        - src/Pages/StandardLogin.php
+    # The only model is the application's configurable user model, whose
+    # columns are unknown here.
+    checkModelProperties: false
+    scanFiles:
+        # The application's App\Models\User, which the package defaults to.
+        - tests/stubs/App/Models/User.php
     ignoreErrors:
-        # External dependencies that are not available during static analysis
-        - '#Class App\\Models\\User not found#'
-        
-        # SPIDAuth library method signature issues - external library
-        - '#Method Italia\\SPIDAuth\\SPIDAuth::login\(\) invoked with 3 parameters, 0 required#'
-        - '#Call to an undefined method Italia\\SPIDAuth\\SPIDAuth::getSPMetadata\(\)#'
-        
-        # Config files are allowed to use env() calls
-        - '#Called .*env.*outside of the config directory#'
+        # Larastan only recognises the application's config_path(); env() in
+        # the package's own config file is read before config is cached.
+        -
+            identifier: larastan.noEnvCallsOutsideOfConfig
+            path: config/filament-spid.php

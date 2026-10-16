@@ -1,0 +1,45 @@
+{
+    "type": "package",
+    "package": {
+        "name": "italia/spid-laravel",
+        "description": "Laravel Package for SPID authentication",
+        "license": "BSD-3-Clause",
+        "require": {
+            "php": "^8.2|^8.3",
+            "illuminate/config": "^9.52.4|^10.0|^11.0|^12.0|^13.0",
+            "illuminate/support": "^9.52.4|^10.0|^11.0|^12.0|^13.0",
+            "onelogin/php-saml": "^4.3.1",
+            "robrichards/xmlseclibs": "^3.1.5",
+            "cweagans/composer-patches": "^1.7",
+            "nesbot/carbon": "^2.66|^3.0"
+        },
+        "autoload": {
+            "psr-4": {
+                "Italia\\SPIDAuth\\": "src/"
+            }
+        },
+        "extra": {
+            "laravel": {
+                "providers": [
+                    "Italia\\SPIDAuth\\ServiceProvider"
+                ]
+            },
+            "patches": {
+                "onelogin/php-saml": {
+                    "Compatibility with SPID": "https://raw.githubusercontent.com/offline-agency/spid-laravel/1cf5c84b7820ee3a84582e1506c910c168f635b5/patches/php-saml-4.3-spid.patch"
+                }
+            }
+        },
+        "version": "2.1.0-beta",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/offline-agency/spid-laravel.git",
+            "reference": "b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/offline-agency/spid-laravel/zipball/b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe",
+            "reference": "b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe"
+        }
+    }
+}

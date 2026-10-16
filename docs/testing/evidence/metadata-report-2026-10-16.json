@@ -1,0 +1,658 @@
+{
+    "schema_version": 1,
+    "overall_status": "pass",
+    "evidence": [
+        "LOCAL_METADATA_CHECK_PASSED",
+        "HOSTED_VALIDATOR_NOT_RUN",
+        "FORMAL_AGID_ACCEPTANCE_NOT_OBTAINED"
+    ],
+    "validated_at": "2026-10-16T12:13:01+00:00",
+    "profile": "spid-sp-public",
+    "plugin": {
+        "version": "1.0.0-RC999",
+        "reference": null
+    },
+    "metadata": {
+        "source": "/private/tmp/filament-spid-pr15-header-lab/metadata.xml",
+        "sha256": "11e45f089054e8273461649853f59de36ce5d7324d45df72aa3f9d324af06679",
+        "bytes": 6452
+    },
+    "tool": {
+        "name": "spid_sp_test",
+        "version": "1.2.18",
+        "exit_code": 0,
+        "status": "ok"
+    },
+    "summary": {
+        "executed": 104,
+        "passed": 104,
+        "failed": 0,
+        "warnings": 0
+    },
+    "checks": [
+        {
+            "id": "SpidSpMetadataCheckExtra.xsd_check",
+            "status": "pass",
+            "message": "SpidSpMetadataCheckExtra.xsd_check: Test file:///var/folders/dk/8r5ppz290dj18llcqzrbf_kw0000gn/T/filament-spid-validate-46f65cce8d7facd7/metadata.xml with saml-schema-metadata-2.0.xsd",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_EntityDescriptor",
+            "status": "pass",
+            "message": "Only one EntityDescriptor element MUST be present: ['<EntityDescriptor entityID=\"https://sp.example.test\" ID=\"pfxf2e6912b-dc47-8922-5dd0-73a2656ec1e1\"><Signature>\\n  <SignedInfo><Can']",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_EntityDescriptor",
+            "status": "pass",
+            "message": "The entityID attribute MUST be present: {'entityID': 'https://sp.example.test', 'ID': 'pfxf2e6912b-dc47-8922-5dd0-73a2656ec1e1'}",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_EntityDescriptor",
+            "status": "pass",
+            "message": "The entityID attribute MUST have a value: https://sp.example.test",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor",
+            "status": "pass",
+            "message": "Only one SPSSODescriptor element MUST be present: ['<SPSSODescriptor AuthnRequestsSigned=\"true\" WantAssertionsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:']",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_NameIDFormat_Transient",
+            "status": "pass",
+            "message": "The NameIDFormat MUST be urn:oasis:names:tc:SAML:2.0:nameid-format:transient: ['<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>\\n    ']",
+            "remediation": "See the SPID technical rules: TR pag. ..."
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_xmldsig",
+            "status": "pass",
+            "message": "the metadata signature MUST be valid: /usr/bin/xmlsec1 --verify --insecure --id-attr:ID urn:oasis:names:tc:SAML:2.0:metadata:EntityDescriptor /tmp/tmpyvi8ufv5.xml",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature",
+            "status": "pass",
+            "message": "The Signature element MUST be present: <Signature>\n  <SignedInfo><CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>\n    <SignatureMethod Alg",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature",
+            "status": "pass",
+            "message": "The SignatureMethod element MUST be present: <SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256\"/>\n  ",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature",
+            "status": "pass",
+            "message": "The Algorithm attribute MUST be present in SignatureMethod element: <SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256\"/>\n  ",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature",
+            "status": "pass",
+            "message": "The signature algorithm MUST be valid: One of http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256, http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384, http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512, http://www.w3.org/2001/04/xmldsig-more#hmac-sha256, http://www.w3.org/2001/04/xmldsig-more#hmac-sha384, http://www.w3.org/2001/04/xmldsig-more#hmac-sha512, http://www.w3.org/2001/04/xmldsig-more#rsa-sha256, http://www.w3.org/2001/04/xmldsig-more#rsa-sha384, http://www.w3.org/2001/04/xmldsig-more#rsa-sha512",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature",
+            "status": "pass",
+            "message": "The DigestMethod element MUST be present",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature",
+            "status": "pass",
+            "message": "The Algorithm attribute MUST be present in DigestMethod element",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature",
+            "status": "pass",
+            "message": "The digest algorithm MUST be valid: One of http://www.w3.org/2001/04/xmlenc#sha256, http://www.w3.org/2001/04/xmlenc#sha384, http://www.w3.org/2001/04/xmlenc#sha512",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_KeyDescriptor",
+            "status": "pass",
+            "message": "At least one signing KeyDescriptor MUST be present",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_KeyDescriptor",
+            "status": "pass",
+            "message": "At least one signing x509 MUST be present: <KeyDescriptor use=\"signing\">\n      <KeyInfo>\n        <X509Data>\n          <X509Certificate>MIIEVDCCArygAwIBAgIUGDV7dnZ/bWMmXeWy",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SingleLogoutService",
+            "status": "pass",
+            "message": "One or more SingleLogoutService elements MUST be present: <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://sp.example.test/spid/logout\"",
+            "remediation": "See the SPID technical rules: AV n. 3"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SingleLogoutService",
+            "status": "pass",
+            "message": "The Binding attribute in SingleLogoutService element MUST be present: <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://sp.example.test/spid/logout\"",
+            "remediation": "See the SPID technical rules: AV n. 3"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SingleLogoutService",
+            "status": "pass",
+            "message": "The Binding attribute in SingleLogoutService element MUST have a value: <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://sp.example.test/spid/logout\"",
+            "remediation": "See the SPID technical rules: AV n. 3"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SingleLogoutService",
+            "status": "pass",
+            "message": "The Binding attribute in SingleLogoutService element MUST be one of [urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST, urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect]: <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://sp.example.test/spid/logout\"",
+            "remediation": "See the SPID technical rules: AV n. 3"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SingleLogoutService",
+            "status": "pass",
+            "message": "The Location attribute in SingleLogoutService element MUST be present: <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://sp.example.test/spid/logout\"",
+            "remediation": "See the SPID technical rules: AV n. 3"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SingleLogoutService",
+            "status": "pass",
+            "message": "The Location attribute in SingleLogoutService element MUST have a value: <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://sp.example.test/spid/logout\"",
+            "remediation": "See the SPID technical rules: AV n. 3"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SingleLogoutService",
+            "status": "pass",
+            "message": "The Location attribute in SingleLogoutService element MUST be a valid HTTP URL: <SingleLogoutService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://sp.example.test/spid/logout\"",
+            "remediation": "See the SPID technical rules: AV n. 3"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AssertionConsumerService",
+            "status": "pass",
+            "message": "At least one AssertionConsumerService MUST be present: <AssertionConsumerService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://sp.example.test/spid/acs\" i",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AssertionConsumerService",
+            "status": "pass",
+            "message": "The index attribute MUST be present: <AssertionConsumerService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://sp.example.test/spid/acs\" i",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AssertionConsumerService",
+            "status": "pass",
+            "message": "The index attribute MUST be >= 0: <AssertionConsumerService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://sp.example.test/spid/acs\" i",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AssertionConsumerService",
+            "status": "pass",
+            "message": "The Binding attribute MUST be present: <AssertionConsumerService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://sp.example.test/spid/acs\" i",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AssertionConsumerService",
+            "status": "pass",
+            "message": "The Binding attribute MUST be one of [urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST, urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect]: <AssertionConsumerService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://sp.example.test/spid/acs\" i",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AssertionConsumerService",
+            "status": "pass",
+            "message": "The Location attribute MUST be present: <AssertionConsumerService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://sp.example.test/spid/acs\" i",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService",
+            "status": "pass",
+            "message": "One or more AttributeConsumingService elements MUST be present: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "Only one Organization element can be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "One or more OrganizationName elements MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The lang attribute in OrganizationName element MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The OrganizationName element MUST have a value: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The lang attribute in OrganizationName element MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The OrganizationName element MUST have a value: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "One or more OrganizationDisplayName elements MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The lang attribute in OrganizationDisplayName element MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The OrganizationDisplayName element MUST have a value: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The lang attribute in OrganizationDisplayName element MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The OrganizationDisplayName element MUST have a value: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "One or more OrganizationURL elements MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The lang attribute in OrganizationURL element MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The OrganizationURL element MUST have a value: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The lang attribute in OrganizationURL element MUST be present: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The OrganizationURL element MUST have a value: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The elements OrganizationName, OrganizationDisplayName and OrganizationURL MUST have the same number of lang attributes: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The elements OrganizationName, OrganizationDisplayName and OrganizationURL MUST have the same number of lang attributes: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization",
+            "status": "pass",
+            "message": "The elements OrganizationName, OrganizationDisplayName and OrganizationURL MUST have at least an it language enabled: ['<Organization>\\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationName xml:lang=\"it\">Comune di Esempio (synthetic)</OrganizationName>\\n    <OrganizationDisplayName xml:lang=\"en\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationDisplayName xml:lang=\"it\">Comune di Esempio</OrganizationDisplayName>\\n    <OrganizationURL xml:lang=\"en\">https://www.example.test</OrganizationURL>\\n    <OrganizationURL xml:lang=\"it\">https://www.example.test</OrganizationURL>\\n  </Organization>\\n']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.xsd_check",
+            "status": "pass",
+            "message": "SpidSpMetadataCheckExtra.xsd_check: Test file:///var/folders/dk/8r5ppz290dj18llcqzrbf_kw0000gn/T/filament-spid-validate-46f65cce8d7facd7/metadata.xml with saml-schema-metadata-sp-spid.xsd",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_SPID",
+            "status": "pass",
+            "message": "The protocolSupportEnumeration attribute MUST be present: ['<SPSSODescriptor AuthnRequestsSigned=\"true\" WantAssertionsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_SPID",
+            "status": "pass",
+            "message": "The protocolSupportEnumeration attribute MUST have a value: ['<SPSSODescriptor AuthnRequestsSigned=\"true\" WantAssertionsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_SPID",
+            "status": "pass",
+            "message": "The AuthnRequestsSigned attribute MUST be present: ['<SPSSODescriptor AuthnRequestsSigned=\"true\" WantAssertionsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_SPID",
+            "status": "pass",
+            "message": "The AuthnRequestsSigned attribute MUST have a value: ['<SPSSODescriptor AuthnRequestsSigned=\"true\" WantAssertionsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_SPID",
+            "status": "pass",
+            "message": "The AuthnRequestsSigned attribute MUST be true: ['<SPSSODescriptor AuthnRequestsSigned=\"true\" WantAssertionsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:']",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AssertionConsumerService_SPID",
+            "status": "pass",
+            "message": "Only one default AssertionConsumerService MUST be present: <AssertionConsumerService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://sp.example.test/spid/acs\" i",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AssertionConsumerService_SPID",
+            "status": "pass",
+            "message": "Must be present the default AssertionConsumerService with index = 0: <AssertionConsumerService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://sp.example.test/spid/acs\" i",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The index attribute in AttributeConsumigService element MUST be present: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The index attribute in AttributeConsumigService element MUST be >= 0: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The ServiceName element MUST be present: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The ServiceName element MUST have a value: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "One or more RequestedAttribute elements MUST be present: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The Name attribute in RequestedAttribute element MUST be present: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The \"fiscalNumber\" attribute in RequestedAttribute element MUST be valid: one of [address, companyName, companyFiscalNumber, countyOfBirth, dateOfBirth, digitalAddress, email, expirationDate, familyName, fiscalNumber, gender, idCard, ivaCode, mobilePhone, name, placeOfBirth, registeredOffice, spidCode, domicileStreetAddress, domicilePostalCode, domicileMunicipality, domicileProvince, domicileNation]",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The Name attribute in RequestedAttribute element MUST be present: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The \"name\" attribute in RequestedAttribute element MUST be valid: one of [address, companyName, companyFiscalNumber, countyOfBirth, dateOfBirth, digitalAddress, email, expirationDate, familyName, fiscalNumber, gender, idCard, ivaCode, mobilePhone, name, placeOfBirth, registeredOffice, spidCode, domicileStreetAddress, domicilePostalCode, domicileMunicipality, domicileProvince, domicileNation]",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The Name attribute in RequestedAttribute element MUST be present: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The \"familyName\" attribute in RequestedAttribute element MUST be valid: one of [address, companyName, companyFiscalNumber, countyOfBirth, dateOfBirth, digitalAddress, email, expirationDate, familyName, fiscalNumber, gender, idCard, ivaCode, mobilePhone, name, placeOfBirth, registeredOffice, spidCode, domicileStreetAddress, domicilePostalCode, domicileMunicipality, domicileProvince, domicileNation]",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The Name attribute in RequestedAttribute element MUST be present: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "The \"email\" attribute in RequestedAttribute element MUST be valid: one of [address, companyName, companyFiscalNumber, countyOfBirth, dateOfBirth, digitalAddress, email, expirationDate, familyName, fiscalNumber, gender, idCard, ivaCode, mobilePhone, name, placeOfBirth, registeredOffice, spidCode, domicileStreetAddress, domicilePostalCode, domicileMunicipality, domicileProvince, domicileNation]",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_AttributeConsumingService_SPID",
+            "status": "pass",
+            "message": "AttributeConsumigService MUST not contain duplicated RequestedAttribute: <AttributeConsumingService index=\"0\">\n      <ServiceName xml:lang=\"en\">Example online service</ServiceName>\n      <RequestedAttr",
+            "remediation": "See the SPID technical rules: TR pag. 20"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature_extra",
+            "status": "pass",
+            "message": "The certificate #0 MUST not use weak signature algorithm: sha256withrsaencryption: <Signature>\n  <SignedInfo><CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>\n    <SignatureMethod Alg",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature_extra",
+            "status": "pass",
+            "message": "The key type of certificate #0 MUST be one of [rsaEncryption, id-ecPublicKey] - TR pag. 19: <Signature>\n  <SignedInfo><CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>\n    <SignatureMethod Alg",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature_extra",
+            "status": "pass",
+            "message": "The key length of certificate #0 MUST be >= 2048. Instead it is 3072: <Signature>\n  <SignedInfo><CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>\n    <SignatureMethod Alg",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Signature_extra",
+            "status": "pass",
+            "message": "The certificate #0 is expired or datetime is not valid. It was valid till Nov 15 12:12:40 2026: <Signature>\n  <SignedInfo><CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>\n    <SignatureMethod Alg",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_extra",
+            "status": "pass",
+            "message": "The protocolSupportEnumeration attribute MUST be present: {'AuthnRequestsSigned': 'true', 'WantAssertionsSigned': 'true', 'protocolSupportEnumeration': 'urn:oasis:names:tc:SAML:2.0:protocol'}",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_extra",
+            "status": "pass",
+            "message": "The protocolSupportEnumeration attribute MUST have a value: urn:oasis:names:tc:SAML:2.0:protocol",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_extra",
+            "status": "pass",
+            "message": "The protocolSupportEnumeration attribute MUST be urn:oasis:names:tc:SAML:2.0:protocol: urn:oasis:names:tc:SAML:2.0:protocol",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_extra",
+            "status": "pass",
+            "message": "The WantAssertionsSigned attribute MUST be present: {'AuthnRequestsSigned': 'true', 'WantAssertionsSigned': 'true', 'protocolSupportEnumeration': 'urn:oasis:names:tc:SAML:2.0:protocol'}",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_extra",
+            "status": "pass",
+            "message": "The WantAssertionsSigned attribute MUST have a value: true",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_SPSSODescriptor_extra",
+            "status": "pass",
+            "message": "The WantAssertionsSigned attribute MUST be true: true",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization_extra",
+            "status": "pass",
+            "message": "An Organization MUST be present: <Organization>\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\n    <OrganizationName xml:la",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization_extra",
+            "status": "pass",
+            "message": "An IT localised Organization Name MUST be present: <Organization>\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\n    <OrganizationName xml:la",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization_extra",
+            "status": "pass",
+            "message": "An IT localised Organization URL MUST be present: <Organization>\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\n    <OrganizationName xml:la",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Organization_extra",
+            "status": "pass",
+            "message": "An IT localised Organization DisplayName MUST be present: <Organization>\n    <OrganizationName xml:lang=\"en\">Comune di Esempio (synthetic)</OrganizationName>\n    <OrganizationName xml:la",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_contactperson_email",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/EmailAddress element MUST have a value: ['<EmailAddress>spid@example.test</EmailAddress>']",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_contactperson_email",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/EmailAddress element MUST be a valid email address: ['<EmailAddress>spid@example.test</EmailAddress>']",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Contacts_PubPriv",
+            "status": "pass",
+            "message": "ContactPerson MUST be present",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Contacts_PubPriv",
+            "status": "pass",
+            "message": "",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Contacts_PubPriv",
+            "status": "pass",
+            "message": "The contactType attribute MUST have a value",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Contacts_PubPriv",
+            "status": "pass",
+            "message": "The contactType must be \"other\": other",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Contacts_PubPriv",
+            "status": "pass",
+            "message": "Only one ContactPerson element of contactType \"other\" MUST be present",
+            "remediation": "See the SPID technical rules: TR pag. 19"
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Extensions_PubPriv",
+            "status": "pass",
+            "message": "Only one Extensions element inside ContactPerson element MUST be present: <ContactPerson contactType=\"other\"><Extensions><Public/><IPACode>c_x000</IPACode></Extensions><EmailAddress>spid@example.test</EmailAddress></ContactPerson>",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_Extensions_PubPriv",
+            "status": "pass",
+            "message": "The Company element MUST be present None",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/PublicServicesFullAggregator element MUST not be present",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/PublicServicesLightAggregator element MUST not be present",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/PrivateServicesFullAggregator element MUST not be present",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/PrivateServicesLightAggregator element MUST not be present",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/PublicServicesFullOperator element MUST not be present",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/PublicServicesLightOperator element MUST not be present",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/Public element MUST be present",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/Public element MUST be empty",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/Private element MUST not be present",
+            "remediation": null
+        },
+        {
+            "id": "SpidSpMetadataCheckExtra.test_extensions_type",
+            "status": "pass",
+            "message": "The //ContactPerson[@contactType='other']/Extensions/PublicOperator element MUST not be present",
+            "remediation": null
+        }
+    ]
+}

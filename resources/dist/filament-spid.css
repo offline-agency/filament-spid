@@ -1,0 +1,133 @@
+/*
+ * Filament SPID: the SPID button and the login page.
+ *
+ * The page uses its own fi-spid-* classes: Filament 4 and 5 compile only the
+ * Tailwind utilities their own views use, so text-center, mx-auto or
+ * bg-danger-50 may not exist. Colours are explicit (Filament 3 and 4/5 encode
+ * their colour variables differently); .dark is Filament's dark mode class.
+ */
+
+.fi-spid-heading {
+    text-align: center;
+}
+
+.fi-spid-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+}
+
+.fi-spid-button,
+.spid-button-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.spid-button-wrapper form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.spid-button-wrapper .button-spid {
+    display: inline-block;
+    margin: 0 auto;
+}
+
+.fi-spid-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.fi-spid-load-error {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    text-align: center;
+    color: #b91c1c;
+}
+
+.fi-spid-info {
+    width: 100%;
+    text-align: center;
+}
+
+.fi-spid-info-text {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #4b5563;
+}
+
+.fi-spid-credentials-link {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-decoration: underline;
+}
+
+.fi-spid-credentials-link:hover,
+.fi-spid-credentials-link:focus-visible {
+    color: #374151;
+}
+
+.fi-spid-logo {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.fi-spid-logo img {
+    display: block;
+    max-width: min(300px, 100%);
+    height: auto;
+}
+
+.fi-spid-error {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid #fecaca;
+    border-radius: 0.375rem;
+    background: #fef2f2;
+}
+
+.fi-spid-error-text {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #991b1b;
+}
+
+.dark .fi-spid-info-text,
+.dark .fi-spid-credentials-link {
+    color: #9ca3af;
+}
+
+.dark .fi-spid-credentials-link:hover,
+.dark .fi-spid-credentials-link:focus-visible {
+    color: #e5e7eb;
+}
+
+.dark .fi-spid-load-error {
+    color: #fca5a5;
+}
+
+.dark .fi-spid-error {
+    border-color: #7f1d1d;
+    background: rgba(69, 10, 10, 0.6);
+}
+
+.dark .fi-spid-error-text {
+    color: #fecaca;
+}
+
+/* The official logo is dark grey on transparent: in dark mode it sits on a
+   light plate instead of being recoloured. */
+.dark .fi-spid-logo img {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background: #ffffff;
+}

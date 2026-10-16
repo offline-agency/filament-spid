@@ -1,6 +1,12 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
+
+function migrationInstance(): Migration
+{
+    return include __DIR__.'/../database/migrations/add_spid_fields_to_users_table.php.stub';
+}
 
 describe('Migration', function () {
     it('adds fiscal_code column to users table', function () {
@@ -31,6 +37,31 @@ describe('Migration', function () {
         expect(Schema::hasColumn('users', 'id'))->toBeTrue()
             ->and(Schema::hasColumn('users', 'name'))->toBeTrue()
             ->and(Schema::hasColumn('users', 'email'))->toBeTrue();
+    });
+});
+
+describe('Migration rollback', function () {
+    it('removes the SPID columns', function () {
+        migrationInstance()->down();
+
+        expect(Schema::hasColumn('users', 'fiscal_code'))->toBeFalse()
+            ->and(Schema::hasColumn('users', 'spid_data'))->toBeFalse();
+    });
+
+    it('is safe to run when the SPID columns are absent', function () {
+        $migration = migrationInstance();
+        $migration->down();
+
+        $migration->down();
+
+        expect(Schema::hasColumn('users', 'fiscal_code'))->toBeFalse();
+    });
+
+    it('leaves untouched columns in place', function () {
+        migrationInstance()->down();
+
+        expect(Schema::hasColumn('users', 'email'))->toBeTrue()
+            ->and(Schema::hasColumn('users', 'name'))->toBeTrue();
     });
 });
 

@@ -1,0 +1,31 @@
+# Local SPID lab services. The automated lab (validate.sh) starts its own
+# containers; this file is for the interactive Validator:
+#
+#   docker compose -f tools/spid/compose.yaml --profile validator up
+#
+# Images are pinned in versions.env (by digest).
+name: filament-spid-lab
+
+services:
+  # italia/spid-saml-check v.2.2.5, AgID's Validator suite (amd64 only;
+  # emulated on arm64). Demo credentials of the self-hosted image:
+  # validator / validator. They are not the public AgID service's.
+  validator:
+    profiles: [validator]
+    image: ${SPID_SAML_CHECK_IMAGE:-italia/spid-saml-check:2.2.5@sha256:46db12d254ce1aacc592891104093107e108cb7953f9b4f6b2009e0522a6fdb9}
+    platform: linux/amd64
+    ports:
+      - "8443:8443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # spid_sp_test 1.2.18 with xmlsec1, as validate.sh builds it.
+  spid-sp-test:
+    profiles: [tools]
+    build:
+      context: .
+      dockerfile: Dockerfile.spid-sp-test
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.11-slim-bookworm@sha256:0a310eeecf4e1f5a0743f9a6520c90c88d089c903ca5fd283f501e3a805f5f89}
+        SPID_SP_TEST_VERSION: ${SPID_SP_TEST_VERSION:-1.2.18}
+    image: filament-spid/spid-sp-test:local

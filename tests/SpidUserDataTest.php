@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use Italia\SPIDAuth\SPIDUser;
 use OfflineAgency\FilamentSpid\DTOs\SpidUserData;
 
 it('can be instantiated with all properties', function () {
@@ -214,7 +217,7 @@ it('implements Arrayable interface', function () {
         familyName: 'Rossi'
     );
 
-    expect($spidData)->toBeInstanceOf(\Illuminate\Contracts\Support\Arrayable::class);
+    expect($spidData)->toBeInstanceOf(Arrayable::class);
 });
 
 it('implements Jsonable interface', function () {
@@ -224,5 +227,66 @@ it('implements Jsonable interface', function () {
         familyName: 'Rossi'
     );
 
-    expect($spidData)->toBeInstanceOf(\Illuminate\Contracts\Support\Jsonable::class);
+    expect($spidData)->toBeInstanceOf(Jsonable::class);
+});
+
+it('builds from a SPIDUser object exposing attributes via magic __get', function () {
+    $spidUser = new SPIDUser([
+        'fiscalNumber' => ['TINIT-RSSMRA80A01H501U'],
+        'name' => ['Mario'],
+        'familyName' => ['Rossi'],
+        'email' => ['mario.rossi@example.com'],
+        'spidCode' => ['SPID123'],
+        'placeOfBirth' => ['Roma'],
+        'dateOfBirth' => ['1980-01-01'],
+        'gender' => ['M'],
+    ]);
+
+    $spidData = SpidUserData::fromSpidAuth($spidUser);
+
+    expect($spidData->fiscalNumber)->toBe('RSSMRA80A01H501U')
+        ->and($spidData->name)->toBe('Mario')
+        ->and($spidData->familyName)->toBe('Rossi')
+        ->and($spidData->email)->toBe('mario.rossi@example.com')
+        ->and($spidData->spidCode)->toBe('SPID123')
+        ->and($spidData->placeOfBirth)->toBe('Roma')
+        ->and($spidData->dateOfBirth)->toBe('1980-01-01')
+        ->and($spidData->gender)->toBe('M');
+});
+
+it('builds from a SPIDUser object carrying only the mandatory attributes', function () {
+    $spidUser = new SPIDUser([
+        'fiscalNumber' => ['TINIT-RSSMRA80A01H501U'],
+    ]);
+
+    $spidData = SpidUserData::fromSpidAuth($spidUser);
+
+    expect($spidData->fiscalNumber)->toBe('RSSMRA80A01H501U')
+        ->and($spidData->name)->toBe('')
+        ->and($spidData->email)->toBeNull();
+});
+
+it('rejects an object without a fiscal number', function () {
+    $spidUser = new SPIDUser(['name' => ['Mario']]);
+
+    expect(fn () => SpidUserData::fromSpidAuth($spidUser))
+        ->toThrow(InvalidArgumentException::class);
+});
+
+it('reads attributes that are not strings as missing', function () {
+    $data = SpidUserData::fromSpidAuth([
+        'fiscalNumber' => 'RSSMRA80A01H501U',
+        'name' => ['Mario'],
+        'familyName' => 42,
+        'email' => ['mario@example.com'],
+    ]);
+
+    expect($data->name)->toBe('')
+        ->and($data->familyName)->toBe('')
+        ->and($data->email)->toBeNull();
+});
+
+it('requires a string fiscalNumber', function () {
+    expect(fn () => SpidUserData::fromSpidAuth(['fiscalNumber' => ['RSSMRA80A01H501U']]))
+        ->toThrow(InvalidArgumentException::class, 'fiscalNumber');
 });

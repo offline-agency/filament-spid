@@ -3,12 +3,13 @@
 namespace OfflineAgency\FilamentSpid\Pages;
 
 use Filament\Pages\SimplePage;
+use OfflineAgency\FilamentSpid\SpidPlugin;
 
 class SpidLogin extends SimplePage
 {
     public function getView(): string
     {
-        return 'filament-spid::login';
+        return SpidPlugin::resolve()?->getLoginView() ?? 'filament-spid::login';
     }
 
     public function getHeading(): string

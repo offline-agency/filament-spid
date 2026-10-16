@@ -1,6 +1,8 @@
+{{-- Styled by resources/dist/filament-spid.css (fi-spid-* classes): Filament 4
+     and 5 compile only the Tailwind utilities their own views use. --}}
 <x-filament-panels::page.simple>
     <x-slot name="heading">
-        <div class="text-center">
+        <div class="fi-spid-heading">
             {{ __('filament-spid::spid.login_with_spid') }}
         </div>
     </x-slot>
@@ -9,57 +11,42 @@
         {{ __('filament-spid::spid.select_provider') }}
     </x-slot>
 
-    @if (session('error'))
-        <div class="rounded-md bg-red-50 p-4 mb-6">
-            <div class="flex">
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-red-800">
-                        {{ session('error') }}
-                    </p>
-                </div>
-            </div>
+    @if (session('spid_error'))
+        <div class="fi-spid-error" role="alert">
+            <p class="fi-spid-error-text">
+                {{ session('spid_error') }}
+            </p>
         </div>
     @endif
 
-    <div class="space-y-8">
-        <!-- Filament-compatible SPID Button -->
-        <div class="flex justify-center items-center w-full">
-            <div class="mx-auto">
-                @include('filament-spid::components.spid-button-filament', ['size' => 'l'])
-            </div>
+    <div class="fi-spid-login">
+        @if (\OfflineAgency\FilamentSpid\SpidPlugin::resolve()?->getShowSpidButton() ?? true)
+        <div class="fi-spid-button">
+            @include('filament-spid::components.spid-button-filament', ['size' => 'l'])
         </div>
+        @endif
 
-        <!-- SPID Information Links -->
-        <div class="mt-5 text-center">
-            <a href="https://www.spid.gov.it" target="_blank" rel="noopener noreferrer" class="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-bold">
-                {{ __('filament-spid::spid.more_info') }}
-            </a>
-            <br>
-            <a href="https://www.spid.gov.it/cos-e-spid/come-attivare-spid/" target="_blank" rel="noopener noreferrer" class="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-bold">
-                {{ __('filament-spid::spid.no_spid') }}
-            </a>
-            <br>
-            <a href="https://www.spid.gov.it/serve-aiuto" target="_blank" rel="noopener noreferrer" class="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-bold">
-                {{ __('filament-spid::spid.need_help') }}
-            </a>
-            <br>
-
-            <!-- SPID-AGID Logo -->
-            <div class="flex justify-center" style="margin-top: 5px;">
-                <img
-                    alt="SPID AGID"
-                    class="max-w-full h-auto mx-auto"
-                    src="https://cdn.inpa.gov.it/concorsismart/9.11.1-GA/assets/img/authentication/spid-agid.png"
-                    style="max-width: 300px;"
-                >
-            </div>
-        </div>
-
-        <!-- SPID Information -->
-        <div class="text-center w-full">
-            <p class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="fi-spid-info">
+            <p class="fi-spid-info-text">
                 {{ __('filament-spid::spid.info_text') }}
             </p>
         </div>
+
+        {{-- The SPID AgID logo, served from the published package assets. --}}
+        <div class="fi-spid-logo">
+            <img
+                alt="SPID AGID"
+                src="{{ asset('vendor/filament-spid/images/spid-agid-logo.png') }}"
+            >
+        </div>
+
+        {{-- Login with other credentials, when the plugin names a page for it. --}}
+        @if ($credentialsLoginUrl = \OfflineAgency\FilamentSpid\SpidPlugin::resolve()?->getCredentialsLoginUrl())
+            <div class="fi-spid-info">
+                <a href="{{ $credentialsLoginUrl }}" class="fi-spid-credentials-link">
+                    {{ __('filament-spid::spid.standard_login') }}
+                </a>
+            </div>
+        @endif
     </div>
 </x-filament-panels::page.simple>

@@ -2,50 +2,76 @@
 
 use Illuminate\Support\Facades\File;
 
-it('has centered heading in the blade template', function () {
-    $viewPath = __DIR__.'/../resources/views/login.blade.php';
-    $content = File::get($viewPath);
+/**
+ * The login view and the stylesheet the plugin registers as a Filament asset.
+ */
+function loginView(): string
+{
+    return File::get(__DIR__.'/../resources/views/login.blade.php');
+}
 
-    // Check that the heading slot contains text-center class
-    expect($content)->toContain('<x-slot name="heading">');
-    expect($content)->toContain('text-center');
-    expect($content)->toContain("{{ __('filament-spid::spid.login_with_spid') }}");
+function pluginCss(): string
+{
+    return File::get(__DIR__.'/../resources/dist/filament-spid.css');
+}
+
+it('styles the login page with its own classes, not Tailwind utilities Filament may not compile', function () {
+    // Filament 4 and 5 ship only the utilities their own views use: text-center,
+    // mx-auto, bg-danger-50... are not there, and the page fell apart.
+    preg_match_all('/class="([^"]+)"/', loginView(), $matches);
+    $classes = array_unique(preg_split('/\s+/', implode(' ', $matches[1])));
+
+    foreach ($classes as $class) {
+        expect($class)->toMatch('/^(fi-spid-|spid-)/');
+    }
 });
 
-it('has centered info text section in the blade template', function () {
-    $viewPath = __DIR__.'/../resources/views/login.blade.php';
-    $content = File::get($viewPath);
+it('defines every class the login page uses', function () {
+    preg_match_all('/class="([^"]+)"/', loginView(), $matches);
 
-    // The info text should be in a div with text-center class
-    expect($content)->toContain('class="text-center w-full"');
-    expect($content)->toContain("{{ __('filament-spid::spid.info_text') }}");
+    foreach (array_unique(preg_split('/\s+/', implode(' ', $matches[1]))) as $class) {
+        expect(pluginCss())->toContain('.'.$class);
+    }
 });
 
-it('has text-center class for the main content sections', function () {
-    $viewPath = __DIR__.'/../resources/views/login.blade.php';
-    $content = File::get($viewPath);
+it('centres the heading, the button, the information text and the logo', function () {
+    $css = pluginCss();
 
-    // Count occurrences of text-center to ensure centering is applied
-    $count = substr_count($content, 'text-center');
-
-    // Should have at least 2 instances (heading and info text)
-    expect($count)->toBeGreaterThanOrEqual(2);
+    expect(loginView())->toContain("{{ __('filament-spid::spid.login_with_spid') }}")
+        ->and(loginView())->toContain("{{ __('filament-spid::spid.info_text') }}")
+        ->and($css)->toMatch('/\.fi-spid-heading\s*\{[^}]*text-align:\s*center/')
+        ->and($css)->toMatch('/\.fi-spid-info\s*\{[^}]*text-align:\s*center/')
+        ->and($css)->toMatch('/\.fi-spid-logo\s*\{[^}]*justify-content:\s*center/');
 });
 
-it('has AGID logo with correct styling and centering', function () {
+it('keeps the AgID logo legible in dark mode without recolouring it', function () {
+    expect(pluginCss())->toMatch('/\.dark \.fi-spid-logo img\s*\{[^}]*background/')
+        ->and(pluginCss())->not->toContain('invert(');
+});
+
+it('does not style the button form by an id that no longer exists', function () {
+    expect(pluginCss())->not->toContain('#spid_idp_access');
+});
+
+it('serves the AGID logo from the package assets, not a third-party CDN', function () {
     $viewPath = __DIR__.'/../resources/views/login.blade.php';
     $content = File::get($viewPath);
 
-    // Check for the AGID logo image
-    expect($content)->toContain('<img');
-    expect($content)->toContain('alt="SPID AGID"');
-    expect($content)->toContain('class="max-w-full h-auto mx-auto"');
+    expect($content)->toContain("asset('vendor/filament-spid/images/spid-agid-logo.png')")
+        ->and($content)->toContain('alt="SPID AGID"')
+        ->and($content)->not->toContain('cdn.inpa.gov.it');
+});
 
-    // Check for proper centering classes
-    expect($content)->toContain('flex justify-center');
+it('ships the AGID logo it references', function () {
+    expect(file_exists(__DIR__.'/../resources/images/spid-agid-logo.png'))->toBeTrue();
+});
 
-    // Check for image styling
-    expect($content)->toContain('style="max-width: 300px;"');
+it('renders the SPID error flash message when present', function () {
+    $viewPath = __DIR__.'/../resources/views/login.blade.php';
+    $content = File::get($viewPath);
+
+    expect($content)->toContain("session('spid_error')")
+        ->and($content)->toContain('class="fi-spid-error" role="alert"');
 });
 
 it('AGID logo image URL returns 200 status code', function () {

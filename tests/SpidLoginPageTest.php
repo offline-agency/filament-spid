@@ -1,5 +1,6 @@
 <?php
 
+use Filament\Pages\SimplePage;
 use OfflineAgency\FilamentSpid\Pages\SpidLogin;
 
 it('can instantiate SpidLogin page', function () {
@@ -11,7 +12,7 @@ it('can instantiate SpidLogin page', function () {
 it('extends SimplePage', function () {
     $page = new SpidLogin;
 
-    expect($page)->toBeInstanceOf(\Filament\Pages\SimplePage::class);
+    expect($page)->toBeInstanceOf(SimplePage::class);
 });
 
 it('has correct view property', function () {
@@ -84,7 +85,7 @@ it('can be used as a Filament page', function () {
     $page = new SpidLogin;
 
     // Test that it can be used in a Filament context
-    expect($page)->toBeInstanceOf(\Filament\Pages\SimplePage::class);
+    expect($page)->toBeInstanceOf(SimplePage::class);
 
     // Test that it has the required methods for Filament
     expect(method_exists($page, 'getView'))->toBeTrue();
@@ -129,7 +130,7 @@ it('maintains Filament page contract', function () {
     $page = new SpidLogin;
 
     // Test that it maintains the Filament page contract
-    expect($page)->toBeInstanceOf(\Filament\Pages\SimplePage::class);
+    expect($page)->toBeInstanceOf(SimplePage::class);
 
     // Test that required methods exist and return strings
     expect($page->getHeading())->toBeString();
@@ -146,7 +147,7 @@ it('can be used in panel configuration', function () {
     $page = new SpidLogin;
 
     // Test that it can be used as a login page in Filament
-    expect($page)->toBeInstanceOf(\Filament\Pages\SimplePage::class);
+    expect($page)->toBeInstanceOf(SimplePage::class);
 
     // Test that it has the required methods for panel integration
     expect(method_exists($page, 'getHeading'))->toBeTrue();

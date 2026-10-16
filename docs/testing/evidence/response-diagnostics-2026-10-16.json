@@ -1,0 +1,1112 @@
+[
+  {
+    "acs_status": 302,
+    "panel_status": 200,
+    "panel_login_redirect": false,
+    "authenticated": true,
+    "spid_session": true,
+    "error": null,
+    "isolated": true,
+    "scenario": "1"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The Assertion of the Response is not signed and the SP requires it",
+    "isolated": true,
+    "scenario": "2"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The Assertion of the Response is not signed and the SP requires it",
+    "isolated": true,
+    "scenario": "3"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Signature validation failed. SAML Response rejected",
+    "isolated": true,
+    "scenario": "4"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Signature validation failed. SAML Response rejected",
+    "isolated": true,
+    "scenario": "5"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "xsw1"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "xsw2"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "xsw3"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "xsw4"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "xsw5"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "xsw6"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "xsw7"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "xsw8"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "xslt"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Signed Element must contain an ID. SAML Response rejected",
+    "isolated": true,
+    "scenario": "8"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing ID attribute on SAML Response",
+    "isolated": true,
+    "scenario": "9"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Unsupported SAML version",
+    "isolated": true,
+    "scenario": "10"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "11"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "12"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "13"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong Response IssueInstant attribute",
+    "isolated": true,
+    "scenario": "14"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Could not validate timestamp: not yet valid. Check system clock.",
+    "isolated": true,
+    "scenario": "15"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "16"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: No InResponseTo at the Response, but it was provided the requestId related to the AuthNRequest sent by the SP: ONELOGIN_1a2f0a28a1a658ed3bf55ff7b86f0bacbf8e3dec",
+    "isolated": true,
+    "scenario": "17"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The InResponseTo of the Response: inresponsetodiversodaidrequest, does not match the ID of the AuthNRequest sent by the SP: ONELOGIN_52b6834eed0af73b57952328d777e95093e956ca",
+    "isolated": true,
+    "scenario": "18"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The response has an empty Destination value",
+    "isolated": true,
+    "scenario": "19"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: missing Destination attribute",
+    "isolated": true,
+    "scenario": "20"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The response was received at https://sp.spid.test/spid/acs instead of diversodaassertionconsumerserviceurl",
+    "isolated": true,
+    "scenario": "21"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status Code on response",
+    "isolated": true,
+    "scenario": "22"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Missing Status on response",
+    "isolated": true,
+    "scenario": "23"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The status code of the Response was not Success, was ",
+    "isolated": true,
+    "scenario": "24"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The status code of the Response was not Success, was statuscodenonvalido",
+    "isolated": true,
+    "scenario": "26"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid issuer in the Assertion/Response (expected &#039;https://localhost:8443&#039;, got &#039;&#039;)",
+    "isolated": true,
+    "scenario": "27"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: missing Response Issuer element",
+    "isolated": true,
+    "scenario": "28"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid issuer in the Assertion/Response (expected &#039;https://localhost:8443&#039;, got &#039;diversodaentityididp&#039;)",
+    "isolated": true,
+    "scenario": "29"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong Issuer Format attribute",
+    "isolated": true,
+    "scenario": "30"
+  },
+  {
+    "acs_status": 302,
+    "panel_status": 200,
+    "panel_login_redirect": false,
+    "authenticated": true,
+    "spid_session": true,
+    "error": null,
+    "isolated": true,
+    "scenario": "31"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: SAML Response must contain 1 assertion",
+    "isolated": true,
+    "scenario": "32"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Signed Element must contain an ID. SAML Response rejected",
+    "isolated": true,
+    "scenario": "33"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Signed Element must contain an ID. SAML Response rejected",
+    "isolated": true,
+    "scenario": "34"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong Assertion Version attribute",
+    "isolated": true,
+    "scenario": "35"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "36"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "37"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "38"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong Assertion IssueInstant attribute",
+    "isolated": true,
+    "scenario": "39"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong Assertion IssueInstant attribute",
+    "isolated": true,
+    "scenario": "40"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "41"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "42"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty NameID",
+    "isolated": true,
+    "scenario": "43"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: NameID not found in the assertion of the Response",
+    "isolated": true,
+    "scenario": "44"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong NameID Format attribute",
+    "isolated": true,
+    "scenario": "45"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong NameID Format attribute",
+    "isolated": true,
+    "scenario": "46"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong NameID Format attribute",
+    "isolated": true,
+    "scenario": "47"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty or missing NameID NameQualifier attribute",
+    "isolated": true,
+    "scenario": "48"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty or missing NameID NameQualifier attribute",
+    "isolated": true,
+    "scenario": "49"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "51"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "52"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "53"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "54"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "55"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "56"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty or missing SubjectConfirmationData Recipient attribute",
+    "isolated": true,
+    "scenario": "57"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty or missing SubjectConfirmationData Recipient attribute",
+    "isolated": true,
+    "scenario": "58"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "59"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "60"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: missing SubjectConfirmationData InResponseTo attribute",
+    "isolated": true,
+    "scenario": "61"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "62"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "63"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty or missing SubjectConfirmationData NotOnOrAfter attribute",
+    "isolated": true,
+    "scenario": "64"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "65"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: A valid SubjectConfirmation was not found on this Response",
+    "isolated": true,
+    "scenario": "66"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "68"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid issuer in the Assertion/Response (expected &#039;https://localhost:8443&#039;, got &#039;diversodaentityididp&#039;)",
+    "isolated": true,
+    "scenario": "69"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong Assertion Issuer Format attribute",
+    "isolated": true,
+    "scenario": "70"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong Assertion Issuer Format attribute",
+    "isolated": true,
+    "scenario": "71"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong Assertion Issuer Format attribute",
+    "isolated": true,
+    "scenario": "72"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty or missing AudienceRestriction element",
+    "isolated": true,
+    "scenario": "73"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The Assertion must include a Conditions element",
+    "isolated": true,
+    "scenario": "74"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "75"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty Conditions NotBefore attribute",
+    "isolated": true,
+    "scenario": "76"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "77"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Could not validate timestamp: not yet valid. Check system clock.",
+    "isolated": true,
+    "scenario": "78"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "79"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Could not validate timestamp: not yet valid. Check system clock.",
+    "isolated": true,
+    "scenario": "80"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "81"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Could not validate timestamp: not yet valid. Check system clock.",
+    "isolated": true,
+    "scenario": "82"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "83"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: empty or missing AudienceRestriction element",
+    "isolated": true,
+    "scenario": "85"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "86"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid audience for this Response (expected &#039;https://sp.example.test&#039;, got &#039;diversodaentityidsp&#039;)",
+    "isolated": true,
+    "scenario": "87"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "88"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: The Assertion must include an AuthnStatement element",
+    "isolated": true,
+    "scenario": "89"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "90"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong AuthContextClassRef element",
+    "isolated": true,
+    "scenario": "92"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "93"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: minimum SPID Level not enforced",
+    "isolated": true,
+    "scenario": "94"
+  },
+  {
+    "acs_status": 302,
+    "panel_status": 200,
+    "panel_login_redirect": false,
+    "authenticated": true,
+    "spid_session": true,
+    "error": null,
+    "isolated": true,
+    "scenario": "95"
+  },
+  {
+    "acs_status": 302,
+    "panel_status": 200,
+    "panel_login_redirect": false,
+    "authenticated": true,
+    "spid_session": true,
+    "error": null,
+    "isolated": true,
+    "scenario": "96"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: wrong AuthContextClassRef element",
+    "isolated": true,
+    "scenario": "97"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Invalid SAML Response. Not match the saml-schema-protocol-2.0.xsd",
+    "isolated": true,
+    "scenario": "98"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: requested attributes not present",
+    "isolated": true,
+    "scenario": "99"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SAML response validation error: Signature validation failed. SAML Response rejected",
+    "isolated": true,
+    "scenario": "100"
+  },
+  {
+    "acs_status": 302,
+    "panel_status": 200,
+    "panel_login_redirect": false,
+    "authenticated": true,
+    "spid_session": true,
+    "error": null,
+    "isolated": true,
+    "scenario": "103"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SPID user-generated anomaly",
+    "isolated": true,
+    "scenario": "104"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SPID user-generated anomaly",
+    "isolated": true,
+    "scenario": "105"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SPID user-generated anomaly",
+    "isolated": true,
+    "scenario": "106"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SPID user-generated anomaly",
+    "isolated": true,
+    "scenario": "107"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SPID user-generated anomaly",
+    "isolated": true,
+    "scenario": "108"
+  },
+  {
+    "acs_status": 302,
+    "panel_status": 200,
+    "panel_login_redirect": false,
+    "authenticated": true,
+    "spid_session": true,
+    "error": null,
+    "isolated": true,
+    "scenario": "109"
+  },
+  {
+    "acs_status": 302,
+    "panel_status": 200,
+    "panel_login_redirect": false,
+    "authenticated": true,
+    "spid_session": true,
+    "error": null,
+    "isolated": true,
+    "scenario": "110"
+  },
+  {
+    "acs_status": 500,
+    "panel_status": 302,
+    "panel_login_redirect": true,
+    "authenticated": false,
+    "spid_session": false,
+    "error": "SPID user-generated anomaly",
+    "isolated": true,
+    "scenario": "111"
+  }
+]

@@ -123,21 +123,20 @@ describe('SpidController - Providers Endpoint', function () {
 });
 
 describe('SpidController - Login Endpoint', function () {
-    it('redirects back when provider is missing', function () {
+    it('redirects to the panel login page', function () {
         $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
 
         $response = $this->get('/spid/login');
 
-        $response->assertRedirect();
-        $response->assertSessionHasErrors(['provider']);
+        $response->assertRedirect(route('filament.admin.auth.login'));
     });
 
-    it('redirects back with error message when provider is missing', function () {
+    it('does not report validation errors', function () {
         $this->app['router']->get('/spid/login', [SpidController::class, 'login']);
 
         $response = $this->get('/spid/login');
 
-        $response->assertSessionHasErrors(['provider']);
+        $response->assertSessionHasNoErrors();
     });
 });
 
@@ -164,4 +163,18 @@ describe('SpidController - Metadata Endpoint', function () {
         // Should either succeed or fail gracefully with 500
         expect($response->status())->toBeIn([200, 500]);
     });
+});
+
+it('skips spid-idps entries that are not provider arrays', function () {
+    Config::set('spid-idps', [
+        'broken' => 'not an array',
+        'posteid' => ['provider' => 'poste', 'isActive' => true],
+    ]);
+
+    $this->app['router']->get('/spid/providers', [SpidController::class, 'providers']);
+
+    $this->get('/spid/providers')
+        ->assertOk()
+        ->assertJsonPath('providers.0.provider', 'poste')
+        ->assertJsonCount(1, 'providers');
 });

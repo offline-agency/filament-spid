@@ -1,269 +1,169 @@
-# Filament SPID
+# Filament SPID — SPID authentication for Laravel Filament
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/offline-agency/filament-spid.svg?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/filament-spid/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/offline-agency/filament-spid/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/offline-agency/filament-spid.svg?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
+[![Tests](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/run-tests.yml?query=branch%3Amain)
+[![SPID lab](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/spid-validation.yml?branch=main&label=spid%20lab&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/spid-validation.yml?query=branch%3Amain)
+[![PHPStan](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/phpstan.yml?query=branch%3Amain)
+[![Coverage](https://img.shields.io/codecov/c/github/offline-agency/filament-spid/main?style=flat-square)](https://app.codecov.io/gh/offline-agency/filament-spid)
+[![License](https://img.shields.io/packagist/l/offline-agency/filament-spid.svg?style=flat-square)](LICENSE.md)
 
-SPID (Sistema Pubblico di Identità Digitale) authentication plugin for Filament based on [italia/spid-laravel](https://github.com/italia/spid-laravel).
+Sign citizens in to [Filament](https://filamentphp.com) panels with
+[SPID](https://www.spid.gov.it), the Italian public digital identity system,
+over SAML 2.0. The SAML side is [italia/spid-laravel](https://github.com/italia/spid-laravel);
+this plugin puts the SPID button on the panel login page, turns a validated
+SPID identity into a login on the panel's guard, and adds an installer, a
+doctor and an adapter for AgID's metadata validator.
 
-This package allows you to integrate SPID authentication into your Filament admin panels, enabling Italian public administration identity management.
+A community package maintained by [Offline Agency](https://offlineagency.it),
+released under the [MIT license](LICENSE.md). It is not an official Filament
+plugin and not an AgID product, and installing it does not make a service
+accredited to SPID: that takes AgID's own procedure (see
+[Testing with AgID's tools](docs/testing/agid.md)).
 
-![Filament SPID Banner](https://banners.beyondco.de/Filament%20Spid.png?theme=dark&packageManager=composer+require&packageName=offline-agency%2Ffilament-spid&pattern=eyes&style=style_1&description=Filament+plugin+for+SPID+authentication+in+Laravel.&md=1&showWatermark=0&fontSize=100px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
+Italiano: [guida in italiano](docs/it/README.md).
 
-## Features
+![The SPID login page of a Filament 5 panel with the IdP menu open (synthetic test data)](docs/images/login-light.png)
 
-- 🇮🇹 Full SPID integration for Filament
-- 🔐 Secure SAML2 authentication
-- 🎨 Customizable login view
-- 🔧 Compatible with Filament 3 & 4
-- 📦 Support for Laravel 10, 11, 12
-- ⚡ PHP 8.2+ ready
-- 🧪 Fully tested
+> **Pre-release.** This branch documents **1.0.0, which is not on Packagist yet**:
+> `composer require offline-agency/filament-spid:^1.0` works once 1.0.0 is
+> tagged. The published release is 0.1.8, documented in the
+> [README at 0.1.8](https://github.com/offline-agency/filament-spid/blob/0.1.8/README.md);
+> 0.1.x is no longer maintained ([SECURITY.md](SECURITY.md)).
 
 ## Requirements
 
-- PHP 8.2 or higher
-- Laravel 10.x, 11.x, or 12.x
-- Filament 3.x or 4.x
-- [italia/spid-laravel](https://github.com/italia/spid-laravel) package
+| | Supported (every combination tested in CI) |
+|---|---|
+| PHP | 8.3, 8.4, 8.5 |
+| Laravel | 12.x, 13.x |
+| Filament | 3.x, 4.x, 5.x |
+| SPID service provider | public and private SPs; aggregators and operators (gestori) are not covered |
 
-## Installation
+Laravel 11 left security support on 12 March 2026 and PHP 8.2 leaves it on
+31 December 2026 ([Laravel support policy](https://laravel.com/docs/13.x/releases#support-policy),
+[PHP supported versions](https://www.php.net/supported-versions.php), checked
+on 11 October 2026), so neither is supported by 1.x.
 
-You can install the package via composer:
+## Who does what
 
+| | Responsible |
+|---|---|
+| SAML: AuthnRequest, Response validation, signatures, metadata; the SPID patch to `onelogin/php-saml`; the IdP list | [italia/spid-laravel](https://github.com/italia/spid-laravel) |
+| The SPID button on the panel; login on the panel guard; fail-closed errors; optional provisioning; events; `filament-spid:install`, `filament-spid:doctor`, `filament-spid:metadata:validate` | this plugin |
+| Who may enter (`canAccessPanel()`); the SP's identity, contacts and key pair; sessions; logout policy; data retention; HTTPS and proxies; AgID acceptance | your application and your organisation |
+
+## Quick start
+
+You need a Laravel 12 or 13 application with a Filament panel (`php artisan
+filament:install --panels`), the SP's signing key pair (see
+[Certificates](docs/installation.md#certificates)) and the SP's real data
+(organisation, IPA code or VAT number, contact email).
+
+<!-- quickstart:begin (docs/snippets/quickstart.sh, run in CI by .github/scripts/install-check.sh) -->
 ```bash
-composer require offline-agency/filament-spid
-```
+# Run in the root of a Laravel 12 or 13 application with a Filament panel.
 
-Publish the configuration file:
+# 1. italia/spid-laravel with the SPID patch for php-saml ^4.3.1: until
+#    upstream tags a release, the offline-agency fork at a pinned commit.
+composer config repositories.spid-laravel vcs https://github.com/offline-agency/spid-laravel
+composer config allow-plugins.cweagans/composer-patches true
+composer config extra.enable-patching true --json
+composer require "italia/spid-laravel:dev-feat/laravel-13#b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe as 2.1.0-beta" --no-update
 
-```bash
-php artisan vendor:publish --tag="filament-spid-config"
-```
+# 2. The plugin.
+composer require offline-agency/filament-spid:^1.0
 
-Publish and run the migrations:
+# 3. Install and configure from setup.json (copy examples/setup.public.json or
+#    setup.private.json from the package and fill in your SP's real data and
+#    key pair paths). --dry-run shows the plan and writes nothing.
+php artisan filament-spid:install --panel=admin --input=setup.json --dry-run
+php artisan filament-spid:install --panel=admin --input=setup.json
 
-```bash
-php artisan vendor:publish --tag="filament-spid-migrations"
+# 4. Check.
 php artisan migrate
+php artisan filament-spid:doctor
 ```
+<!-- quickstart:end -->
 
-Optionally, you can publish the views:
+Why step 1: every tagged `italia/spid-laravel` (up to v2.1.0-beta) pins
+`onelogin/php-saml` 4.1.0, affected by
+[CVE-2025-66475](https://github.com/advisories/GHSA-5j8p-438x-rgg5). The fix is
+merged upstream ([italia/spid-laravel#132](https://github.com/italia/spid-laravel/pull/132))
+but not tagged; the fork is pinned to a commit whose patch URL is pinned too,
+so the SPID patch cannot change under you. Only `italia/spid-laravel` gets a
+dev constraint: your `minimum-stability` stays as it is.
+[#16](https://github.com/offline-agency/filament-spid/issues/16) tracks the
+switch to the tagged release.
 
-```bash
-php artisan vendor:publish --tag="filament-spid-views"
-```
+Without `--input` the installer asks the questions. Either way it validates
+everything before writing, shows the plan, keeps existing files, registers the
+plugin after `->login()`, exempts only the ACS from CSRF, and lists what it
+could not do safely as manual steps (then exits with 1). Running it again
+changes nothing.
 
-### Publishing Images
-
-To publish the SPID AGID logo images to your public directory:
-
-```bash
-php artisan vendor:publish --tag="filament-spid-images"
-```
-
-This will copy the SPID AGID logo images (both PNG and SVG formats) to:
-- `public/vendor/filament-spid/images/`
-- `public/images/`
-
-The images will be accessible at:
-- `/vendor/filament-spid/images/spid-agid-logo.png`
-- `/vendor/filament-spid/images/spid-agid-logo.svg`
-
-Alternatively, you can use the provided script in the package root:
-
-```bash
-./publish-images.sh
-```
-
-## SPID Configuration
-
-First, configure the base SPID Laravel package. Follow the [italia/spid-laravel documentation](https://github.com/italia/spid-laravel) to:
-
-1. Generate SPID certificates
-2. Configure your Service Provider metadata
-3. Set up SPID Identity Providers
-
-Add the following fields to your users table migration (if not already published):
+Then decide who may enter. SPID proves who the citizen is, not what they may
+do:
 
 ```php
-$table->string('fiscal_code')->unique()->nullable();
-$table->json('spid_data')->nullable();
-```
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-## Usage
-
-Register the plugin in your Filament Panel Provider:
-
-```php
-use OfflineAgency\FilamentSpid\SpidPlugin;
-
-public function panel(Panel $panel): Panel
+class User extends Authenticatable implements FilamentUser
 {
-    return $panel
-        ->default()
-        ->id('admin')
-        ->path('admin')
-        ->plugin(
-            SpidPlugin::make()
-                ->spidButtonLabel('Entra con SPID')
-                ->providers([
-                    'arubaid',
-                    'infocertid',
-                    'lepidaid',
-                    'namirialid',
-                    'posteid',
-                    'sielteid',
-                    'spiditalia',
-                    'timid',
-                    'teamsystemid'
-                ])
-        );
+    protected $fillable = ['name', 'email', 'password', 'fiscal_code', 'spid_data'];
+
+    protected $casts = ['spid_data' => 'array'];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Your own rule, e.g. a role column your application defines and manages.
+        return $panel->getId() === 'admin' && $this->role === 'administrator';
+    }
 }
 ```
 
-### Customization
+Accounts are matched by fiscal code, never by email. No account is created for
+a SPID citizen unless you turn `auto_create_users` on, and even then
+`canAccessPanel()` decides who gets in.
 
-#### Custom Login View
+## Documentation
 
-```php
-SpidPlugin::make()
-    ->loginView('your-custom-view')
-```
+- [Installation and configuration](docs/installation.md): the installer and its input, manual installation, public and private SPs, certificates, CSRF, proxies.
+- [Configuration reference](docs/configuration.md): every key, SPID levels, data minimisation, field mapping, multiple panels, the SPID button.
+- [How login works](docs/authentication.md): the success boundary, fail-closed errors, guards and sessions, provisioning, events and transactions, local logout and SLO.
+- [Diagnostics](docs/diagnostics.md): `filament-spid:doctor` and `filament-spid:metadata:validate`.
+- [Testing with AgID's tools](docs/testing/agid.md): the local lab, `spid_sp_test`, the AgID Validator, the acceptance test. [What has been verified](docs/testing/evidence.md).
+- [Production checklist](docs/production-checklist.md) · [Troubleshooting](docs/troubleshooting.md) · [FAQ](docs/faq.md) · [Upgrading from 0.1.x](docs/upgrading.md)
 
-#### Custom Routes
+AI coding agents: the package ships [Laravel Boost](https://laravel.com/docs/boost)
+guidelines and a `spid-integration` skill, which `php artisan boost:install`
+installs when the package is a direct dependency.
 
-```php
-SpidPlugin::make()
-    ->loginRoute('custom.spid.login')
-    ->logoutRoute('custom.spid.logout')
-    ->acsRoute('custom.spid.acs')
-    ->metadataRoute('custom.spid.metadata')
-```
-
-#### Hide SPID Button
-
-```php
-SpidPlugin::make()
-    ->showSpidButton(false)
-```
-
-#### Custom Button Label and Icon
-
-```php
-SpidPlugin::make()
-    ->spidButtonLabel('Login con SPID')
-    ->spidButtonIcon('heroicon-o-shield-check')
-```
-
-#### Select Specific Providers
-
-```php
-SpidPlugin::make()
-    ->providers(['posteid', 'arubaid', 'infocertid'])
-```
-
-## Configuration
-
-The `config/filament-spid.php` configuration file allows you to customize:
-
-```php
-return [
-    'user_model' => \App\Models\User::class,
-    'redirect_after_login' => '/admin',
-    'spid_level' => 'https://www.spid.gov.it/SpidL2',
-];
-```
-
-## User Model
-
-Your User model should have these fields:
-
-```php
-protected $fillable = [
-    'name',
-    'email',
-    'fiscal_code',
-    'spid_data',
-    // ... other fields
-];
-
-protected $casts = [
-    'spid_data' => 'array',
-];
-```
-
-## SPID Levels
-
-SPID supports three security levels:
-
-- `SpidL1` - Level 1 (Username and password)
-- `SpidL2` - Level 2 (Username, password, and OTP) - **Default**
-- `SpidL3` - Level 3 (Smart card or hardware token)
-
-Configure the level in your config file or when calling the login:
-
-```php
-route('spid.login', ['provider' => 'posteid', 'level' => 'SpidL2'])
-```
-
-## Testing
+## Development
 
 ```bash
 composer test
-```
-
-Run tests with coverage:
-
-```bash
-composer test-coverage
-```
-
-## Code Style
-
-```bash
-composer format
-```
-
-## Static Analysis
-
-```bash
 composer analyse
+vendor/bin/pint --test
+node --test 'tests/js/*.test.mjs'
 ```
 
-## Changelog
+See [CONTRIBUTING](CONTRIBUTING.md) for the local setup that mirrors CI, the
+SPID lab and the release flow.
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+## Changelog, security, support
 
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+- [CHANGELOG](CHANGELOG.md)
+- [Security policy](SECURITY.md): report vulnerabilities by email, never in a public issue.
+- Questions and bugs: [GitHub issues](https://github.com/offline-agency/filament-spid/issues) or support@offlineagency.it.
+- [Contributing](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Credits
 
-- [Offline Agency](https://offlineagency.it)
-- [All Contributors](../../contributors)
-- Based on [italia/spid-laravel](https://github.com/italia/spid-laravel)
-
-## Support
-
-For support and questions:
-- Email: support@offlineagency.it
-- GitHub Issues: [Create an issue](https://github.com/offline-agency/filament-spid/issues)
+- [Offline Agency](https://offlineagency.it) and [all contributors](../../contributors)
+- [italia/spid-laravel](https://github.com/italia/spid-laravel), the SAML integration this plugin builds on
+- [italia/spid-sp-test](https://github.com/italia/spid-sp-test) and [italia/spid-saml-check](https://github.com/italia/spid-saml-check), the validation tools
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## About Offline Agency
-
-Offline Agency is a web development agency based in Italy, specializing in Laravel and Filament applications.
-
-- Website: [https://offlineagency.it](https://offlineagency.it)
-- GitHub: [@offline-agency](https://github.com/offline-agency)
-- Email: support@offlineagency.it
+MIT. See [LICENSE.md](LICENSE.md).
