@@ -1,6 +1,7 @@
 # Filament SPID — SPID authentication for Laravel Filament
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/offline-agency/filament-spid.svg?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
+[![Total Downloads](https://img.shields.io/packagist/dt/offline-agency/filament-spid.svg?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
 [![Tests](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/run-tests.yml?query=branch%3Amain)
 [![SPID lab](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/spid-validation.yml?branch=main&label=spid%20lab&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/spid-validation.yml?query=branch%3Amain)
 [![PHPStan](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/phpstan.yml?query=branch%3Amain)
