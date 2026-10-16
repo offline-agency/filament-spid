@@ -32,6 +32,11 @@ export SPID_SP_TEST_NETWORK="$LAB_NETWORK"
 TOOL="$LAB/bin/spid_sp_test"
 EVIDENCE="$WORK/evidence"
 mkdir -p "$EVIDENCE"
+# A reused work directory must never lend a previous complete report to an
+# interrupted invocation. These are generated lab outputs only.
+rm -f "$EVIDENCE/authn-request.json" "$EVIDENCE/responses.json" "$EVIDENCE/sentinel-gate.json" \
+    "$EVIDENCE/response-diagnostics.json" "$EVIDENCE/sentinel-gate-diagnostics.json"
+printf '{"gate":"fail","evidence":["LAB_INCOMPLETE"]}\n' > "$EVIDENCE/summary.json"
 
 step() { printf '\n==> %s\n' "$*"; }
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
@@ -48,6 +53,10 @@ docker build -q -f "$LAB/Dockerfile.spid-sp-test" \
     -t filament-spid/spid-sp-test:local "$LAB" >/dev/null
 [ "$("$TOOL" --version 2>/dev/null)" = "$SPID_SP_TEST_VERSION" ] || fail "the lab container does not run spid_sp_test $SPID_SP_TEST_VERSION"
 
+docker run --rm --entrypoint python filament-spid/spid-sp-test:local -m pip check > "$EVIDENCE/pip-check.log"
+docker run --rm --entrypoint cat filament-spid/spid-sp-test:local /opt/lab/tool-provenance.json > "$EVIDENCE/tool-provenance.json"
+python3 "$LAB/tests/test_summary.py"
+
 step "Install from the distributable archive (metadata checked with spid_sp_test there too)"
 SPID_SP_TEST_BIN="$TOOL" bash "$ROOT/.github/scripts/install-check.sh" "$WORK" | tee "$EVIDENCE/install-check.log"
 APP="$WORK/app"
@@ -58,6 +67,7 @@ step "Trust spid_sp_test's test IdP as italia/spid-laravel's 'test' IdP"
 [ -s "$WORK/test-idp.xml" ] || fail "spid_sp_test printed no IdP metadata"
 php "$LAB/lab-configure.php" "$WORK/test-idp.xml" "$LAB_BASE"
 php artisan config:clear >/dev/null
+php artisan route:clear >/dev/null
 
 step "HTTPS front for $LAB_BASE (Caddy, development CA)"
 cat > "$WORK/Caddyfile" <<CADDY
@@ -69,6 +79,10 @@ sp.spid.test {
 	tls internal
 	reverse_proxy host.docker.internal:$PORT {
 		header_up X-Forwarded-Port 443
+		# Docker Desktop's host gateway can exceed Caddy's 3s dial default.
+		transport http {
+			dial_timeout 30s
+		}
 	}
 }
 CADDY
@@ -78,7 +92,7 @@ docker run -d --name spid-lab-proxy --network "$LAB_NETWORK" --network-alias sp.
 
 php artisan serve --host=0.0.0.0 --port="$PORT" >"$WORK/lab-serve.log" 2>&1 &
 SERVER=$!
-trap 'kill $SERVER 2>/dev/null || true; docker rm -f spid-lab-proxy >/dev/null 2>&1 || true; docker network rm "$LAB_NETWORK" >/dev/null 2>&1 || true' EXIT
+trap 'docker logs spid-lab-proxy >"$EVIDENCE/proxy.log" 2>&1; kill $SERVER 2>/dev/null || true; docker rm -f spid-lab-proxy >/dev/null 2>&1 || true; docker network rm "$LAB_NETWORK" >/dev/null 2>&1 || true' EXIT
 for _ in $(seq 1 50); do curl -s -o /dev/null "http://127.0.0.1:$PORT/up" && break; sleep 0.2; done
 for _ in $(seq 1 50); do
     docker run --rm --network "$LAB_NETWORK" --entrypoint python filament-spid/spid-sp-test:local \
@@ -105,6 +119,8 @@ RESPONSES=$?
 set -e
 tail -1 "$EVIDENCE/responses.log"
 
+python3 "$LAB/collect-diagnostics.py" "$EVIDENCE/responses.json" "$EVIDENCE/responses.log" "$EVIDENCE/response-diagnostics.json"
+
 step "Sentinel: a citizen the panel refuses must not pass the positive Response"
 php artisan tinker --execute='App\Models\User::query()->update(["spid_lab_allowed" => false]);' >/dev/null
 set +e
@@ -113,6 +129,8 @@ set +e
 GATE=$?
 set -e
 php artisan tinker --execute='App\Models\User::query()->update(["spid_lab_allowed" => true]);' >/dev/null
+
+python3 "$LAB/collect-diagnostics.py" "$EVIDENCE/sentinel-gate.json" "$EVIDENCE/sentinel-gate.log" "$EVIDENCE/sentinel-gate-diagnostics.json"
 
 step "Sentinels: metadata the adapter must reject"
 sentinel() {
@@ -133,6 +151,11 @@ sentinel public-without-ipa-code 1 "$WORK/no-ipa.xml"
 sentinel html-page 2 "$WORK/login-page.html"
 sentinel empty-file 2 "$WORK/empty.xml"
 sentinel valid 0 "$WORK/metadata.xml"
+
+# Exact installed application dependencies, plus the source used for this run.
+SOURCE_SHA=$(git -C "$ROOT" rev-parse HEAD)
+SOURCE_DIRTY=$(git -C "$ROOT" status --porcelain --untracked-files=normal | wc -l | tr -d ' ')
+php -r 'require "vendor/autoload.php"; $v=[]; foreach (["italia/spid-laravel", "onelogin/php-saml", "robrichards/xmlseclibs", "laravel/framework", "filament/filament"] as $p) { $v[$p]=["version"=>Composer\InstalledVersions::getPrettyVersion($p), "reference"=>Composer\InstalledVersions::getReference($p)]; } echo json_encode(["sha"=>$argv[1], "dirty_files"=>(int)$argv[2], "php"=>PHP_VERSION, "packages"=>$v], JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";' "$SOURCE_SHA" "$SOURCE_DIRTY" > "$EVIDENCE/environment.json"
 
 php "$LAB/lab-summary.php" "$EVIDENCE" "$AUTHN" "$RESPONSES" "$GATE" "$SPID_SP_TEST_VERSION" | tee "$EVIDENCE/summary.json"
 php -r '$s=json_decode(file_get_contents($argv[1]), true); exit($s["gate"] === "pass" ? 0 : 1);' "$EVIDENCE/summary.json" || fail "the lab gate failed (see $EVIDENCE/summary.json)"

@@ -18,6 +18,7 @@ use OfflineAgency\FilamentSpid\Commands\MetadataValidateCommand;
 use OfflineAgency\FilamentSpid\Constants\SpidLevel;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogin;
 use OfflineAgency\FilamentSpid\Listeners\HandleSpidLogout;
+use OfflineAgency\FilamentSpid\Services\SpidAuth as CompleteSpidAuth;
 use OfflineAgency\FilamentSpid\Support\TypedConfig;
 use OfflineAgency\FilamentSpid\Support\Warning;
 use Spatie\LaravelPackageTools\Package;
@@ -44,6 +45,7 @@ class FilamentSpidServiceProvider extends PackageServiceProvider
         // italia/spid-laravel only binds the 'SPIDAuth' alias, so resolving the
         // class would build a second, unrelated instance. Point it at the
         // library singleton instead of registering one of our own.
+        $this->app->singleton('SPIDAuth', CompleteSpidAuth::class);
         $this->app->bind(SPIDAuth::class, fn (Application $app) => $app->make('SPIDAuth'));
     }
 

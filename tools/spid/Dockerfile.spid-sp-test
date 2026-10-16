@@ -6,7 +6,16 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends xmlsec1 \
     && rm -rf /var/lib/apt/lists/*
 COPY constraints.txt /opt/lab/constraints.txt
-RUN pip install --no-cache-dir -c /opt/lab/constraints.txt "spid-sp-test==${SPID_SP_TEST_VERSION}"
+RUN python -m pip install --no-cache-dir "wheel==0.45.1" \
+    && python -m pip install --no-cache-dir -c /opt/lab/constraints.txt "spid-sp-test==${SPID_SP_TEST_VERSION}" \
+    && python -m pip check
+COPY patches/upstream-LICENSE /opt/lab/licenses/spid-sp-test-LICENSE
+COPY patches/README.md /opt/lab/patches/README.md
+COPY scenario-ids.json /opt/lab/scenario-ids.json
+COPY patches/apply.py /opt/lab/patches/apply.py
+RUN python /opt/lab/patches/apply.py
+COPY tests/test_signing.py /opt/lab/tests/test_signing.py
+RUN python /opt/lab/tests/test_signing.py
 # The authentication adapter for the lab only (see filament_spid_lab.py).
 COPY filament_spid_lab.py /opt/lab/filament_spid_lab.py
 ENV PYTHONPATH=/opt/lab HOME=/tmp

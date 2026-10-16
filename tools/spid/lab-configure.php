@@ -80,3 +80,7 @@ DB::table('users')->updateOrInsert(
 );
 
 echo "lab: trusting test IdP {$idp['entityId']}, SP base URL {$config['sp_base_url']}\n";
+
+// Test-only observability, loaded with the application's web routes.
+copy(__DIR__.'/lab-observer.php', base_path('routes/spid-lab.php'));
+file_put_contents(base_path('routes/web.php'), "\nrequire __DIR__.'/spid-lab.php';\n", FILE_APPEND);

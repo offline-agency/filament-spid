@@ -1,6 +1,6 @@
 # Testing with AgID's tools
 
-> filament-spid 1.0.0. Sources and versions checked on 11 October 2026; check
+> filament-spid 1.0.0. Sources and versions checked on 16 October 2026; check
 > them again before relying on them.
 
 Three levels of evidence, never interchangeable:
@@ -31,7 +31,10 @@ What it does:
 
 1. Builds the pinned `spid_sp_test` container (`tools/spid/Dockerfile.spid-sp-test`:
    Python 3.11 slim by digest, `xmlsec1`, `spid-sp-test==1.2.18` with every
-   dependency pinned in `tools/spid/constraints.txt`).
+   runtime dependency pinned in `tools/spid/constraints.txt`). It applies the
+   guarded lab-only [signing patch](../../tools/spid/patches/README.md), pins
+   compatible wheel 0.45.1 and requires `python -m pip check`. The official
+   version and separate local patch hash are recorded in evidence.
 2. Installs the **distributable archive** of the current commit into a fresh
    Laravel application by the published quickstart
    (`.github/scripts/install-check.sh`), and validates the served metadata.
@@ -53,7 +56,13 @@ What it does:
 6. Sentinels that must fail: metadata altered after signing, a public SP
    without its IPA code, an HTML page, an empty file (adapter), and a
    positive Response for a citizen the gate refuses. A valid copy must pass.
-7. Writes `evidence/summary.json`.
+7. Writes `evidence/summary.json`, source/dependency and patch provenance,
+   and per-scenario diagnostics. Only complete reports (104 metadata,
+   151 AuthnRequest, 246 Response assertions and all 111 original IDs), valid
+   tool exits, six explicit positive authentications and an authorization-only
+   denial sentinel can pass. Missing/truncated reports or provenance fail;
+   an interrupted run leaves `LAB_INCOMPLETE` / fail. Reports and sanitized
+   diagnostics, including the proxy log, are retained on failure.
 
 Topology: Linux and Docker Desktop alike. `localhost` inside a container is
 the container, so the tool reaches the application through Caddy on the
@@ -66,10 +75,11 @@ The CI job `spid-validation` runs the same script. It never contacts the
 hosted Validator, so its availability cannot make CI flaky; its synthetic
 evidence (no real organisation, no real key) is uploaded as an artefact.
 
-Current result: see [evidence](evidence.md). In short, metadata and
-AuthnRequest pass; six positive Response tests fail because of an
-interaction between `spid_sp_test` 1.2.18 and php-saml/xmlseclibs, reproduced
-and documented there, so the lab gate is red.
+Current results and exact verification limits: see the dated
+[repair evidence](evidence.md#ci-repair-on-16-october-2026). The original
+11 October failed run is retained as history. The lab uses explicitly
+identified modified tooling; passing it grants no hosted-validator or formal
+AgID acceptance status.
 
 ### The Validator, self-hosted
 
@@ -94,7 +104,7 @@ not authorise rewriting the endpoints signed inside it.
 ## The hosted AgID Validator and the acceptance test
 
 From AgID's [technical procedure](https://www.spid.gov.it/cos-e-spid/diventa-fornitore-di-servizi/procedura-tecnica/)
-(checked on 11 October 2026; it is the authority, this is a summary):
+(checked on 16 October 2026; it is the authority, this is a summary):
 
 1. Publish the SP metadata at an HTTPS URL on your own domain, signed with the
    key that signs the requests.

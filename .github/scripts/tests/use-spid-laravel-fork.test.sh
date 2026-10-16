@@ -26,12 +26,17 @@ json() {
 # Composer writes named repositories either as an object key or as a list
 # entry carrying "name", depending on the existing shape and its version.
 fork_repos=$(php -r '$d = json_decode(file_get_contents($argv[1]), true);
-    echo count(array_filter($d["repositories"] ?? [], fn ($r) => ($r["type"] ?? null) === "vcs"
-        && ($r["url"] ?? null) === "https://github.com/offline-agency/spid-laravel"));' "$TMP/composer.ci.json")
-[ "$fork_repos" = '1' ] || fail "expected one fork vcs repository, found $fork_repos"
-[ "$(json require.italia/spid-laravel)" = '"dev-feat/laravel-13 as 2.1.0-beta"' ] || fail "require: $(json require.italia/spid-laravel)"
+    echo count(array_filter($d["repositories"] ?? [], fn ($r) => ($r["type"] ?? null) === "package"
+        && ($r["package"]["name"] ?? null) === "italia/spid-laravel"
+        && ($r["package"]["source"]["reference"] ?? null) === "b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe"
+        && ($r["package"]["dist"]["reference"] ?? null) === "b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe"));' "$TMP/composer.ci.json")
+[ "$fork_repos" = '1' ] || fail "expected one pinned fork package repository, found $fork_repos"
+[ "$(json require.italia/spid-laravel)" = '"^2.1.0-beta"' ] || fail "require: $(json require.italia/spid-laravel)"
 [ "$(json extra.enable-patching)" = 'true' ] || fail "enable-patching: $(json extra.enable-patching)"
 [ "$(json config.allow-plugins.cweagans/composer-patches)" = 'true' ] || fail "allow-plugins: $(json config.allow-plugins.cweagans/composer-patches)"
+
+# Immutable pinning must remain compatible with the strict manifest gate.
+(cd "$TMP" && COMPOSER=composer.ci.json composer validate --strict)
 
 # Without COMPOSER the script refuses rather than rewrite composer.json.
 if (cd "$TMP" && env -u COMPOSER bash "$SCRIPT" >/dev/null 2>&1); then

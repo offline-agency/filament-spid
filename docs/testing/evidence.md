@@ -1,10 +1,105 @@
 # Evidence
 
 What was actually run for 1.0.0, on what, and what it does and does not show.
-Updated on 11 October 2026. Synthetic data only: no real organisation,
+Updated on 16 October 2026. The 11 October run below remains historical. Synthetic data only: no real organisation,
 citizen, key or assertion.
 
-## Status
+## CI repair on 16 October 2026
+
+PR #15 was refreshed at `ed960e4d0a7472825b74127f353bf9866bf41f1c`.
+The latest failing workflow remained [38098866015](https://github.com/offline-agency/filament-spid/actions/runs/38098866015),
+SPID lab job `114350413142`; the other workflows were successful on that
+head. The original local lab reproduced 104/104 metadata, 151/151
+AuthnRequest and 240/246 Response assertions. Each positive scenario
+(1, 31, 95, 96, 109, 110) was also run separately with the original tool:
+exit 1, expected HTTP 200 but actual HTTP 500. The synthetic PHP reproduction
+exited **0 = incompatibility reproduced**, not successful authentication:
+php-saml 4.3.2 / xmlseclibs 3.1.5 validated a populated KeyInfo but threw
+`Unable to extract public key` with an empty certificate.
+
+The repaired local lab **passed**: 104/104 metadata, 151/151 AuthnRequest,
+246/246 Response assertions across all 111 original IDs. All six positives
+actually authenticated on the panel guard; the refused-citizen sentinel
+produced `the user may not access the panel`, a login redirect and no guard
+or SPID session. All 18 compatibility combinations and three real archive
+install legs passed locally, alongside 100% line coverage, max-level PHPStan,
+Pint, JavaScript, audit and non-publishing script checks.
+
+The new dated [repair record](evidence/ci-repair-2026-10-16.json) records the
+actual commands, environments and outcomes. Local runs use macOS arm64,
+Herd PHP and the digest-pinned multi-architecture Docker images. They are
+not a completed Ubuntu GitHub Actions run for the repair commit.
+
+The build-only [patch and removal condition](../../tools/spid/patches/README.md)
+fix certificate selection in `spid_sp_test` 1.2.18, preserving scenario keys,
+explicit certificates, templates, wrappers and expectations. Both original
+signatures had empty KeyInfo certificates; both corrected signatures contain
+the matching certificate. Regression tests exercise the actual scenario
+runner and xmlsec, verify both signatures and signed digests, and prove
+alternate-key fixtures fail under configured lab trust. Upstream's latest
+release is still [v1.2.18](https://github.com/italia/spid-sp-test/releases/tag/v1.2.18);
+main `cf172c5d17cc7ef7d2364d5f1417d7e9dda1ebc8` changes supported Python
+versions, not signing. `--version` remains `1.2.18`, with separate patch
+identity/hash and original/patched source hashes in `tool-provenance.json`.
+Upstream's EUPL-1.2 license and attribution accompany the patch.
+
+The bundled certificate expired at **2025-03-08 10:02:08 UTC** and matches
+the bundled signing key. php-saml/xmlseclibs use the configured certificate's
+public key in this verification path without enforcing its PKIX lifetime;
+corrected positive fixtures authenticate with it. No clock change,
+certificate replacement or production validity bypass was needed.
+
+Fixing signing exposed two dependency validation omissions, each reproduced
+by a focused failing test before the production fix: scenario 64 authenticated
+without `SubjectConfirmationData@NotOnOrAfter`, and scenario 28 (missing
+Response Issuer) raised a null dereference instead of a validation exception.
+The internal `Services\SpidAuth` integration adds those two required-field
+checks while retaining the parent SPID validation and singleton/public API.
+The full lab independently exercises these paths through the real ACS.
+
+A fresh baseline log associates **37** Response scenarios with the empty-cert
+error: six positives and **31** other scenarios (including upstream's flexible
+scenario 103). The gate sentinel adds one further occurrence, making 38 in
+the application log. This differs from the historical “six plus 32 negatives”
+classification below; that earlier classification was not independently
+confirmed. The dated record identifies every affected ID and its new refusal
+reason or upstream-permitted acceptance. Scenario 103 permits either outcome;
+its original expectation is retained. Wrapping attacks are refused at the
+protocol/status checks; this does not claim every attack reaches signature
+verification.
+
+Python's separate consistency warning came from wheel 0.46.3 requiring
+packaging >=24 while spid-compliant-certificates 0.5.5 requires packaging
+==21.2. wheel 0.45.1 has no runtime packaging requirement and keeps the
+existing constrained runtime consistent. `python -m pip check` is mandatory
+in the executing environment at build and lab run. CI's Composer helper now
+pins the same `b8dd1a484d8e6551a1a84e90220c2e9dc0d0a0fe` fork commit as
+the quickstart; the baseline floating branch happened to resolve to that
+commit too. The CI-only package repository copies that reviewed commit's
+runtime/autoload/patch metadata and pins both source and dist; the root keeps
+its compatible range. This avoids Composer strict-validation warnings for
+`dev-branch#commit` or exact root requirements. Published `composer.json` and audit protection stay intact.
+
+The report gate requires all 111 original scenario IDs and 246 Response
+assertions, 151 AuthnRequest assertions, 104 metadata assertions, successful
+tool exits, explicit positive results, isolated sessions and authenticated
+panel access. A refused citizen must produce the precise panel-access reason,
+a login redirect and no authenticated guard or SPID session. Missing,
+malformed, truncated and incomplete reports, unexpected results, crashed
+runs, unrelated exceptions and missing/mismatched provenance fail. An
+interrupted lab starts and leaves `summary.json` as `LAB_INCOMPLETE` / fail;
+reports, per-scenario sanitized diagnostics and proxy logs remain artifacts
+on failure. Local Docker-to-host dial timeouts were observed as HTTP 502
+and failed the gate; Caddy's lab dial timeout is now 30s, without retrying
+SAML POSTs. Guard/session diagnostics ride on the existing login/panel
+responses, avoiding extra HTTP requests. Reused work directories discard
+previous scenario reports before starting. No keys, cookies or application directories are uploaded.
+
+`HOSTED_VALIDATOR_NOT_RUN` and `FORMAL_AGID_ACCEPTANCE_NOT_OBTAINED`
+remain unchanged. No merge, tag, release, external comment or repository
+protection change was performed.
+
+## Historical status (11 October 2026)
 
 | Evidence | Status | Date, source |
 |---|---|---|

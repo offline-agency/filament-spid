@@ -8,6 +8,7 @@
 # Upstream merged it in https://github.com/italia/spid-laravel/pull/132 but has
 # not tagged it, and its master points the patch URL at a deleted branch.
 #
+# Resolve the same reviewed immutable source as docs/snippets/quickstart.sh.
 # The fork setup goes into a copy of composer.json named by $COMPOSER (the
 # workflows set COMPOSER=composer.ci.json), so the published manifest, which
 # the test suite checks, stays as consumers get it. Run from the package root
@@ -21,9 +22,13 @@ if [ -z "${COMPOSER:-}" ] || [ "$COMPOSER" = "composer.json" ]; then
 fi
 
 cp composer.json "$COMPOSER"
-composer config repositories.spid-laravel vcs https://github.com/offline-agency/spid-laravel
+# A package repository pins source/dist without Composer's strict-validation
+# warning for dev-branch#commit requirements. Metadata is copied from that
+# reviewed commit; no published package manifest is changed.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+composer config repositories.spid-laravel "$(cat "$SCRIPT_DIR/spid-laravel-package.json")"
 composer config allow-plugins.cweagans/composer-patches true
 # composer-patches only applies patches declared by dependencies when the
 # root package opts in; without this php-saml would run unpatched.
 composer config extra.enable-patching true --json
-composer require "italia/spid-laravel:dev-feat/laravel-13 as 2.1.0-beta" --no-update --no-interaction
+composer require "italia/spid-laravel:^2.1.0-beta" --no-update --no-interaction

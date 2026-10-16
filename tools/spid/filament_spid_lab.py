@@ -18,6 +18,8 @@ Settings: FILAMENT_SPID_LAB_IDP, the provider key the form posts (default
 "test", italia/spid-laravel's test IdP, configured with spid_sp_test's IdP).
 """
 
+import base64
+import json
 import os
 import re
 import tempfile
@@ -32,9 +34,23 @@ class FilamentSpidLogin(Base):
         # --authn-url is the panel login page, e.g. https://sp/admin/login.
         return re.sub(r"/login/?$", "", self.authn_request_url)
 
+    @staticmethod
+    def state(response):
+        # Lab-only observer headers come from the actual configured panel guard.
+        values = [response.headers.get(name) for name in
+                  ("X-Spid-Lab-Authenticated", "X-Spid-Lab-Spid-Session")]
+        if any(value not in ("0", "1") for value in values):
+            raise RuntimeError("missing panel-guard diagnostics (or a transport failure)")
+        return {"authenticated": values[0] == "1", "spid_session": values[1] == "1"}
+
     def request(self):
+        # Each scenario starts as a new browser, including runs after success.
+        self.requests_session.cookies.clear()
         page = self.requests_session.get(self.authn_request_url, verify=False)
         page.raise_for_status()
+        state = self.state(page)
+        if state["authenticated"] or state["spid_session"]:
+            raise RuntimeError("the scenario did not start with an isolated guest session")
 
         form = re.search(r'<form[^>]*action="([^"]+)"[^>]*method="post"', page.text)
         token = re.search(r'name="_token"\s+value="([^"]+)"', page.text)
@@ -61,15 +77,20 @@ class FilamentSpidLogin(Base):
     def response(self, url, data: dict = {}, **kwargs):
         res = self.requests_session.post(url, data=data, allow_redirects=False, verify=False)
 
-        # Protocol refusals (italia/spid-laravel throws) are errors already.
-        if res.status_code >= 400:
-            return res
-
         panel = self.requests_session.get(self.panel_url(), allow_redirects=False, verify=False)
-        if panel.status_code == 200:
+        state = self.state(panel)
+        refusal = res.headers.get("X-Spid-Lab-Refusal")
+        reason = base64.b64decode(refusal).decode() if refusal else None
+        print("LAB_RESPONSE " + json.dumps({
+            "acs_status": res.status_code, "panel_status": panel.status_code,
+            "panel_login_redirect": panel.status_code == 302 and
+                urllib.parse.urlparse(panel.headers.get("Location", "")).path ==
+                urllib.parse.urlparse(self.authn_request_url).path,
+            "authenticated": state["authenticated"], "spid_session": state["spid_session"],
+            "error": reason, "isolated": True,
+        }), flush=True)
+        if panel.status_code == 200 and state["authenticated"]:
             return panel
-
-        # Not signed in: the application refused the login (level, gate) or
-        # the Response was silently dropped.
-        res.status_code = 403
+        if res.status_code < 400:
+            res.status_code = 403
         return res

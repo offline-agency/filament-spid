@@ -4,6 +4,12 @@ All notable changes to `filament-spid` will be documented in this file.
 
 ## Unreleased
 
+- Reject SPID Responses missing the Response Issuer or the SubjectConfirmationData
+  expiry. Retain the upstream signature, schema, timing and protocol checks.
+- Repair lab fixture signing at build time, pin compatible Python build tooling
+  and the reviewed CI Composer fork, and require complete scenario, guard,
+  authorization-refusal and provenance evidence before the local gate passes.
+
 ## 1.0.0 - 2026-10-10
 
 ### BREAKING
