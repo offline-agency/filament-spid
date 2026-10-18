@@ -1,6 +1,6 @@
 # Installation and configuration
 
-> Applies to filament-spid **1.0.0** (not on Packagist yet, see the [README](../README.md)).
+> Applies to stable filament-spid **1.0.0**, published on GitHub and listed on Packagist (verified 18 October 2026). The patched upstream fork is still required; see the complete [README quick start](../README.md#quick-start).
 > Italian: [installazione](it/installazione.md).
 
 1. [Before you start](#before-you-start)

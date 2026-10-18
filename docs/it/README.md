@@ -17,10 +17,14 @@ English: [README](../../README.md).
 
 ![La pagina di login SPID di un pannello Filament 5 con il menu degli IdP aperto (dati di test sintetici)](../images/login-light.png)
 
-> **Pre-release.** Questa guida descrive la **1.0.0, non ancora su Packagist**:
-> `composer require offline-agency/filament-spid:^1.0` funzionerà dopo il tag.
-> La release pubblicata è la 0.1.8 ([README alla 0.1.8](https://github.com/offline-agency/filament-spid/blob/0.1.8/README.md));
-> la serie 0.1.x non è più mantenuta ([SECURITY.md](../../SECURITY.md)).
+> **Release stabile 1.0.0.** Pubblicata su [GitHub](https://github.com/offline-agency/filament-spid/releases/tag/1.0.0)
+> il 16 ottobre 2026 alle 18:17:21 UTC. Verifica separata del 18 ottobre 2026:
+> [Packagist](https://repo.packagist.org/p2/offline-agency/filament-spid.json) elenca `1.0.0`
+> con source e dist reference `99f80235a6be15b6365840f46f160476e2fdb38e`.
+> Seguire tutti i passaggi di installazione: serve ancora il fork corretto di
+> `italia/spid-laravel`, tracciato nella [issue #16](https://github.com/offline-agency/filament-spid/issues/16).
+> La presenza sul registro non dimostra la risoluzione delle dipendenze nella propria applicazione.
+> La serie 0.1.x non è più mantenuta ([SECURITY.md](../../SECURITY.md)).
 
 ## Requisiti
 
@@ -74,8 +78,8 @@ php artisan migrate
 php artisan filament-spid:doctor
 ```
 
-Il passo 1 serve perché ogni tag di `italia/spid-laravel` (fino a v2.1.0-beta)
-fissa `onelogin/php-saml` 4.1.0, colpito da
+Il passo 1 serve perché la più recente versione pubblicata di `italia/spid-laravel`,
+v2.1.0-beta (verifica del 18 ottobre 2026), fissa `onelogin/php-saml` 4.1.0, colpito da
 [CVE-2025-66475](https://github.com/advisories/GHSA-5j8p-438x-rgg5). La
 correzione è integrata upstream ([#132](https://github.com/italia/spid-laravel/pull/132))
 ma non ancora rilasciata; il fork è fissato a un commit, e così l'URL della sua
