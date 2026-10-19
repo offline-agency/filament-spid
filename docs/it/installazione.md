@@ -1,6 +1,6 @@
 # Installazione e configurazione
 
-> Si applica a filament-spid **1.0.0** (non ancora su Packagist). English:
+> Si applica a filament-spid **1.0.0 stabile**, pubblicata su GitHub e presente su Packagist (verifica del 18 ottobre 2026). Resta necessario il fork upstream corretto descritto nel README. English:
 > [installation](../installation.md), che resta il riferimento completo.
 
 ## Prima di iniziare

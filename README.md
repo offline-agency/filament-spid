@@ -25,10 +25,13 @@ Italiano: [guida in italiano](docs/it/README.md).
 
 ![The SPID login page of a Filament 5 panel with the IdP menu open (synthetic test data)](docs/images/login-light.png)
 
-> **Pre-release.** This branch documents **1.0.0, which is not on Packagist yet**:
-> `composer require offline-agency/filament-spid:^1.0` works once 1.0.0 is
-> tagged. The published release is 0.1.8, documented in the
-> [README at 0.1.8](https://github.com/offline-agency/filament-spid/blob/0.1.8/README.md);
+> **Stable release 1.0.0.** [GitHub release](https://github.com/offline-agency/filament-spid/releases/tag/1.0.0)
+> published on 16 October 2026 at 18:17:21 UTC (`prerelease: false`).
+> Separately verified on 18 October 2026: [Packagist metadata](https://repo.packagist.org/p2/offline-agency/filament-spid.json)
+> lists `1.0.0`, with source and dist reference `99f80235a6be15b6365840f46f160476e2fdb38e`.
+> Install using the complete quick start below: the stable plugin still needs
+> the pinned, patched `italia/spid-laravel` fork tracked in [#16](https://github.com/offline-agency/filament-spid/issues/16).
+> Registry publication alone does not prove dependency resolution in your application.
 > 0.1.x is no longer maintained ([SECURITY.md](SECURITY.md)).
 
 ## Requirements
@@ -86,7 +89,8 @@ php artisan filament-spid:doctor
 ```
 <!-- quickstart:end -->
 
-Why step 1: every tagged `italia/spid-laravel` (up to v2.1.0-beta) pins
+Why step 1: the latest published `italia/spid-laravel`, v2.1.0-beta (checked
+on 18 October 2026), pins
 `onelogin/php-saml` 4.1.0, affected by
 [CVE-2025-66475](https://github.com/advisories/GHSA-5j8p-438x-rgg5). The fix is
 merged upstream ([italia/spid-laravel#132](https://github.com/italia/spid-laravel/pull/132))

@@ -50,5 +50,9 @@ back. Emails, queued jobs, HTTP calls or writes to other databases are not:
 keep side effects in `SpidUserCreated`/`SpidUserUpdated`, which fire after the
 commit ([events](authentication.md#events-and-transactions)).
 
-**Why is 1.0.0 not on Packagist yet?**
-It is waiting for review and release; see the README's pre-release note.
+**Is stable 1.0.0 available on Packagist?**
+Yes. GitHub published stable 1.0.0 on 16 October 2026; Packagist separately
+lists 1.0.0 with matching source and dist references (checked 18 October 2026).
+Use the complete [quick start](../README.md#quick-start), including the pinned
+patched upstream fork tracked in [#16](https://github.com/offline-agency/filament-spid/issues/16).
+Publication does not remove that dependency or establish AgID acceptance.
