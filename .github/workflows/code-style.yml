@@ -19,6 +19,28 @@ env:
   COMPOSER: composer.ci.json
 
 jobs:
+  validate:
+    name: composer validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          coverage: none
+          tools: composer:v2
+
+      # The published manifest, not the CI copy: this is what consumers get.
+      - name: Validate composer.json
+        env:
+          COMPOSER: composer.json
+        run: composer validate --strict
+
   pint:
     name: Pint
     runs-on: ubuntu-24.04

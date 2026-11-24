@@ -1,12 +1,15 @@
 # Filament SPID — SPID authentication for Laravel Filament
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/offline-agency/filament-spid.svg?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
-[![Total Downloads](https://img.shields.io/packagist/dt/offline-agency/filament-spid.svg?style=flat-square)](https://packagist.org/packages/offline-agency/filament-spid)
-[![Tests](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/run-tests.yml?query=branch%3Amain)
-[![SPID lab](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/spid-validation.yml?branch=main&label=spid%20lab&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/spid-validation.yml?query=branch%3Amain)
-[![PHPStan](https://img.shields.io/github/actions/workflow/status/offline-agency/filament-spid/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/offline-agency/filament-spid/actions/workflows/phpstan.yml?query=branch%3Amain)
-[![Coverage](https://img.shields.io/codecov/c/github/offline-agency/filament-spid/main?style=flat-square)](https://app.codecov.io/gh/offline-agency/filament-spid)
-[![License](https://img.shields.io/packagist/l/offline-agency/filament-spid.svg?style=flat-square)](LICENSE.md)
+[![Latest Release](https://img.shields.io/github/v/release/offline-agency/filament-spid?sort=semver)](https://github.com/offline-agency/filament-spid/releases)
+[![Packagist Version](https://img.shields.io/packagist/v/offline-agency/filament-spid)](https://packagist.org/packages/offline-agency/filament-spid)
+[![Total Downloads](https://img.shields.io/packagist/dt/offline-agency/filament-spid)](https://packagist.org/packages/offline-agency/filament-spid)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/offline-agency/filament-spid/php)](https://packagist.org/packages/offline-agency/filament-spid)
+[![Tests](https://github.com/offline-agency/filament-spid/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/offline-agency/filament-spid/actions/workflows/run-tests.yml)
+[![PHPStan](https://github.com/offline-agency/filament-spid/actions/workflows/phpstan.yml/badge.svg?branch=main)](https://github.com/offline-agency/filament-spid/actions/workflows/phpstan.yml)
+[![Code style](https://github.com/offline-agency/filament-spid/actions/workflows/code-style.yml/badge.svg?branch=main)](https://github.com/offline-agency/filament-spid/actions/workflows/code-style.yml)
+[![SPID lab](https://github.com/offline-agency/filament-spid/actions/workflows/spid-validation.yml/badge.svg?branch=main)](https://github.com/offline-agency/filament-spid/actions/workflows/spid-validation.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/offline-agency/filament-spid/main)](https://app.codecov.io/gh/offline-agency/filament-spid)
+[![License](https://img.shields.io/github/license/offline-agency/filament-spid)](LICENSE.md)
 
 Sign citizens in to [Filament](https://filamentphp.com) panels with
 [SPID](https://www.spid.gov.it), the Italian public digital identity system,
@@ -19,11 +22,11 @@ A community package maintained by [Offline Agency](https://offlineagency.it),
 released under the [MIT license](LICENSE.md). It is not an official Filament
 plugin and not an AgID product, and installing it does not make a service
 accredited to SPID: that takes AgID's own procedure (see
-[Testing with AgID's tools](docs/testing/agid.md)).
+[Testing with AgID's tools](docs/v1/testing/agid.md)).
 
-Italiano: [guida in italiano](docs/it/README.md).
+Italiano: [guida in italiano](docs/v1/it/README.md).
 
-![The SPID login page of a Filament 5 panel with the IdP menu open (synthetic test data)](docs/images/login-light.png)
+![The SPID login page of a Filament 5 panel with the IdP menu open (synthetic test data)](docs/v1/images/login-light.png)
 
 > **Stable release 1.0.0.** [GitHub release](https://github.com/offline-agency/filament-spid/releases/tag/1.0.0)
 > published on 16 October 2026 at 18:17:21 UTC (`prerelease: false`).
@@ -36,9 +39,9 @@ Italiano: [guida in italiano](docs/it/README.md).
 
 ## Requirements
 
-| | Supported (every combination tested in CI) |
+| | Supported (tested in CI; see the note on Laravel 12 and PHP 8.6) |
 |---|---|
-| PHP | 8.3, 8.4, 8.5 |
+| PHP | 8.3, 8.4, 8.5, 8.6 |
 | Laravel | 12.x, 13.x |
 | Filament | 3.x, 4.x, 5.x |
 | SPID service provider | public and private SPs; aggregators and operators (gestori) are not covered |
@@ -47,6 +50,20 @@ Laravel 11 left security support on 12 March 2026 and PHP 8.2 leaves it on
 31 December 2026 ([Laravel support policy](https://laravel.com/docs/13.x/releases#support-policy),
 [PHP supported versions](https://www.php.net/supported-versions.php), checked
 on 11 October 2026), so neither is supported by 1.x.
+
+Laravel 12 on PHP 8.6 is the one combination CI does not run. Every
+`laravel/framework` 12.x release, including the head of the 12.x branch, still
+calls `spl_object_hash()`, which PHP 8.6 deprecates, and the test suite fails
+on deprecations. The plugin's own code raises none: on PHP 8.6 use Laravel 13,
+or stay on PHP 8.3 to 8.5 with Laravel 12 until Laravel 12 stops calling it.
+
+### Compatibility
+
+| Version | PHP | Laravel | Filament |
+|---|---|---|---|
+| 1.1 (this release line) | ^8.3 (CI: 8.3 to 8.5 on Laravel 12, 8.3 to 8.6 on Laravel 13) | ^12.0 \| ^13.0 | ^3.0 \| ^4.0 \| ^5.0 |
+| 1.0 | ^8.3 | ^12.0 \| ^13.0 | ^3.0 \| ^4.0 \| ^5.0 |
+| 0.1 (no longer maintained) | ^8.2 \| ^8.3 \| ^8.4 | ^11.0 \| ^12.0 | ^3.0 \| ^4.0 |
 
 ## Who does what
 
@@ -60,10 +77,10 @@ on 11 October 2026), so neither is supported by 1.x.
 
 You need a Laravel 12 or 13 application with a Filament panel (`php artisan
 filament:install --panels`), the SP's signing key pair (see
-[Certificates](docs/installation.md#certificates)) and the SP's real data
+[Certificates](docs/v1/installation.md#certificates)) and the SP's real data
 (organisation, IPA code or VAT number, contact email).
 
-<!-- quickstart:begin (docs/snippets/quickstart.sh, run in CI by .github/scripts/install-check.sh) -->
+<!-- quickstart:begin (docs/v1/snippets/quickstart.sh, run in CI by .github/scripts/install-check.sh) -->
 ```bash
 # Run in the root of a Laravel 12 or 13 application with a Filament panel.
 
@@ -133,12 +150,14 @@ a SPID citizen unless you turn `auto_create_users` on, and even then
 
 ## Documentation
 
-- [Installation and configuration](docs/installation.md): the installer and its input, manual installation, public and private SPs, certificates, CSRF, proxies.
-- [Configuration reference](docs/configuration.md): every key, SPID levels, data minimisation, field mapping, multiple panels, the SPID button.
-- [How login works](docs/authentication.md): the success boundary, fail-closed errors, guards and sessions, provisioning, events and transactions, local logout and SLO.
-- [Diagnostics](docs/diagnostics.md): `filament-spid:doctor` and `filament-spid:metadata:validate`.
-- [Testing with AgID's tools](docs/testing/agid.md): the local lab, `spid_sp_test`, the AgID Validator, the acceptance test. [What has been verified](docs/testing/evidence.md).
-- [Production checklist](docs/production-checklist.md) · [Troubleshooting](docs/troubleshooting.md) · [FAQ](docs/faq.md) · [Upgrading from 0.1.x](docs/upgrading.md)
+All versions are listed in [docs/README.md](docs/README.md); the current one starts at [docs/v1/index.md](docs/v1/index.md).
+
+- [Installation and configuration](docs/v1/installation.md): the installer and its input, manual installation, public and private SPs, certificates, CSRF, proxies.
+- [Configuration reference](docs/v1/configuration.md): every key, SPID levels, data minimisation, field mapping, multiple panels, the SPID button.
+- [How login works](docs/v1/authentication.md): the success boundary, fail-closed errors, guards and sessions, provisioning, events and transactions, local logout and SLO.
+- [Diagnostics](docs/v1/diagnostics.md): `filament-spid:doctor` and `filament-spid:metadata:validate`.
+- [Testing with AgID's tools](docs/v1/testing/agid.md): the local lab, `spid_sp_test`, the AgID Validator, the acceptance test. [What has been verified](docs/v1/testing/evidence.md).
+- [Production checklist](docs/v1/production-checklist.md) · [Troubleshooting](docs/v1/troubleshooting.md) · [FAQ](docs/v1/faq.md) · [Upgrading from 0.1.x](docs/v1/upgrading.md)
 
 AI coding agents: the package ships [Laravel Boost](https://laravel.com/docs/boost)
 guidelines and a `spid-integration` skill, which `php artisan boost:install`

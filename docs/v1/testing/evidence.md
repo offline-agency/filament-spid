@@ -30,7 +30,7 @@ actual commands, environments and outcomes. Local runs use macOS arm64,
 Herd PHP and the digest-pinned multi-architecture Docker images. They are
 not a completed Ubuntu GitHub Actions run for the repair commit.
 
-The build-only [patch and removal condition](../../tools/spid/patches/README.md)
+The build-only [patch and removal condition](../../../tools/spid/patches/README.md)
 fix certificate selection in `spid_sp_test` 1.2.18, preserving scenario keys,
 explicit certificates, templates, wrappers and expectations. Both original
 signatures had empty KeyInfo certificates; both corrected signatures contain

@@ -56,7 +56,7 @@ at a version users can install).
 > - `filament-spid:install` (guided, idempotent setup), `filament-spid:doctor`
 >   (read-only diagnostics) and `filament-spid:metadata:validate` (an adapter for
 >   AgID's spid_sp_test).
-> - Filament 3, 4 and 5 on Laravel 12 and 13, PHP 8.3–8.5.
+> - Filament 3, 4 and 5 on Laravel 12 and 13, PHP 8.3–8.6 (Laravel 12 up to PHP 8.5).
 >
 > Maintained independently by Offline Agency; not an official Filament or AgID
 > product. Accreditation to SPID, the service provider's data and keys, and
@@ -70,9 +70,9 @@ archive:
 
 | File | Content |
 |---|---|
-| `docs/images/login-light.png` | 1280×900 @2x, light mode, IdP menu open |
-| `docs/images/login-dark.png` | 1280×900 @2x, dark mode |
-| `docs/images/login-mobile.png` | 390×844 @3x, mobile, IdP menu open |
+| `docs/v1/images/login-light.png` | 1280×900 @2x, light mode, IdP menu open |
+| `docs/v1/images/login-dark.png` | 1280×900 @2x, dark mode |
+| `docs/v1/images/login-mobile.png` | 390×844 @3x, mobile, IdP menu open |
 
 Required dimensions or formats are not publicly documented; crop or resize to
 what the portal asks.

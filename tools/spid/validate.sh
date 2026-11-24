@@ -7,7 +7,7 @@
 # and broken SAML Responses to its ACS.
 #
 # It never contacts the hosted AgID Validator or any real IdP; its evidence is
-# local (LOCAL_METADATA_CHECK_*, LOCAL_SAML_TESTS_*), see docs/testing/agid.md.
+# local (LOCAL_METADATA_CHECK_*, LOCAL_SAML_TESTS_*), see docs/v1/testing/agid.md.
 #
 # Topology (Linux and Docker Desktop alike): the app runs on the host
 # (php artisan serve on 0.0.0.0:$PORT); a Caddy container on the docker network

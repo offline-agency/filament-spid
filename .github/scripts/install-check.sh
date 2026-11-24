@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install the distributable archive of this package into a fresh Laravel app,
-# following docs/snippets/quickstart.sh (the commands the README publishes),
+# following docs/v1/snippets/quickstart.sh (the commands the README publishes),
 # then check the result over HTTP.
 #
 # What differs from a user's install, and why:
@@ -24,7 +24,7 @@ FILAMENT="${FILAMENT:-5}"
 PACKAGE_VERSION="${PACKAGE_VERSION:-1.0.0-RC999}"
 PACKAGE_SOURCE="${PACKAGE_SOURCE:-archive}"
 PORT="${PORT:-8123}"
-QUICKSTART="$PACKAGE_ROOT/docs/snippets/quickstart.sh"
+QUICKSTART="$PACKAGE_ROOT/docs/v1/snippets/quickstart.sh"
 REQUIRE_LINE='composer require offline-agency/filament-spid:^1.0'
 
 step() { printf '\n==> %s\n' "$*"; }
@@ -60,7 +60,7 @@ fi
 composer require "filament/filament:^$FILAMENT.0" --no-interaction --quiet
 php artisan filament:install --panels --no-interaction >/dev/null
 
-step "Quickstart, as published in docs/snippets/quickstart.sh"
+step "Quickstart, as published in docs/v1/snippets/quickstart.sh"
 grep -qxF "$REQUIRE_LINE" "$QUICKSTART" || fail "the quickstart no longer contains: $REQUIRE_LINE"
 SCRIPT="$WORK/quickstart.sh"
 if [ "$PACKAGE_SOURCE" = archive ]; then

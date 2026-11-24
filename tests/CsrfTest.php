@@ -36,5 +36,5 @@ it('documents the ACS path the identity provider actually posts to', function ()
     $acsPath = ltrim(parse_url(route('spid-auth_acs'), PHP_URL_PATH), '/');
 
     expect($acsPath)->toBe(trim(config('spid-auth.routes_prefix'), '/').'/acs')
-        ->and(file_get_contents(__DIR__.'/../docs/installation.md'))->toContain("except: ['{$acsPath}']");
+        ->and(file_get_contents(__DIR__.'/../docs/v1/installation.md'))->toContain("except: ['{$acsPath}']");
 });

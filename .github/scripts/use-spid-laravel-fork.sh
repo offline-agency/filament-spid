@@ -8,7 +8,7 @@
 # Upstream merged it in https://github.com/italia/spid-laravel/pull/132 but has
 # not tagged it, and its master points the patch URL at a deleted branch.
 #
-# Resolve the same reviewed immutable source as docs/snippets/quickstart.sh.
+# Resolve the same reviewed immutable source as docs/v1/snippets/quickstart.sh.
 # The fork setup goes into a copy of composer.json named by $COMPOSER (the
 # workflows set COMPOSER=composer.ci.json), so the published manifest, which
 # the test suite checks, stays as consumers get it. Run from the package root

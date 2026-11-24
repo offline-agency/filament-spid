@@ -36,9 +36,9 @@ it('requires a package-tools release that supports Laravel 13', function () {
 it('allows the dev tooling of every supported Laravel major', function (string $package, string $constraint) {
     expect(composerManifest()['require-dev'][$package])->toBe($constraint);
 })->with([
-    ['pestphp/pest', '^3.0|^4.0'],
-    ['pestphp/pest-plugin-laravel', '^3.0|^4.0'],
-    ['pestphp/pest-plugin-arch', '^3.0|^4.0'],
+    ['pestphp/pest', '^3.0|^4.0|^5.0'],
+    ['pestphp/pest-plugin-laravel', '^3.0|^4.0|^5.0'],
+    ['pestphp/pest-plugin-arch', '^3.0|^4.0|^5.0'],
     ['nunomaduro/collision', '^8.0|^9.0'],
     ['orchestra/testbench', '^10.0|^11.0'],
     ['larastan/larastan', '^3.0'],

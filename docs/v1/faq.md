@@ -2,12 +2,14 @@
 
 **How do I add SPID login to a Filament panel?**
 Install `italia/spid-laravel` with its SPID patch and this plugin, then run
-`php artisan filament-spid:install --panel=<id>` ([quick start](../README.md#quick-start)).
+`php artisan filament-spid:install --panel=<id>` ([quick start](../../README.md#quick-start)).
 The plugin replaces the panel login page with the SPID button and signs the
 citizen in on the panel's guard.
 
 **Does it work with Filament 3, 4 and 5?**
-Yes, on Laravel 12 and 13 and PHP 8.3–8.5; every combination runs in CI.
+Yes, on Laravel 12 and 13 and PHP 8.3–8.6; every combination runs in CI except
+Laravel 12 on PHP 8.6, where Laravel 12 itself triggers a PHP 8.6 deprecation
+(`spl_object_hash()`): use Laravel 13 there.
 
 **Can existing users log in with SPID?**
 Yes, once their account has their fiscal code in `fiscal_code`: accounts are
@@ -53,6 +55,6 @@ commit ([events](authentication.md#events-and-transactions)).
 **Is stable 1.0.0 available on Packagist?**
 Yes. GitHub published stable 1.0.0 on 16 October 2026; Packagist separately
 lists 1.0.0 with matching source and dist references (checked 18 October 2026).
-Use the complete [quick start](../README.md#quick-start), including the pinned
+Use the complete [quick start](../../README.md#quick-start), including the pinned
 patched upstream fork tracked in [#16](https://github.com/offline-agency/filament-spid/issues/16).
 Publication does not remove that dependency or establish AgID acceptance.

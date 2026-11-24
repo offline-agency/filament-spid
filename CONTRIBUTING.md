@@ -35,11 +35,11 @@ published `composer.json`, so never commit the fork setup into it.
 - `bash .github/scripts/install-check.sh /tmp/install` installs the
   distributable archive of `HEAD` (`composer archive`, so `.gitattributes`
   applies; commit first) into a fresh Laravel app by the published quickstart
-  (`docs/snippets/quickstart.sh`, embedded verbatim in the README) and checks it
+  (`docs/v1/snippets/quickstart.sh`, embedded verbatim in the README) and checks it
   over HTTP. `LARAVEL=12 FILAMENT=3` picks the versions.
 - `bash tools/spid/validate.sh /tmp/spid-lab` adds the SPID lab on top
   (Docker): metadata, AuthnRequest and Responses with the pinned
-  `spid_sp_test`. See [docs/testing/agid.md](docs/testing/agid.md).
+  `spid_sp_test`. See [docs/v1/testing/agid.md](docs/v1/testing/agid.md).
 - `SPID_SP_TEST_BIN=$PWD/tools/spid/bin/spid_sp_test vendor/bin/pest tests/Integration`
   runs the real-tool integration tests (skipped without the variable).
 

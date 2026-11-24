@@ -15,5 +15,5 @@ filament-spid 1.0.0 signs citizens in to Filament panels with SPID, over SAML
   button.
 - PHP 8.3–8.5, Laravel 12–13, Filament 3–5.
 
-Upgrading from 0.1.x: see docs/upgrading.md. A community package maintained
+Upgrading from 0.1.x: see docs/v1/upgrading.md. A community package maintained
 by Offline Agency; it does not replace AgID's accreditation procedure.
