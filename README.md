@@ -39,7 +39,7 @@ Italiano: [guida in italiano](docs/v1/it/README.md).
 
 ## Requirements
 
-| | Supported (every combination tested in CI) |
+| | Supported (tested in CI; see the note on Laravel 12 and PHP 8.6) |
 |---|---|
 | PHP | 8.3, 8.4, 8.5, 8.6 |
 | Laravel | 12.x, 13.x |
@@ -51,11 +51,17 @@ Laravel 11 left security support on 12 March 2026 and PHP 8.2 leaves it on
 [PHP supported versions](https://www.php.net/supported-versions.php), checked
 on 11 October 2026), so neither is supported by 1.x.
 
+Laravel 12 on PHP 8.6 is the one combination CI does not run. Every
+`laravel/framework` 12.x release, including the head of the 12.x branch, still
+calls `spl_object_hash()`, which PHP 8.6 deprecates, and the test suite fails
+on deprecations. The plugin's own code raises none: on PHP 8.6 use Laravel 13,
+or stay on PHP 8.3 to 8.5 with Laravel 12 until Laravel 12 stops calling it.
+
 ### Compatibility
 
 | Version | PHP | Laravel | Filament |
 |---|---|---|---|
-| 1.1 (this release line) | ^8.3 (tested on 8.3, 8.4, 8.5, 8.6) | ^12.0 \| ^13.0 | ^3.0 \| ^4.0 \| ^5.0 |
+| 1.1 (this release line) | ^8.3 (CI: 8.3 to 8.5 on Laravel 12, 8.3 to 8.6 on Laravel 13) | ^12.0 \| ^13.0 | ^3.0 \| ^4.0 \| ^5.0 |
 | 1.0 | ^8.3 | ^12.0 \| ^13.0 | ^3.0 \| ^4.0 \| ^5.0 |
 | 0.1 (no longer maintained) | ^8.2 \| ^8.3 \| ^8.4 | ^11.0 \| ^12.0 | ^3.0 \| ^4.0 |
 

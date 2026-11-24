@@ -28,7 +28,7 @@ English: [README](../../../README.md).
 
 ## Requisiti
 
-| | Supportati (ogni combinazione testata in CI) |
+| | Supportati (testati in CI, tranne Laravel 12 su PHP 8.6) |
 |---|---|
 | PHP | 8.3, 8.4, 8.5, 8.6 |
 | Laravel | 12.x, 13.x |
@@ -38,6 +38,9 @@ English: [README](../../../README.md).
 Laravel 11 è fuori dal supporto di sicurezza dal 12 marzo 2026 e PHP 8.2 lo sarà
 dal 31 dicembre 2026 ([Laravel](https://laravel.com/docs/13.x/releases#support-policy),
 [PHP](https://www.php.net/supported-versions.php), verificato l'11 ottobre 2026).
+
+Laravel 12 su PHP 8.6 non è nella matrice di CI: Laravel 12 chiama ancora
+`spl_object_hash()`, deprecata da PHP 8.6. Su PHP 8.6 usa Laravel 13.
 
 ## Chi fa cosa
 

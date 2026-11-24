@@ -56,7 +56,7 @@ at a version users can install).
 > - `filament-spid:install` (guided, idempotent setup), `filament-spid:doctor`
 >   (read-only diagnostics) and `filament-spid:metadata:validate` (an adapter for
 >   AgID's spid_sp_test).
-> - Filament 3, 4 and 5 on Laravel 12 and 13, PHP 8.3–8.6.
+> - Filament 3, 4 and 5 on Laravel 12 and 13, PHP 8.3–8.6 (Laravel 12 up to PHP 8.5).
 >
 > Maintained independently by Offline Agency; not an official Filament or AgID
 > product. Accreditation to SPID, the service provider's data and keys, and

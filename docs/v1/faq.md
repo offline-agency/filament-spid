@@ -7,7 +7,9 @@ The plugin replaces the panel login page with the SPID button and signs the
 citizen in on the panel's guard.
 
 **Does it work with Filament 3, 4 and 5?**
-Yes, on Laravel 12 and 13 and PHP 8.3–8.6; every combination runs in CI.
+Yes, on Laravel 12 and 13 and PHP 8.3–8.6; every combination runs in CI except
+Laravel 12 on PHP 8.6, where Laravel 12 itself triggers a PHP 8.6 deprecation
+(`spl_object_hash()`): use Laravel 13 there.
 
 **Can existing users log in with SPID?**
 Yes, once their account has their fiscal code in `fiscal_code`: accounts are

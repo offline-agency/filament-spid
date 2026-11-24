@@ -16,7 +16,8 @@
 
 ## Before you start
 
-- A Laravel 12 or 13 application on PHP 8.3–8.6 with a Filament 3, 4 or 5
+- A Laravel 12 or 13 application on PHP 8.3–8.6 (Laravel 12 only up to PHP
+  8.5: Laravel 12 triggers a PHP 8.6 deprecation) with a Filament 3, 4 or 5
   panel. No panel yet: `php artisan filament:install --panels`.
 - HTTPS. SPID requires it, and `italia/spid-laravel` keeps the state of a
   login in `Secure; SameSite=None` cookies, which browsers do not send over

@@ -34,6 +34,12 @@ jobs:
         # Filament 3 and 4 run on Livewire 3, Filament 5 on Livewire 4.
         filament: [5.*, 4.*, 3.*]
         stability: [prefer-stable]
+        # Every laravel/framework 12.x still calls spl_object_hash(), which
+        # PHP 8.6 deprecates, and the suite fails on deprecations. Drop this
+        # once Laravel 12 stops calling it.
+        exclude:
+          - php: 8.6
+            laravel: 12.*
         include:
           - laravel: 13.*
             testbench: 11.*
@@ -123,7 +129,7 @@ jobs:
   # The distributable archive (composer archive: .gitattributes applies)
   # installed into a fresh Laravel app by the published quickstart. One leg per
   # integration path: Livewire 3 on Filament 3 and 4, Livewire 4 on Filament 5,
-  # Laravel 12 and 13. The 24-leg matrix above covers the rest.
+  # Laravel 12 and 13. The 21-leg matrix above covers the rest.
   install:
     runs-on: ubuntu-24.04
     timeout-minutes: 20

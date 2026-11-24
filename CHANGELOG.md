@@ -8,7 +8,9 @@ All notable changes to `filament-spid` will be documented in this file.
 
 - PHP 8.6 support: `php` stays `^8.3` and the tests, PHPStan and the install
   check now run on PHP 8.3, 8.4, 8.5 and 8.6 (Laravel 12 and 13, Filament 3, 4
-  and 5 unchanged).
+  and 5 unchanged). Laravel 12 on PHP 8.6 is left out of the test matrix:
+  `laravel/framework` 12.x still calls `spl_object_hash()`, deprecated in
+  PHP 8.6, and the suite fails on deprecations. Use Laravel 13 on PHP 8.6.
 - Pest 5 (and its Laravel and architecture plugins) is allowed for the dev
   tooling: Pest 3 and 4 depend on a `brianium/paratest` that does not allow
   PHP 8.6, and Pest 3 does not support Laravel 13. PHP 8.3 keeps resolving
