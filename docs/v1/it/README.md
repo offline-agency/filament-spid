@@ -9,11 +9,11 @@ aggiunge un installer, un comando di diagnostica e un adapter per il validatore
 dei metadata di AgID.
 
 Pacchetto della comunità mantenuto da [Offline Agency](https://offlineagency.it),
-con licenza [MIT](../../LICENSE.md). Non è un plugin ufficiale Filament né un
+con licenza [MIT](../../../LICENSE.md). Non è un plugin ufficiale Filament né un
 prodotto AgID, e installarlo non rende un servizio accreditato SPID: serve la
 procedura di AgID ([test con gli strumenti AgID](../testing/agid.md)).
 
-English: [README](../../README.md).
+English: [README](../../../README.md).
 
 ![La pagina di login SPID di un pannello Filament 5 con il menu degli IdP aperto (dati di test sintetici)](../images/login-light.png)
 
@@ -24,13 +24,13 @@ English: [README](../../README.md).
 > Seguire tutti i passaggi di installazione: serve ancora il fork corretto di
 > `italia/spid-laravel`, tracciato nella [issue #16](https://github.com/offline-agency/filament-spid/issues/16).
 > La presenza sul registro non dimostra la risoluzione delle dipendenze nella propria applicazione.
-> La serie 0.1.x non è più mantenuta ([SECURITY.md](../../SECURITY.md)).
+> La serie 0.1.x non è più mantenuta ([SECURITY.md](../../../SECURITY.md)).
 
 ## Requisiti
 
 | | Supportati (ogni combinazione testata in CI) |
 |---|---|
-| PHP | 8.3, 8.4, 8.5 |
+| PHP | 8.3, 8.4, 8.5, 8.6 |
 | Laravel | 12.x, 13.x |
 | Filament | 3.x, 4.x, 5.x |
 | Service Provider SPID | SP pubblici e privati; aggregatori e gestori non sono coperti |
@@ -123,6 +123,6 @@ caso decide `canAccessPanel()`.
 ## Sicurezza e supporto
 
 Le vulnerabilità vanno segnalate via email come indicato in
-[SECURITY.md](../../SECURITY.md), mai in una issue pubblica. Per domande e bug:
+[SECURITY.md](../../../SECURITY.md), mai in una issue pubblica. Per domande e bug:
 [issue su GitHub](https://github.com/offline-agency/filament-spid/issues) o
 support@offlineagency.it.

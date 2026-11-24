@@ -32,7 +32,7 @@ What it does:
 1. Builds the pinned `spid_sp_test` container (`tools/spid/Dockerfile.spid-sp-test`:
    Python 3.11 slim by digest, `xmlsec1`, `spid-sp-test==1.2.18` with every
    runtime dependency pinned in `tools/spid/constraints.txt`). It applies the
-   guarded lab-only [signing patch](../../tools/spid/patches/README.md), pins
+   guarded lab-only [signing patch](../../../tools/spid/patches/README.md), pins
    compatible wheel 0.45.1 and requires `python -m pip check`. The official
    version and separate local patch hash are recorded in evidence.
 2. Installs the **distributable archive** of the current commit into a fresh

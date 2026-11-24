@@ -44,13 +44,13 @@ it('embeds the tested quickstart in the README verbatim', function () {
     $readme = file_get_contents(docRoot().'/README.md');
     preg_match('/<!-- quickstart:begin[^>]*-->\n```bash\n(.*?)```\n<!-- quickstart:end -->/s', $readme, $match);
 
-    expect($match[1] ?? null)->toBe(file_get_contents(docRoot().'/docs/snippets/quickstart.sh'));
+    expect($match[1] ?? null)->toBe(file_get_contents(docRoot().'/docs/v1/snippets/quickstart.sh'));
 });
 
 it('gives the Italian guide the same quickstart commands', function () {
-    preg_match('/```bash\n(# Nella root.*?)```/s', file_get_contents(docRoot().'/docs/it/README.md'), $match);
+    preg_match('/```bash\n(# Nella root.*?)```/s', file_get_contents(docRoot().'/docs/v1/it/README.md'), $match);
 
-    expect(snippetCommands($match[1] ?? ''))->toBe(snippetCommands(file_get_contents(docRoot().'/docs/snippets/quickstart.sh')));
+    expect(snippetCommands($match[1] ?? ''))->toBe(snippetCommands(file_get_contents(docRoot().'/docs/v1/snippets/quickstart.sh')));
 });
 
 it('documents only commands and options that exist', function (string $command, array $options) {
@@ -86,7 +86,7 @@ it('never shows a canAccessPanel that lets everyone in', function (string $docum
 })->with(fn () => markdownDocuments());
 
 it('documents every filament-spid configuration key', function () {
-    $reference = file_get_contents(docRoot().'/docs/configuration.md');
+    $reference = file_get_contents(docRoot().'/docs/v1/configuration.md');
 
     foreach (array_keys(require docRoot().'/config/filament-spid.php') as $key) {
         expect($reference)->toContain("`{$key}");
@@ -95,7 +95,7 @@ it('documents every filament-spid configuration key', function () {
 
 it('puts in the .env example only variables the code reads', function () {
     $config = file_get_contents(docRoot().'/config/filament-spid.php');
-    preg_match_all('/^#?\s*([A-Z_]+)=/m', file_get_contents(docRoot().'/docs/snippets/env.example'), $variables);
+    preg_match_all('/^#?\s*([A-Z_]+)=/m', file_get_contents(docRoot().'/docs/v1/snippets/env.example'), $variables);
 
     foreach ($variables[1] as $variable) {
         if ($variable === 'SESSION_SECURE_COOKIE') {
@@ -141,6 +141,6 @@ it('does not claim SPID accreditation, certification or official status', functi
 
 it('ships the screenshots it shows', function () {
     foreach (['login-light.png', 'login-dark.png', 'login-mobile.png'] as $image) {
-        expect(getimagesize(docRoot().'/docs/images/'.$image))->not->toBeFalse();
+        expect(getimagesize(docRoot().'/docs/v1/images/'.$image))->not->toBeFalse();
     }
 });

@@ -6,7 +6,7 @@
  * ds:X509Certificate, before they use the IdP certificate the SP configured.
  * spid_sp_test 1.2.18 signs its positive Responses (tests 1, 31, 95, 96, 109,
  * 110) with `xmlsec1 --sign --privkey-pem <key>` and no certificate, which
- * leaves exactly that empty element. See docs/testing/evidence.md.
+ * leaves exactly that empty element. See docs/v1/testing/evidence.md.
  *
  * Usage (package root): php tools/spid/repro/empty-keyinfo-certificate.php
  * Exit 0 when the behaviour is reproduced, 1 when it is not.

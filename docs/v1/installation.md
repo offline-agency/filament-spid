@@ -1,6 +1,6 @@
 # Installation and configuration
 
-> Applies to stable filament-spid **1.0.0**, published on GitHub and listed on Packagist (verified 18 October 2026). The patched upstream fork is still required; see the complete [README quick start](../README.md#quick-start).
+> Applies to stable filament-spid **1.0.0**, published on GitHub and listed on Packagist (verified 18 October 2026). The patched upstream fork is still required; see the complete [README quick start](../../README.md#quick-start).
 > Italian: [installazione](it/installazione.md).
 
 1. [Before you start](#before-you-start)
@@ -16,7 +16,7 @@
 
 ## Before you start
 
-- A Laravel 12 or 13 application on PHP 8.3–8.5 with a Filament 3, 4 or 5
+- A Laravel 12 or 13 application on PHP 8.3–8.6 with a Filament 3, 4 or 5
   panel. No panel yet: `php artisan filament:install --panels`.
 - HTTPS. SPID requires it, and `italia/spid-laravel` keeps the state of a
   login in `Secure; SameSite=None` cookies, which browsers do not send over
@@ -32,7 +32,7 @@
 
 Run these in the application root **before** `composer require
 offline-agency/filament-spid` (they are steps 1 and 2 of the
-[quick start](../README.md#quick-start), which CI runs on a fresh application):
+[quick start](../../README.md#quick-start), which CI runs on a fresh application):
 
 ```bash
 composer config repositories.spid-laravel vcs https://github.com/offline-agency/spid-laravel
@@ -185,7 +185,7 @@ Then:
    the log then says `panel [admin] does not use the SPID login page`.
 3. Exempt the ACS from CSRF ([below](#csrf-and-the-acs)).
 4. Set `FILAMENT_SPID_PANEL` when the application has more than one panel.
-5. Implement `canAccessPanel()` ([README](../README.md#quick-start)).
+5. Implement `canAccessPanel()` ([README](../../README.md#quick-start)).
 
 A users table that is not Laravel's stock one: the migration adds
 `fiscal_code` (unique, nullable) and `spid_data` (JSON) only if they are

@@ -1,6 +1,6 @@
 # Upgrading from 0.1.x to 1.0
 
-0.1.x is no longer maintained and receives no fixes ([SECURITY.md](../SECURITY.md)).
+0.1.x is no longer maintained and receives no fixes ([SECURITY.md](../../SECURITY.md)).
 Its releases resolve `italia/spid-laravel` versions that pin `onelogin/php-saml`
 4.1.0 (CVE-2025-66475): staying on it is not a way around the dependency
 setup below.

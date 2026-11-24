@@ -5,7 +5,7 @@
 
 ## Prima di iniziare
 
-- Un'applicazione Laravel 12 o 13 su PHP 8.3–8.5 con un pannello Filament 3, 4
+- Un'applicazione Laravel 12 o 13 su PHP 8.3–8.6 con un pannello Filament 3, 4
   o 5 (`php artisan filament:install --panels` se manca).
 - HTTPS: SPID lo richiede, e `italia/spid-laravel` conserva lo stato del login
   in cookie `Secure; SameSite=None`, che il browser non invia su HTTP.
