@@ -2,7 +2,7 @@
 
 All notable changes to `filament-spid` will be documented in this file.
 
-## 1.1.0 - Unreleased
+## 1.1.0
 
 ### Added
 

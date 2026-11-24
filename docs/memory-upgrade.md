@@ -18,9 +18,14 @@
   - `italia/spid-laravel` stays the pinned `offline-agency/spid-laravel` fork
     (no upstream tag, issue #16); its `php` constraint `^8.2|^8.3` allows 8.6.
 - **Framework target:** Laravel 12 + 13, Filament 3 + 4 + 5 (unchanged).
-- **Version:** 1.0.0 -> 1.1.0 (MINOR: support added, nothing dropped). The repo
-  releases from PR labels (`release.yml`): the PR carries `release:minor`, the
-  workflow tags and creates the GitHub Release on merge.
+- **Version:** 1.0.0 -> 1.1.0 (MINOR: support added, nothing dropped).
+- **Release mechanism:** existing automation reused, no second workflow added.
+  `release.yml` tags and creates the GitHub Release when a PR is merged, with
+  the bump taken from the PR label; this PR carries `release:minor`. Notes come
+  from the `## 1.1.0` CHANGELOG section through `.github/scripts/release-notes.sh`
+  (dry run: `release-plan.sh` prints `next=1.1.0`, the notes are exactly that
+  section). The CHANGELOG heading has no date (the release date is the GitHub
+  Release date). Tags have no `v` prefix.
 - **Docs layout:** flat `docs/` -> `docs/v1/` (guides, `it/`, `snippets/`,
   `images/`, `testing/`), `docs/README.md` version index, `docs/v1/index.md`.
   `docs/publication/` and this file stay in the root of `docs/`. No
