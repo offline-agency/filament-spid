@@ -2,7 +2,25 @@
 
 All notable changes to `filament-spid` will be documented in this file.
 
-## Unreleased
+## 1.1.0 - Unreleased
+
+### Added
+
+- PHP 8.6 support: `php` stays `^8.3` and the tests, PHPStan and the install
+  check now run on PHP 8.3, 8.4, 8.5 and 8.6 (Laravel 12 and 13, Filament 3, 4
+  and 5 unchanged).
+- Pest 5 (and its Laravel and architecture plugins) is allowed for the dev
+  tooling: Pest 3 and 4 depend on a `brianium/paratest` that does not allow
+  PHP 8.6, and Pest 3 does not support Laravel 13. PHP 8.3 keeps resolving
+  Pest 4.
+- CI runs `composer validate --strict` on the published `composer.json`, and
+  `composer format:check` (Pint in check mode) is a script.
+- Documentation is split by major version: `docs/v1/` holds the 1.x guides
+  (moved from `docs/`) and `docs/README.md` lists the versions.
+- The README shows the release, PHP version, PHPStan and code style badges and
+  a compatibility table.
+
+### Changed
 
 - Reject SPID Responses missing the Response Issuer or the SubjectConfirmationData
   expiry. Retain the upstream signature, schema, timing and protocol checks.
